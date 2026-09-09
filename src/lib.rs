@@ -4,12 +4,14 @@ pub mod context;
 pub mod db;
 pub mod eval;
 pub mod extract;
+pub mod geo;
 pub mod llm;
 pub mod llm_enrich;
 pub mod matcher;
 pub mod mission;
 pub mod models;
 pub mod resolve;
+pub mod server;
 pub mod why;
 
 pub const USER_AGENT: &str = concat!(

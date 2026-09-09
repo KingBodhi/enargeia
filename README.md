@@ -53,6 +53,30 @@ exclusive relation types (`ceo_of`, `headquartered_in`, `acquired_by`, …) inva
 predecessor when a newer contradicting fact arrives — an older fact processed late is stored
 already superseded, so ingestion order never rewrites history.
 
+## Serve: API and globe
+
+```sh
+enargeia geo fetch && enargeia geo load && enargeia geo code   # GeoNames gazetteer (CC BY 4.0)
+enargeia serve --bind 127.0.0.1:8787 [--token <secret>]
+```
+
+`/` is a single-file CesiumJS globe: resolved entities with coordinates, a live CelesTrak
+satellite layer propagated with SGP4, search, the review queue, and the ask box. Everything
+it does goes through the JSON API under `/api` (`/api/entities`, `/api/entities/{id}`,
+`/api/entities/{id}/why`, `/api/edges`, `/api/candidates`, `/api/geo`,
+`/api/live/satellites`, `POST /api/ask`, `POST /api/candidates/{id}/decision`,
+`POST /api/decorrelate`). GET endpoints are open; endpoints that change the graph or call
+the LLM require `Authorization: Bearer <token>` when `--token`/`ENARGEIA_TOKEN` is set.
+
+## Missions
+
+```sh
+enargeia mission run missions/ai-ecosystem.toml    # → missions/ai-ecosystem/BRIEF.md + graph.json
+```
+
+A mission is a TOML file: sources, a scope statement, and questions. The brief answers each
+question from the graph with numbered source citations and appends what the graph knows.
+
 ## Configuration
 
 | Variable | Default | Purpose |
@@ -95,7 +119,9 @@ enargeia eval match      # regenerates eval/REPORT.md from eval/labels.jsonl
 2. ~~Multi-signal probabilistic matcher with a committed precision/recall report.~~ Done.
 3. ~~Bi-temporal edges (`valid_at` / `invalid_at`) with contradiction supersession and `ask --as-of`.~~ Done.
 4. ~~Reproducible decorrelation evaluation and a `why <entity>` provenance trace.~~ Done.
-5. HTTP API, geocoding, first live layer (CelesTrak), embedded globe.
+5. ~~HTTP API, geocoding, first live layer (CelesTrak), embedded globe.~~ Done.
+6. Next: more live layers (vessels, aircraft), a standing watch cadence with an alert channel,
+   scoped tokens for a second tenant, and larger local models for Tier 2.
 
 ## License
 

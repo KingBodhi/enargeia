@@ -7,7 +7,44 @@ use anyhow::Result;
 use serde_json::Value;
 use sqlx::SqlitePool;
 
-use crate::llm::{extract_json_object, LlmClient};
+use crate::{
+    llm::{extract_json_object, LlmClient},
+    matcher::{decide, score, Candidate, Decision, Weights},
+};
+
+/// An LLM-proposed mention is accepted only if it actually occurs in the source text.
+/// Small models invent entities ("an AI model by Anthropic") and relations between them;
+/// requiring the surface form to be present removes most of that without a second model.
+fn grounded(text_lower: &str, mention: &str) -> bool {
+    let m = mention.trim().to_lowercase();
+    m.len() >= 2 && text_lower.contains(&m)
+}
+
+/// A canonical name that is not a plausible variant of the mention (by the same matcher
+/// that governs every merge) is a hallucinated canonicalization; fall back to the mention.
+fn sane_canonical<'a>(
+    mention: &'a str,
+    canonical: &'a str,
+    entity_type: &str,
+    w: &Weights,
+) -> &'a str {
+    if mention.trim().eq_ignore_ascii_case(canonical.trim()) {
+        return canonical;
+    }
+    let cand = Candidate {
+        canonical,
+        aliases: &[],
+        entity_type,
+        cooc: 0.0,
+        corroboration: 0,
+        recent: false,
+    };
+    if decide(score(mention, Some(entity_type), &cand, w).total, w) == Decision::New {
+        mention
+    } else {
+        canonical
+    }
+}
 
 const SYSTEM_PROMPT: &str = "You extract real-world entities and their relations from a short \
 text passage. Respond with ONLY a JSON object, no prose, matching this shape exactly: \
@@ -134,6 +171,8 @@ pub struct EnrichStats {
     pub entities_updated: usize,
     pub edges_created: usize,
     pub errors: usize,
+    /// LLM-proposed mentions rejected because they do not occur in the source text.
+    pub ungrounded: usize,
 }
 
 /// Processes up to `batch_size` source items that have `needs_llm` candidates — one LLM call
@@ -190,12 +229,24 @@ pub async fn enrich_batch(
 
         let mut mention_to_entity: std::collections::HashMap<String, String> =
             std::collections::HashMap::new();
+        let text_lower = text.to_lowercase();
+        let weights = Weights::from_env();
 
         for llm_entity in &parsed.entities {
+            if !grounded(&text_lower, &llm_entity.mention) {
+                stats.ungrounded += 1;
+                continue;
+            }
+            let canonical = sane_canonical(
+                &llm_entity.mention,
+                &llm_entity.canonical_name,
+                &llm_entity.entity_type,
+                &weights,
+            );
             let eid = crate::resolve::upsert_resolved_entity(
                 pool,
                 &llm_entity.mention,
-                &llm_entity.canonical_name,
+                canonical,
                 &llm_entity.entity_type,
                 llm_entity.confidence,
             )
@@ -255,6 +306,23 @@ mod tests {
         assert_eq!(x.relations.len(), 2);
         assert_eq!(x.relations[0].relation_type, "talks_with");
         assert_eq!(x.relations[1].relation_type, "hosted_talks_with");
+    }
+
+    #[test]
+    fn grounding_rejects_invented_mentions_and_canonicals() {
+        let text =
+            "openai said its new model beats rivals, the company told reporters.".to_string();
+        assert!(grounded(&text, "OpenAI"));
+        assert!(!grounded(&text, "an AI model by Anthropic"));
+        let w = Weights::default();
+        assert_eq!(
+            sane_canonical("OpenAI", "OpenAI, Inc.", "organization", &w),
+            "OpenAI, Inc."
+        );
+        assert_eq!(
+            sane_canonical("Recorded Future", "OpenAI", "organization", &w),
+            "Recorded Future"
+        );
     }
 
     #[test]

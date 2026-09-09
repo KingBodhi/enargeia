@@ -36,6 +36,10 @@ gline-rs = "1.1.0"
 orp = "1.0.0"
 rphonetic = "4"
 toml = "0.8"
+axum = "0.8"
+tower-http = { version = "0.7", features = ["cors"] }
+zip = { version = "4", default-features = false, features = ["deflate"] }
+sgp4 = { version = "2", features = ["serde"] }
 
 [lints.clippy]
 print_stdout = "allow"

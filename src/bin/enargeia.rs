@@ -97,6 +97,35 @@ enum Command {
         #[command(subcommand)]
         action: MissionAction,
     },
+    /// Serve the HTTP API and the globe UI.
+    Serve {
+        #[arg(long, env = "ENARGEIA_BIND", default_value = "127.0.0.1:8787")]
+        bind: String,
+        /// Bearer token required for endpoints that change the graph or call the LLM.
+        #[arg(long, env = "ENARGEIA_TOKEN")]
+        token: Option<String>,
+    },
+    /// Geocoding: fetch/load the GeoNames gazetteer and geocode location entities.
+    Geo {
+        #[command(subcommand)]
+        action: GeoAction,
+    },
+}
+
+#[derive(Subcommand)]
+enum GeoAction {
+    /// Download the GeoNames cities15000 + countryInfo files (CC BY 4.0).
+    Fetch,
+    /// Load the downloaded gazetteer into the database.
+    Load,
+    /// Geocode live location-type entities that have no coordinates yet.
+    Code {
+        /// Re-geocode every location entity, not only the missing ones.
+        #[arg(long)]
+        all: bool,
+    },
+    /// Gazetteer and geocoding counts.
+    Status,
 }
 
 #[derive(Subcommand)]
@@ -390,6 +419,32 @@ async fn main() -> Result<()> {
                 report.brief_path.display(),
                 report.graph_path.display()
             );
+        }
+        Command::Serve { bind, token } => {
+            enargeia::server::serve(pool, &bind, token).await?;
+        }
+        Command::Geo { action } => {
+            let dir = enargeia::geo::gazetteer_dir();
+            match action {
+                GeoAction::Fetch => {
+                    enargeia::geo::fetch_gazetteer(&dir).await?;
+                }
+                GeoAction::Load => {
+                    let (p, n, c) = enargeia::geo::load_gazetteer(&pool, &dir).await?;
+                    println!("loaded {p} places, {n} lookup names, {c} countries");
+                }
+                GeoAction::Code { all } => {
+                    let s = enargeia::geo::geocode_entities(&pool, all).await?;
+                    println!(
+                        "geocoded {} of {} location entities",
+                        s.geocoded, s.considered
+                    );
+                }
+                GeoAction::Status => {
+                    let (p, c, g) = enargeia::geo::status(&pool).await?;
+                    println!("gazetteer: {p} places, {c} countries · geocoded entities: {g}");
+                }
+            }
         }
         Command::Reindex => {
             let n = enargeia::block::reindex_all(&pool).await?;

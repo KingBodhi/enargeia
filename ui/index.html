@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Enargeia</title>
+<script src="https://cesium.com/downloads/cesiumjs/releases/1.131/Build/Cesium/Cesium.js"></script>
+<link href="https://cesium.com/downloads/cesiumjs/releases/1.131/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+<style>
+  :root { --bg:#0b0e13; --panel:#11161e; --line:#232c3a; --text:#d6dde8; --muted:#8a97ab; --accent:#f2b544; --accent2:#4fc3f7; --ok:#55d68a; --bad:#ff6b6b; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--text); font:13px/1.45 Inter, system-ui, sans-serif; }
+  #app { display:grid; grid-template-columns: 220px 1fr 360px; height:100vh; }
+  .pane { background:var(--panel); border-right:1px solid var(--line); padding:12px; overflow:auto; }
+  .pane:last-child { border-right:0; border-left:1px solid var(--line); }
+  h1 { font-size:15px; margin:0 0 10px; letter-spacing:.02em; }
+  .ph { color:var(--muted); font:10px/1 ui-monospace, monospace; text-transform:uppercase; letter-spacing:.12em; margin:14px 0 6px; }
+  .row { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 8px; border:1px solid var(--line); border-radius:6px; margin:5px 0; background:#0f141b; }
+  .row.clickable { cursor:pointer; }
+  .row.clickable:hover { border-color:var(--accent2); }
+  .chip { font:10px ui-monospace, monospace; padding:1px 6px; border-radius:999px; border:1px solid #2f3a4a; color:var(--muted); }
+  .chip.on { border-color:var(--accent); color:var(--accent); }
+  .chip.ok { border-color:var(--ok); color:var(--ok); }
+  .chip.bad { border-color:var(--bad); color:var(--bad); }
+  #globe { position:relative; }
+  #cesium { position:absolute; inset:0; }
+  .hud { position:absolute; left:10px; bottom:10px; font:10px ui-monospace, monospace; color:var(--muted); background:#0b1119cc; padding:4px 8px; border-radius:6px; border:1px solid var(--line); }
+  input, textarea, button { font:inherit; }
+  input[type=text], textarea { width:100%; box-sizing:border-box; background:#0b1119; color:var(--text); border:1px solid var(--line); border-radius:6px; padding:7px; }
+  button { background:#151c26; color:var(--text); border:1px solid #3a4656; border-radius:6px; padding:6px 10px; cursor:pointer; }
+  button.p { border-color:var(--accent); color:var(--accent); }
+  button.d { border-color:var(--bad); color:var(--bad); }
+  pre { white-space:pre-wrap; font:11px ui-monospace, monospace; background:#0b1119; border:1px solid var(--line); border-radius:6px; padding:8px; margin:6px 0; }
+  .answer { white-space:pre-wrap; background:#0b1119; border:1px solid var(--line); border-radius:6px; padding:8px; }
+  .muted { color:var(--muted); }
+  a { color:var(--accent2); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="pane">
+    <h1>Enargeia</h1>
+    <div class="ph">Layers</div>
+    <div class="row"><span>Resolved entities</span><input type="checkbox" id="layer-entities" checked></div>
+    <div class="row"><span>Satellites (CelesTrak)</span><input type="checkbox" id="layer-sats" checked></div>
+    <div class="row"><span>group</span><select id="sat-group"><option value="active">active</option><option value="stations">stations</option><option value="starlink">starlink</option><option value="gps-ops">gps-ops</option><option value="weather">weather</option></select></div>
+    <div class="ph">Status</div>
+    <div id="status" class="muted">loading…</div>
+    <div class="ph">Search</div>
+    <input type="text" id="search" placeholder="entity name…">
+    <div id="results"></div>
+    <div class="ph">Review queue</div>
+    <div id="review"></div>
+    <div class="ph">Token (for ask / decisions)</div>
+    <input type="text" id="token" placeholder="ENARGEIA_TOKEN if set">
+    <div class="muted" style="margin-top:8px">GeoNames data © CC BY 4.0 · orbital elements: CelesTrak</div>
+  </div>
+  <div id="globe"><div id="cesium"></div><div class="hud" id="hud">initializing globe…</div></div>
+  <div class="pane">
+    <div class="ph">Ask the graph</div>
+    <textarea id="question" rows="3" placeholder="Which organizations are suing OpenAI?"></textarea>
+    <div style="display:flex; gap:6px; margin:6px 0"><input type="text" id="asof" placeholder="as of (YYYY-MM-DD, optional)"><button class="p" id="ask">ask</button></div>
+    <div id="answer" class="answer muted">Answers come only from the resolved graph, with numbered sources.</div>
+    <div class="ph">Entity</div>
+    <div id="entity" class="muted">Click a point or a search result.</div>
+  </div>
+</div>
+<script>
+const api = (p, opt) => fetch(p, opt).then(r => r.ok ? r.json() : r.text().then(t => { throw new Error(t || r.statusText); }));
+const $ = id => document.getElementById(id);
+const tokenHeaders = () => { const t = $('token').value.trim(); return t ? { 'Authorization': 'Bearer ' + t } : {}; };
+try { $('token').value = localStorage.getItem('enargeia_token') || ''; } catch (e) {}
+$('token').addEventListener('change', () => { try { localStorage.setItem('enargeia_token', $('token').value); } catch (e) {} });
+
+Cesium.Ion.defaultAccessToken = '';
+const viewer = new Cesium.Viewer('cesium', {
+  baseLayer: Cesium.ImageryLayer.fromProviderAsync(Cesium.TileMapServiceImageryProvider.fromUrl(Cesium.buildModuleUrl('Assets/Textures/NaturalEarthII'))),
+  terrainProvider: new Cesium.EllipsoidTerrainProvider(),
+  baseLayerPicker: false, geocoder: false, animation: false, timeline: false, homeButton: false,
+  sceneModePicker: false, navigationHelpButton: false, infoBox: false, selectionIndicator: false,
+});
+viewer.scene.globe.enableLighting = false;
+viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#0b0e13');
+const entityLayer = new Cesium.CustomDataSource('entities');
+const satLayer = new Cesium.CustomDataSource('satellites');
+viewer.dataSources.add(entityLayer); viewer.dataSources.add(satLayer);
+
+const typeColor = t => ({ organization: '#f2b544', person: '#ff8a65', location: '#4fc3f7', event: '#ba68c8', product: '#81c784' })[t] || '#cfd8e6';
+
+async function loadStatus() {
+  try {
+    const s = await api('/api/status');
+    $('status').innerHTML = `${s.live_entities} live entities · ${s.valid_edges} valid edges<br>${s.source_items} sources · ${s.geocoded} geocoded<br>review: <span class="chip ${s.pending_review ? 'bad' : 'ok'}">${s.pending_review}</span>`;
+  } catch (e) { $('status').textContent = 'status unavailable: ' + e.message; }
+}
+
+async function loadEntities() {
+  entityLayer.entities.removeAll();
+  if (!$('layer-entities').checked) return;
+  const fc = await api('/api/geo');
+  for (const f of fc.features) {
+    const [lon, lat] = f.geometry.coordinates; const p = f.properties;
+    entityLayer.entities.add({
+      id: 'e:' + p.id, position: Cesium.Cartesian3.fromDegrees(lon, lat),
+      point: { pixelSize: 7, color: Cesium.Color.fromCssColorString(typeColor(p.entity_type)), outlineColor: Cesium.Color.BLACK, outlineWidth: 1 },
+      label: { text: p.name, font: '11px sans-serif', fillColor: Cesium.Color.fromCssColorString('#d6dde8'), pixelOffset: new Cesium.Cartesian2(0, -14), scaleByDistance: new Cesium.NearFarScalar(1e6, 1.0, 1.5e7, 0.0) },
+      properties: { kind: 'entity', id: p.id },
+    });
+  }
+  $('hud').textContent = `${fc.features.length} geocoded entities`;
+}
+
+async function loadSats() {
+  satLayer.entities.removeAll();
+  if (!$('layer-sats').checked) return;
+  const group = $('sat-group').value;
+  try {
+    const fc = await api(`/api/live/satellites?group=${encodeURIComponent(group)}&limit=4000`);
+    for (const f of fc.features) {
+      const [lon, lat, alt] = f.geometry.coordinates;
+      satLayer.entities.add({
+        id: 's:' + f.properties.norad, position: Cesium.Cartesian3.fromDegrees(lon, lat, alt),
+        point: { pixelSize: 2.5, color: Cesium.Color.fromCssColorString('#4fc3f7') },
+        properties: { kind: 'sat', name: f.properties.name, alt: f.properties.alt_km },
+      });
+    }
+    $('hud').textContent += ` · ${fc.features.length} ${group} satellites @ ${fc.properties.at.slice(11, 19)}Z`;
+  } catch (e) { $('hud').textContent += ' · satellites unavailable: ' + e.message.slice(0, 80); }
+}
+
+function edgeLine(e, selfId) {
+  const other = e.from === selfId ? (e.to_name || e.to) : (e.from_name || e.from);
+  const arrow = e.from === selfId ? '→' : '←';
+  const since = e.valid_at ? ` <span class="muted">since ${e.valid_at.slice(0, 10)}</span>` : '';
+  return `<div class="row"><span>${arrow} ${other} <span class="chip">${e.edge_type}</span>${since}</span><span class="chip">${e.sources.length} src</span></div>`;
+}
+
+async function showEntity(id) {
+  const box = $('entity');
+  box.innerHTML = '<span class="muted">loading…</span>';
+  try {
+    const e = await api('/api/entities/' + encodeURIComponent(id));
+    const aliases = e.aliases.length ? ` <span class="muted">aka ${e.aliases.join(', ')}</span>` : '';
+    const geo = e.geo ? `<div class="muted">${e.geo.place || ''} (${e.geo.lat.toFixed(2)}, ${e.geo.lon.toFixed(2)}) · geo conf ${e.geo.confidence}</div>` : '';
+    box.innerHTML = `<div style="font-size:15px;font-weight:600">${e.name}</div><div class="muted">${e.entity_type} · confidence ${e.confidence.toFixed(2)} · <span class="chip ${e.is_live ? 'ok' : ''}">${e.is_live ? 'live' : 'stale'}</span>${aliases}</div>${geo}
+      <div class="ph">Relations (valid now)</div>${e.edges.slice(0, 40).map(x => edgeLine(x, e.id)).join('') || '<span class="muted">none</span>'}
+      <div style="margin-top:8px"><button id="why">why?</button> <button id="askabout">ask about</button></div><pre id="whybox" style="display:none"></pre>`;
+    $('why').onclick = async () => { const w = await fetch('/api/entities/' + encodeURIComponent(e.id) + '/why').then(r => r.text()); $('whybox').style.display = 'block'; $('whybox').textContent = w; };
+    $('askabout').onclick = () => { $('question').value = `What do the sources say about ${e.name}, and who is it connected to?`; $('ask').click(); };
+    if (e.geo) viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(e.geo.lon, e.geo.lat, 2.5e6) });
+  } catch (err) { box.innerHTML = '<span class="muted">' + err.message + '</span>'; }
+}
+
+async function loadReview() {
+  try {
+    const r = await api('/api/candidates?status=pending_review&limit=6');
+    $('review').innerHTML = r.candidates.map(c => `<div class="row" style="flex-direction:column;align-items:stretch">
+      <div>"${c.mention}" → <b>${c.candidate || '—'}</b> <span class="chip">${(c.score || 0).toFixed(1)}</span></div>
+      <div style="margin-top:4px"><button class="p" data-id="${c.id}" data-d="confirm">confirm</button> <button class="d" data-id="${c.id}" data-d="reject">reject</button> <button data-id="${c.id}" data-d="new">new</button></div></div>`).join('') || '<span class="muted">nothing pending</span>';
+    $('review').querySelectorAll('button').forEach(b => b.onclick = async () => {
+      try { await api('/api/candidates/' + b.dataset.id + '/decision', { method: 'POST', headers: { 'Content-Type': 'application/json', ...tokenHeaders() }, body: JSON.stringify({ decision: b.dataset.d, actor: 'globe' }) }); loadReview(); loadStatus(); }
+      catch (e) { alert(e.message); }
+    });
+  } catch (e) { $('review').textContent = e.message; }
+}
+
+let searchTimer;
+$('search').addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(async () => {
+    const q = $('search').value.trim(); if (!q) { $('results').innerHTML = ''; return; }
+    const r = await api('/api/entities?q=' + encodeURIComponent(q) + '&limit=8');
+    $('results').innerHTML = r.entities.map(e => `<div class="row clickable" data-id="${e.id}"><span>${e.name}</span><span class="chip">${e.entity_type}</span></div>`).join('');
+    $('results').querySelectorAll('.row').forEach(el => el.onclick = () => showEntity(el.dataset.id));
+  }, 250);
+});
+
+$('ask').onclick = async () => {
+  const question = $('question').value.trim(); if (!question) return;
+  $('answer').textContent = 'thinking…';
+  try {
+    const body = { question }; const asof = $('asof').value.trim(); if (asof) body.as_of = asof.length === 10 ? asof + 'T23:59:59+00:00' : asof;
+    const r = await api('/api/ask', { method: 'POST', headers: { 'Content-Type': 'application/json', ...tokenHeaders() }, body: JSON.stringify(body) });
+    $('answer').textContent = r.answer;
+  } catch (e) { $('answer').textContent = 'error: ' + e.message; }
+};
+
+const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+handler.setInputAction(click => {
+  const picked = viewer.scene.pick(click.position);
+  const ent = picked && picked.id;
+  if (!ent || !ent.properties) return;
+  const kind = ent.properties.kind && ent.properties.kind.getValue();
+  if (kind === 'entity') showEntity(ent.properties.id.getValue());
+  else if (kind === 'sat') $('entity').innerHTML = `<div style="font-size:15px;font-weight:600">${ent.properties.name.getValue()}</div><div class="muted">satellite · ${ent.properties.alt.getValue().toFixed(0)} km · CelesTrak</div>`;
+}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+$('layer-entities').onchange = loadEntities;
+$('layer-sats').onchange = loadSats;
+$('sat-group').onchange = loadSats;
+loadStatus(); loadEntities().then(loadSats); loadReview();
+setInterval(loadSats, 30000);
+setInterval(loadStatus, 60000);
+</script>
+</body>
+</html>
