@@ -12,6 +12,7 @@ pub mod mission;
 pub mod models;
 pub mod resolve;
 pub mod server;
+pub mod watch;
 pub mod why;
 
 pub const USER_AGENT: &str = concat!(

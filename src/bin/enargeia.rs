@@ -110,6 +110,28 @@ enum Command {
         #[command(subcommand)]
         action: GeoAction,
     },
+    /// Standing watch: ingest a mission's sources on a cadence, resolve, enrich a bounded
+    /// number of items, write a digest, and escalate only what warrants it.
+    Watch {
+        /// Mission file whose sources to poll (omit to only re-resolve what is already ingested).
+        #[arg(long)]
+        mission: Option<String>,
+        #[arg(long, default_value = "3600")]
+        interval_secs: u64,
+        #[arg(long, default_value = "40")]
+        enrich_limit: usize,
+        /// Run one cycle and exit.
+        #[arg(long)]
+        once: bool,
+        /// Also poll a USGS feed (e.g. 2.5_day) for major and non-seismic events.
+        #[arg(long)]
+        quakes: Option<String>,
+        #[arg(long, default_value = "watch")]
+        out: String,
+        /// Generic JSON webhook that receives a digest only when there are escalations.
+        #[arg(long, env = "ENARGEIA_ALERT_WEBHOOK")]
+        webhook: Option<String>,
+    },
 }
 
 #[derive(Subcommand)]
@@ -419,6 +441,29 @@ async fn main() -> Result<()> {
                 report.brief_path.display(),
                 report.graph_path.display()
             );
+        }
+        Command::Watch {
+            mission,
+            interval_secs,
+            enrich_limit,
+            once,
+            quakes,
+            out,
+            webhook,
+        } => {
+            let m = match mission {
+                Some(path) => Some(enargeia::mission::load(std::path::Path::new(&path))?),
+                None => None,
+            };
+            let opts = enargeia::watch::WatchOptions {
+                interval: std::time::Duration::from_secs(interval_secs),
+                enrich_limit,
+                once,
+                quakes,
+                out_dir: std::path::PathBuf::from(out),
+                webhook,
+            };
+            enargeia::watch::run(&pool, m.as_ref(), &opts).await?;
         }
         Command::Serve { bind, token } => {
             enargeia::server::serve(pool, &bind, token).await?;

@@ -9,7 +9,33 @@ use serde_json::{json, Value};
 pub const DEFAULT_GROUP: &str = "active";
 const EARTH_RADIUS_KM: f64 = 6371.0;
 
-pub async fn fetch_group(group: &str) -> Result<Vec<sgp4::Elements>> {
+/// CelesTrak blocks clients that re-request the same group within ~2 hours, so element sets
+/// are refreshed at most every `CACHE_TTL` and persisted to disk: a process restart must not
+/// cost a fetch, and an outage or block falls back to the last good copy (SGP4 stays usable
+/// for days on old elements).
+pub const CACHE_TTL: std::time::Duration = std::time::Duration::from_secs(4 * 3600);
+
+pub fn cache_dir() -> std::path::PathBuf {
+    std::env::var("ENARGEIA_CELESTRAK_DIR")
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(|_| std::path::PathBuf::from("data/celestrak"))
+}
+
+fn cache_path(group: &str) -> std::path::PathBuf {
+    cache_dir().join(format!("{group}.json"))
+}
+
+/// Returns the cached element set and its age if a copy exists on disk.
+pub fn read_cached(group: &str) -> Option<(Vec<sgp4::Elements>, std::time::Duration)> {
+    let path = cache_path(group);
+    let meta = std::fs::metadata(&path).ok()?;
+    let age = meta.modified().ok()?.elapsed().unwrap_or_default();
+    let text = std::fs::read_to_string(&path).ok()?;
+    let elements: Vec<sgp4::Elements> = serde_json::from_str(&text).ok()?;
+    Some((elements, age))
+}
+
+async fn fetch_group_remote(group: &str) -> Result<Vec<sgp4::Elements>> {
     let client = reqwest::Client::builder()
         .user_agent(crate::USER_AGENT)
         .build()?;
@@ -24,7 +50,35 @@ pub async fn fetch_group(group: &str) -> Result<Vec<sgp4::Elements>> {
         .await?;
     let elements: Vec<sgp4::Elements> = serde_json::from_str(&text)
         .with_context(|| format!("CelesTrak returned non-OMM JSON for group {group:?}"))?;
+    let dir = cache_dir();
+    if std::fs::create_dir_all(&dir).is_ok() {
+        if let Err(e) = std::fs::write(cache_path(group), &text) {
+            tracing::warn!(error = %e, "could not persist CelesTrak cache");
+        }
+    }
     Ok(elements)
+}
+
+/// Fresh-enough disk copy → no network. Otherwise fetch; if the fetch fails and any disk copy
+/// exists, use it and log the failure rather than dropping the layer.
+pub async fn fetch_group(group: &str) -> Result<Vec<sgp4::Elements>> {
+    check_group(group)?;
+    let cached = read_cached(group);
+    if let Some((elements, age)) = &cached {
+        if *age < CACHE_TTL {
+            return Ok(elements.clone());
+        }
+    }
+    match fetch_group_remote(group).await {
+        Ok(elements) => Ok(elements),
+        Err(e) => match cached {
+            Some((elements, age)) => {
+                tracing::warn!(error = %e, age_hours = age.as_secs() / 3600, "CelesTrak fetch failed; serving cached elements");
+                Ok(elements)
+            }
+            None => Err(e),
+        },
+    }
 }
 
 #[derive(Debug, Clone)]

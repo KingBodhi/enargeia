@@ -86,6 +86,35 @@ struct ExportEdge {
     sources: Vec<String>,
 }
 
+/// Fetches every source the mission lists and stores new items. Returns the count of new items.
+pub async fn ingest_sources(pool: &SqlitePool, mission: &Mission) -> Result<usize> {
+    let mut adapters: Vec<Box<dyn SourceAdapter>> = Vec::new();
+    if !mission.rss.is_empty() {
+        adapters.push(Box::new(RssAdapter::new(mission.rss.clone())));
+    }
+    if !mission.gdelt.is_empty() {
+        adapters.push(Box::new(GdeltAdapter::new(mission.gdelt.clone())));
+    }
+    let mut total = 0;
+    for adapter in &adapters {
+        let items = adapter.fetch().await?;
+        let mut new_here = 0;
+        for item in &items {
+            if resolve::ingest_item(pool, item).await?.is_some() {
+                new_here += 1;
+            }
+        }
+        println!(
+            "[{}] fetched {} items, {} new",
+            adapter.name(),
+            items.len(),
+            new_here
+        );
+        total += new_here;
+    }
+    Ok(total)
+}
+
 pub async fn run(pool: &SqlitePool, mission: &Mission, opts: &RunOptions) -> Result<MissionReport> {
     let mut report = MissionReport::default();
     let out_dir = opts
@@ -95,29 +124,7 @@ pub async fn run(pool: &SqlitePool, mission: &Mission, opts: &RunOptions) -> Res
     std::fs::create_dir_all(&out_dir)?;
 
     if !opts.skip_ingest {
-        let mut adapters: Vec<Box<dyn SourceAdapter>> = Vec::new();
-        if !mission.rss.is_empty() {
-            adapters.push(Box::new(RssAdapter::new(mission.rss.clone())));
-        }
-        if !mission.gdelt.is_empty() {
-            adapters.push(Box::new(GdeltAdapter::new(mission.gdelt.clone())));
-        }
-        for adapter in &adapters {
-            let items = adapter.fetch().await?;
-            let mut new_here = 0;
-            for item in &items {
-                if resolve::ingest_item(pool, item).await?.is_some() {
-                    new_here += 1;
-                }
-            }
-            println!(
-                "[{}] fetched {} items, {} new",
-                adapter.name(),
-                items.len(),
-                new_here
-            );
-            report.new_items += new_here;
-        }
+        report.new_items = ingest_sources(pool, mission).await?;
     }
 
     let stats = resolve::resolve_pending(pool, 100_000).await?;

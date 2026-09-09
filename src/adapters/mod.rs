@@ -3,6 +3,7 @@ pub mod celestrak;
 pub mod gdelt;
 pub mod pulse_reader;
 pub mod rss;
+pub mod usgs;
 
 use anyhow::Result;
 use async_trait::async_trait;

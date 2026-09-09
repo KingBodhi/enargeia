@@ -23,14 +23,17 @@ ingested it — never assumed. This file is the human-readable side of that fiel
 |---|---|---|
 | [CelesTrak](https://celestrak.org/) | `commercial_clean` | General-perturbation element sets (OMM JSON), propagated locally with SGP4 for the satellite layer. Element sets are cached for hours per group, per CelesTrak's request. Data © CelesTrak. |
 | [GeoNames](https://www.geonames.org/) | `commercial_clean` | `cities15000` and `countryInfo` under CC BY 4.0 — "This work is licensed under a Creative Commons Attribution 4.0 License; data © GeoNames." Used only for geocoding location entities. |
+| [USGS Earthquake Hazards Program](https://earthquake.usgs.gov/) | `commercial_clean` | GeoJSON summary feeds; US Government work, public domain. No key. Event `type` distinguishes earthquakes from explosions and quarry/mining blasts. |
 
-## Planned adapters (documented here before they land)
+## Sources that need a key you register for (not yet wired)
 
-| Source | Expected class | Notes |
+| Source | Class | What to do |
 |---|---|---|
-| [VesselAPI](https://vesselapi.com/) | `commercial_clean` | Free tier; per their terms. |
-| [FlightAware AeroAPI](https://www.flightaware.com/commercial/aeroapi/) | `commercial_clean` (paid) | Metered commercial API. |
-| Space-Track.org | `commercial_clean` with a caveat | Redistribution of derived analysis to third parties requires approval. |
+| [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) | `commercial_clean` | Request a free MAP_KEY (email registration). Thermal anomalies; gas flares are persistent false positives. |
+| [VesselAPI](https://vesselapi.com/) | `commercial_clean` (free tier) | Register at dashboard.vesselapi.com, generate a key; `Authorization: Bearer <key>`. |
+| [FlightAware AeroAPI](https://www.flightaware.com/commercial/aeroapi/) | `commercial_clean` (metered) | Create an account; usage-based pricing from ~$0.002/query. |
+
+| Space-Track.org | `commercial_clean` with a caveat | Free account; redistribution of derived analysis to third parties requires approval. |
 
 Sources deliberately **not** supported because their terms prohibit competitive/commercial
 products: ACLED, GTD, Cloudflare Radar, Global Fishing Watch, AISHub, OpenSky (without a

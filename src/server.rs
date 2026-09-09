@@ -20,14 +20,13 @@ use tokio::sync::Mutex;
 use tower_http::cors::CorsLayer;
 
 use crate::{
-    adapters::celestrak,
+    adapters::{celestrak, usgs},
     block, context, geo, llm,
     matcher::Weights,
     models::{WmEdge, WmEntity},
     resolve, why,
 };
 
-const SAT_CACHE_TTL: Duration = Duration::from_secs(4 * 3600);
 const UI_HTML: &str = include_str!("../ui/index.html");
 
 struct SatCache {
@@ -36,10 +35,19 @@ struct SatCache {
     elements: Vec<sgp4::Elements>,
 }
 
+struct QuakeCache {
+    feed: String,
+    fetched_at: std::time::Instant,
+    events: Vec<usgs::QuakeEvent>,
+}
+
+const QUAKE_CACHE_TTL: Duration = Duration::from_secs(5 * 60);
+
 pub struct AppState {
     pool: SqlitePool,
     token: Option<String>,
     sats: Mutex<Option<SatCache>>,
+    quakes: Mutex<Option<QuakeCache>>,
 }
 
 type Shared = Arc<AppState>;
@@ -402,7 +410,7 @@ async fn satellites(
 
     let mut cache = state.sats.lock().await;
     let stale = match cache.as_ref() {
-        Some(c) => c.group != group || c.fetched_at.elapsed() > SAT_CACHE_TTL,
+        Some(c) => c.group != group || c.fetched_at.elapsed() > celestrak::CACHE_TTL,
         None => true,
     };
     if stale {
@@ -426,6 +434,34 @@ async fn weights() -> Json<Value> {
     Json(serde_json::to_value(Weights::from_env()).unwrap_or(Value::Null))
 }
 
+async fn quakes(
+    State(state): State<Shared>,
+    Query(q): Query<HashMap<String, String>>,
+) -> ApiResult {
+    let feed = q
+        .get("feed")
+        .cloned()
+        .unwrap_or_else(|| usgs::DEFAULT_FEED.to_string());
+    usgs::check_feed(&feed).map_err(|e| err(StatusCode::BAD_REQUEST, e))?;
+    let mut cache = state.quakes.lock().await;
+    let stale = match cache.as_ref() {
+        Some(c) => c.feed != feed || c.fetched_at.elapsed() > QUAKE_CACHE_TTL,
+        None => true,
+    };
+    if stale {
+        let events = usgs::fetch(&feed)
+            .await
+            .map_err(|e| err(StatusCode::BAD_GATEWAY, e))?;
+        *cache = Some(QuakeCache {
+            feed: feed.clone(),
+            fetched_at: std::time::Instant::now(),
+            events,
+        });
+    }
+    let c = cache.as_ref().unwrap();
+    Ok(Json(usgs::to_geojson(&c.events, &feed, chrono::Utc::now())))
+}
+
 pub fn router(state: Shared) -> Router {
     Router::new()
         .route("/", get(index))
@@ -442,6 +478,7 @@ pub fn router(state: Shared) -> Router {
         .route("/api/ask", post(ask))
         .route("/api/geo", get(geo_features))
         .route("/api/live/satellites", get(satellites))
+        .route("/api/live/quakes", get(quakes))
         .layer(CorsLayer::permissive())
         .with_state(state)
 }
@@ -451,6 +488,7 @@ pub async fn serve(pool: SqlitePool, bind: &str, token: Option<String>) -> Resul
         pool,
         token,
         sats: Mutex::new(None),
+        quakes: Mutex::new(None),
     });
     let app = router(state);
     let listener = tokio::net::TcpListener::bind(bind).await?;

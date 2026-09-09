@@ -43,6 +43,8 @@
     <div class="row"><span>Resolved entities</span><input type="checkbox" id="layer-entities" checked></div>
     <div class="row"><span>Satellites (CelesTrak)</span><input type="checkbox" id="layer-sats" checked></div>
     <div class="row"><span>group</span><select id="sat-group"><option value="active">active</option><option value="stations">stations</option><option value="starlink">starlink</option><option value="gps-ops">gps-ops</option><option value="weather">weather</option></select></div>
+    <div class="row"><span>Seismic / explosions (USGS)</span><input type="checkbox" id="layer-quakes" checked></div>
+    <div class="row"><span>feed</span><select id="quake-feed"><option value="2.5_day">M2.5+ past day</option><option value="all_day">all, past day</option><option value="4.5_week">M4.5+ past week</option><option value="significant_month">significant, month</option></select></div>
     <div class="ph">Status</div>
     <div id="status" class="muted">loading…</div>
     <div class="ph">Search</div>
@@ -82,7 +84,28 @@ viewer.scene.globe.enableLighting = false;
 viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#0b0e13');
 const entityLayer = new Cesium.CustomDataSource('entities');
 const satLayer = new Cesium.CustomDataSource('satellites');
-viewer.dataSources.add(entityLayer); viewer.dataSources.add(satLayer);
+const quakeLayer = new Cesium.CustomDataSource('quakes');
+viewer.dataSources.add(entityLayer); viewer.dataSources.add(satLayer); viewer.dataSources.add(quakeLayer);
+
+async function loadQuakes() {
+  quakeLayer.entities.removeAll();
+  if (!$('layer-quakes').checked) return;
+  const feed = $('quake-feed').value;
+  try {
+    const fc = await api(`/api/live/quakes?feed=${encodeURIComponent(feed)}`);
+    for (const f of fc.features) {
+      const [lon, lat] = f.geometry.coordinates; const p = f.properties;
+      const nonSeismic = p.event_type !== 'earthquake';
+      const mag = p.mag || 0;
+      quakeLayer.entities.add({
+        id: 'q:' + p.id, position: Cesium.Cartesian3.fromDegrees(lon, lat),
+        point: { pixelSize: Math.max(4, mag * 2.2), color: Cesium.Color.fromCssColorString(nonSeismic ? '#ff6b6b' : '#ffb454').withAlpha(0.85), outlineColor: Cesium.Color.BLACK, outlineWidth: 1 },
+        properties: { kind: 'quake', title: p.title, type: p.event_type, url: p.url, time: p.time },
+      });
+    }
+    $('hud').textContent += ` · ${fc.features.length} USGS events`;
+  } catch (e) { $('hud').textContent += ' · USGS unavailable'; }
+}
 
 const typeColor = t => ({ organization: '#f2b544', person: '#ff8a65', location: '#4fc3f7', event: '#ba68c8', product: '#81c784' })[t] || '#cfd8e6';
 
@@ -192,13 +215,17 @@ handler.setInputAction(click => {
   const kind = ent.properties.kind && ent.properties.kind.getValue();
   if (kind === 'entity') showEntity(ent.properties.id.getValue());
   else if (kind === 'sat') $('entity').innerHTML = `<div style="font-size:15px;font-weight:600">${ent.properties.name.getValue()}</div><div class="muted">satellite · ${ent.properties.alt.getValue().toFixed(0)} km · CelesTrak</div>`;
+  else if (kind === 'quake') $('entity').innerHTML = `<div style="font-size:15px;font-weight:600">${ent.properties.title.getValue()}</div><div class="muted">${ent.properties.type.getValue()} · ${ent.properties.time.getValue().slice(0, 16)} · USGS</div><div><a href="${ent.properties.url.getValue()}" target="_blank" rel="noopener">event page</a></div>`;
 }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 $('layer-entities').onchange = loadEntities;
 $('layer-sats').onchange = loadSats;
 $('sat-group').onchange = loadSats;
-loadStatus(); loadEntities().then(loadSats); loadReview();
+$('layer-quakes').onchange = loadQuakes;
+$('quake-feed').onchange = loadQuakes;
+loadStatus(); loadEntities().then(loadSats).then(loadQuakes); loadReview();
 setInterval(loadSats, 30000);
+setInterval(loadQuakes, 300000);
 setInterval(loadStatus, 60000);
 </script>
 </body>

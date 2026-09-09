@@ -61,12 +61,26 @@ enargeia serve --bind 127.0.0.1:8787 [--token <secret>]
 ```
 
 `/` is a single-file CesiumJS globe: resolved entities with coordinates, a live CelesTrak
-satellite layer propagated with SGP4, search, the review queue, and the ask box. Everything
-it does goes through the JSON API under `/api` (`/api/entities`, `/api/entities/{id}`,
-`/api/entities/{id}/why`, `/api/edges`, `/api/candidates`, `/api/geo`,
-`/api/live/satellites`, `POST /api/ask`, `POST /api/candidates/{id}/decision`,
+satellite layer propagated with SGP4, a USGS seismic/explosion layer, search, the review
+queue, and the ask box. Everything it does goes through the JSON API under `/api`
+(`/api/entities`, `/api/entities/{id}`, `/api/entities/{id}/why`, `/api/edges`,
+`/api/candidates`, `/api/geo`, `/api/live/satellites`, `/api/live/quakes?feed=2.5_day`,
+`POST /api/ask`, `POST /api/candidates/{id}/decision`,
 `POST /api/decorrelate`). GET endpoints are open; endpoints that change the graph or call
 the LLM require `Authorization: Bearer <token>` when `--token`/`ENARGEIA_TOKEN` is set.
+
+## Standing watch
+
+```sh
+enargeia watch --mission missions/ai-ecosystem.toml --interval-secs 3600 --quakes 2.5_day \
+               --webhook https://example.invalid/hook      # or ENARGEIA_ALERT_WEBHOOK
+```
+
+Every cycle ingests the mission's sources, resolves, enriches a bounded number of items, and
+writes `watch/digest-<time>.md`. Only escalations — high-consequence relation types
+(`suing`, `acquired`, `ceo_of`, …), relations corroborated by more than one source, major
+earthquakes, and non-seismic USGS events (explosions, blasts) — are posted to the webhook.
+Routine digests stay on disk. `--once` runs a single cycle.
 
 ## Missions
 
@@ -120,8 +134,9 @@ enargeia eval match      # regenerates eval/REPORT.md from eval/labels.jsonl
 3. ~~Bi-temporal edges (`valid_at` / `invalid_at`) with contradiction supersession and `ask --as-of`.~~ Done.
 4. ~~Reproducible decorrelation evaluation and a `why <entity>` provenance trace.~~ Done.
 5. ~~HTTP API, geocoding, first live layer (CelesTrak), embedded globe.~~ Done.
-6. Next: more live layers (vessels, aircraft), a standing watch cadence with an alert channel,
-   scoped tokens for a second tenant, and larger local models for Tier 2.
+6. ~~Standing watch cadence with an escalation-only alert channel; USGS seismic/explosion layer.~~ Done.
+7. Next: key-registered live layers (NASA FIRMS, VesselAPI, FlightAware), scoped tokens for a
+   second tenant, and larger local models for Tier 2.
 
 ## License
 
