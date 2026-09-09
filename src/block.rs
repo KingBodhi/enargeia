@@ -42,9 +42,19 @@ pub async fn index_entity(
     canonical: &str,
     aliases: &[String],
 ) -> Result<()> {
+    let mut conn = pool.acquire().await?;
+    index_entity_on(&mut conn, entity_id, canonical, aliases).await
+}
+
+async fn index_entity_on(
+    conn: &mut sqlx::SqliteConnection,
+    entity_id: &str,
+    canonical: &str,
+    aliases: &[String],
+) -> Result<()> {
     sqlx::query("DELETE FROM wm_entity_keys WHERE entity_id = ?")
         .bind(entity_id)
-        .execute(pool)
+        .execute(&mut *conn)
         .await?;
     let mut all: Vec<(&'static str, String)> = keys_for(canonical);
     for a in aliases {
@@ -59,7 +69,7 @@ pub async fn index_entity(
         .bind(entity_id)
         .bind(kt)
         .bind(&k)
-        .execute(pool)
+        .execute(&mut *conn)
         .await?;
     }
     Ok(())
@@ -110,9 +120,13 @@ pub async fn reindex_all(pool: &SqlitePool) -> Result<usize> {
         .fetch_all(pool)
         .await?;
     let n = ents.len();
+    // One transaction: per-row autocommit means one fsync per key and minutes for a few
+    // thousand entities.
+    let mut tx = pool.begin().await?;
     for e in ents {
-        index_entity(pool, &e.id, &e.canonical_name, &e.alias_list()).await?;
+        index_entity_on(&mut tx, &e.id, &e.canonical_name, &e.alias_list()).await?;
     }
+    tx.commit().await?;
     Ok(n)
 }
 
