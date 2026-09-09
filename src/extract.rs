@@ -336,6 +336,11 @@ pub fn plausible_name(text: &str, entity_type: &str) -> bool {
         "people",
         "president",
         "ceo",
+        "cto",
+        "cfo",
+        "coo",
+        "chairman",
+        "director",
         "founder",
         "founders",
         "executives",
@@ -525,6 +530,8 @@ mod tests {
         assert!(!plausible_name("regulated workspace", "other"));
         assert!(!plausible_name("Officials", "person"));
         assert!(!plausible_name("AI labs", "organization"));
+        assert!(!plausible_name("AI companies", "organization"));
+        assert!(!plausible_name("CTO", "person"));
         assert!(!plausible_name("AI Lab", "organization"));
         assert!(!plausible_name("Agencies", "organization"));
         assert!(plausible_name("Officials Inc", "organization"));
