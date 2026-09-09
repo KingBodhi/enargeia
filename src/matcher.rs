@@ -414,7 +414,14 @@ pub fn score(
     names_norm.extend(cand.aliases.iter().map(|a| normalize(a)));
     names_norm.retain(|n| !n.is_empty());
 
-    let alias_exact = !m_norm.is_empty() && names_norm.contains(&m_norm);
+    // "Open AI" / "OpenAI", "Deep Mind" / "DeepMind": spacing is not identity.
+    let compact = |x: &str| x.replace(' ', "");
+    let m_compact = compact(&m_norm);
+    let compact_equal = !m_norm.is_empty()
+        && !names_norm.contains(&m_norm)
+        && m_compact.len() >= 4
+        && names_norm.iter().any(|n| compact(n) == m_compact);
+    let alias_exact = !m_norm.is_empty() && (names_norm.contains(&m_norm) || compact_equal);
     let name_jw = jaro_winkler_best(&m_norm, &names_norm);
     let name_level = if name_jw >= 0.95 {
         3
@@ -478,6 +485,11 @@ pub fn score(
         // Initials match: string similarity is meaningless here (FTC vs Federal Trade
         // Commission scores ~0 on every string metric) — the acronym evidence stands in.
         push(&mut contributions, "acronym_match", w.acronym_match);
+    } else if compact_equal {
+        // Same letters, different spacing: the token features would penalize what is
+        // literally the same name.
+        push(&mut contributions, "name_jw", w.name[3]);
+        push(&mut contributions, "alias_exact", w.alias_exact);
     } else {
         // Jaro-Winkler's prefix bonus makes "circle" ≈ "circle k"; when the other side carries
         // extra content tokens the top similarity level is not trustworthy. Conversely, when
@@ -627,6 +639,35 @@ mod tests {
         );
         let raw = w.cooc[2] + w.corroboration[3] + w.recent;
         assert!(raw > w.prior_cap, "test assumes the cap binds");
+    }
+
+    #[test]
+    fn spacing_variants_are_the_same_name() {
+        let w = Weights::default();
+        let ms = score(
+            "Open AI",
+            Some("organization"),
+            &cand("OpenAI", &[], "organization"),
+            &w,
+        );
+        assert_eq!(
+            decide(ms.total, &w),
+            Decision::Merge,
+            "{:?}",
+            ms.contributions
+        );
+        let ms = score(
+            "Deep Mind",
+            Some("organization"),
+            &cand("DeepMind", &[], "organization"),
+            &w,
+        );
+        assert_eq!(
+            decide(ms.total, &w),
+            Decision::Merge,
+            "{:?}",
+            ms.contributions
+        );
     }
 
     #[test]
