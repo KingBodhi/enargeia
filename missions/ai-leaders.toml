@@ -1,0 +1,34 @@
+# AI leaders: the people running, funding and leaving the major AI companies — roles, moves
+# between organizations, investments, public disputes — from open reporting. Run with:
+#   ENARGEIA_DB_PATH=data/ai-leaders.sqlite enargeia mission run missions/ai-leaders.toml
+# Person-level entities need Tier 2 to attach roles; give it a generous --enrich-limit.
+
+name = "ai-leaders"
+description = "Executives, founders, researchers and investors of the leading AI companies: their roles, moves, investments and disputes, as reported in current open sources."
+target_class = "Public figures acting in their professional capacity: executives, founders, board members, investors, senior researchers. Professional conduct only; nothing about private life."
+
+rss = [
+  "https://techcrunch.com/category/artificial-intelligence/feed/",
+  "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
+  "https://feeds.arstechnica.com/arstechnica/technology-lab",
+  "https://www.technologyreview.com/feed/",
+  "https://openai.com/news/rss.xml",
+  "https://blog.google/technology/ai/rss/",
+]
+
+gdelt = [
+  "Sam Altman",
+  "Dario Amodei",
+  "Demis Hassabis",
+  "Elon Musk xAI",
+  "Mark Zuckerberg AI",
+  "Jensen Huang",
+]
+
+questions = [
+  "Who holds which role (CEO, CTO, chief scientist, board member) at each major AI company, according to the sources, and since when?",
+  "Which people moved between AI companies, or left to found new ones, with dates?",
+  "Which investors and funds back which AI companies and founders, and who appears across several?",
+  "Which public disputes, lawsuits or regulatory actions involve named AI executives, and who is on each side?",
+  "Which people appear together most often across sources, and in what context?",
+]

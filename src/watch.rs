@@ -284,3 +284,41 @@ pub async fn run(pool: &SqlitePool, mission: Option<&Mission>, opts: &WatchOptio
         tokio::time::sleep(opts.interval).await;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn digest_renders_escalations_first_and_marks_quiet_cycles() {
+        let quiet = Digest {
+            started: "2026-09-09T15:00:00+00:00".into(),
+            ended: "2026-09-09T15:01:00+00:00".into(),
+            ..Default::default()
+        };
+        let md = render(&quiet);
+        assert!(md.starts_with("# Watch digest — 2026-09-09T15:01"));
+        assert!(md.contains("ESCALATE (0)"));
+        assert!(md.contains("nothing warrants interruption"));
+
+        let mut loud = Digest {
+            started: quiet.started.clone(),
+            ended: quiet.ended.clone(),
+            ..Default::default()
+        };
+        loud.escalations
+            .push("Acme —suing→ Globex (weight 2)".into());
+        loud.new_typed_edges.push(EdgeLine {
+            from: "Acme".into(),
+            edge_type: "suing".into(),
+            to: "Globex".into(),
+            weight: 2.0,
+            valid_at: Some("2026-09-01".into()),
+        });
+        let md = render(&loud);
+        let esc = md.find("## ESCALATE (1)").unwrap();
+        let rel = md.find("## New typed relations (1)").unwrap();
+        assert!(esc < rel, "escalations come before the relation list");
+        assert!(md.contains("- Acme —suing→ Globex"));
+    }
+}

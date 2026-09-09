@@ -116,6 +116,10 @@ enargeia mission run missions/ai-ecosystem.toml    # → missions/ai-ecosystem/B
 
 A mission is a TOML file: sources, a scope statement, and questions. The brief answers each
 question from the graph with numbered source citations and appends what the graph knows.
+Shipped missions: `ai-ecosystem` (labs and their relationships), `ai-leaders` (the people:
+roles, moves, investors, disputes), `corruption-watch` (enforcement actions, audits and
+investigative reporting — SEC, DOJ, GAO, OCCRP, ICIJ, ProPublica, Courthouse News, Bellingcat).
+Every mission states its `target_class`: public actors in their professional capacity.
 
 ## Configuration
 

@@ -1,0 +1,38 @@
+# Corruption watch: enforcement actions, investigative reporting and audit findings that name
+# organizations and officials — the public record of corporate and governmental misconduct.
+# Sources are enforcement agencies and investigative newsrooms; GDELT queries are
+# commercially clean. Run with:
+#   ENARGEIA_DB_PATH=data/corruption.sqlite enargeia mission run missions/corruption-watch.toml
+# or keep it standing:
+#   ENARGEIA_DB_PATH=data/corruption.sqlite enargeia watch --mission missions/corruption-watch.toml --interval-secs 3600
+
+name = "corruption-watch"
+description = "Enforcement actions, indictments, sanctions, audit findings and investigative reporting on corporate and governmental misconduct, as recorded in open sources."
+target_class = "Organizations, officials and executives named in public enforcement actions, court filings, audits or investigative reporting, in their professional capacity. No private individuals."
+
+rss = [
+  "https://www.sec.gov/news/pressreleases.rss",        # SEC enforcement + policy press releases
+  "https://www.gao.gov/rss/reports.xml",               # GAO audit reports
+  "https://www.occrp.org/en/feed",                     # Organized Crime and Corruption Reporting Project
+  "https://www.icij.org/feed/",                        # International Consortium of Investigative Journalists
+  "https://www.propublica.org/feeds/propublica/main",  # ProPublica
+  "https://www.justice.gov/news/rss",                  # US Department of Justice press releases
+  "https://www.courthousenews.com/feed/",              # Courthouse News Service
+  "https://www.bellingcat.com/feed/",                  # Bellingcat
+]
+
+gdelt = [
+  "indicted corruption",
+  "bribery settlement",
+  "sanctions OFAC",
+  "SEC charges",
+  "money laundering",
+]
+
+questions = [
+  "Which organizations were charged, fined, sanctioned or indicted, by which agency, and on what date?",
+  "Which named officials or executives are connected to more than one enforcement action or investigation?",
+  "Which government bodies or officials appear in audit findings or investigative reporting, and for what?",
+  "What relationships (ownership, partnership, employment) link the organizations that appear in enforcement actions?",
+  "Which cases are ongoing versus settled, according to the most recent sources?",
+]
