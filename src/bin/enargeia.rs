@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use entity_resolver::{
+use enargeia::{
     adapters::{
         gdelt::GdeltAdapter, pulse_reader::PulseContentReader, rss::RssAdapter, SourceAdapter,
     },
@@ -8,14 +8,14 @@ use entity_resolver::{
 };
 
 #[derive(Parser)]
-#[command(name = "wm-cli", about = "Pythia World Model - entity resolution CLI")]
+#[command(
+    name = "enargeia",
+    version,
+    about = "Enargeia — entity-resolution engine for open-source intelligence"
+)]
 struct Cli {
-    /// Path to this crate's own SQLite DB (never pcg-cc-mcp's).
-    #[arg(
-        long,
-        env = "WM_DB_PATH",
-        default_value = "crates/entity-resolver/data/worldmodel.sqlite"
-    )]
+    /// Path to the engine's SQLite database (created if missing).
+    #[arg(long, env = "ENARGEIA_DB_PATH", default_value = "data/enargeia.sqlite")]
     db_path: String,
 
     #[command(subcommand)]
@@ -24,40 +24,40 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
-    /// Run all configured adapters once, dedup and store new items.
+    /// Run all configured adapters once; dedup and store new items.
     Ingest {
         /// RSS/Atom feed URLs to pull.
         #[arg(long)]
         rss: Vec<String>,
-        /// GDELT DOC 2.0 search queries (commercial_clean license - see feed licensing map).
+        /// GDELT DOC 2.0 search queries (commercially clean source).
         #[arg(long)]
         gdelt: Vec<String>,
     },
-    /// Run the Tier 1 deterministic resolution pass over pending items.
+    /// Tier 1: deterministic resolution over pending items (no LLM).
     Resolve {
         #[arg(long, default_value = "200")]
         limit: i64,
     },
-    /// Run one Tier 2 LLM enrichment batch over items Tier 1 couldn't confidently resolve.
+    /// Tier 2: one batched LLM enrichment pass over items Tier 1 could not resolve.
     Enrich {
         #[arg(long, default_value = "20")]
         batch_size: i64,
     },
-    /// Ask a question, answered from the resolved graph with source citations.
+    /// Answer a question from the resolved graph, with source citations.
     Ask { question: String },
-    /// Persist a human "these are NOT the same entity" decision. No future merge will
-    /// re-propose collapsing this pair.
+    /// Record that two entities are NOT the same; no future merge will re-propose the pair.
     Decorrelate {
         entity_a: String,
         entity_b: String,
         #[arg(long)]
         reason: Option<String>,
     },
-    /// Fold `absorb` into `keep` (edges/candidates repointed, aliases merged, absorb deleted).
-    /// Refuses if this pair was previously decorrelated.
+    /// Fold `absorb` into `keep`. Refuses if the pair was decorrelated.
     Merge { keep: String, absorb: String },
-    /// Flip is_live=0 on entities whose expiry_time has passed without a fresh source touch.
+    /// Mark entities past their expiry as not live.
     Expire,
+    /// Print counts: entities, edges, pending review, sources by license class.
+    Status,
 }
 
 #[tokio::main]
@@ -78,17 +78,17 @@ async fn main() -> Result<()> {
                 adapters.push(Box::new(GdeltAdapter::new(gdelt)));
             }
             let mut pulse_reader: Option<PulseContentReader> = None;
-            if let Ok(pulse_path) = std::env::var("PULSE_DB_PATH") {
-                let since = load_pulse_checkpoint(&pool).await?;
+            if let Ok(pulse_path) = std::env::var("ENARGEIA_PULSE_DB_PATH") {
+                let since = load_checkpoint(&pool, "pulse").await?;
                 match PulseContentReader::connect(&pulse_path, since).await {
                     Ok(reader) => pulse_reader = Some(reader),
                     Err(e) => {
-                        tracing::warn!(error = %e, "PULSE_DB_PATH set but could not connect - skipping")
+                        tracing::warn!(error = %e, "ENARGEIA_PULSE_DB_PATH set but could not connect - skipping")
                     }
                 }
             }
             if adapters.is_empty() && pulse_reader.is_none() {
-                eprintln!("No adapters configured - pass --rss <url> and/or set PULSE_DB_PATH.");
+                eprintln!("No adapters configured - pass --rss <url> / --gdelt <query>, or set ENARGEIA_PULSE_DB_PATH.");
                 return Ok(());
             }
 
@@ -123,7 +123,7 @@ async fn main() -> Result<()> {
                     new_for_adapter
                 );
                 total_new += new_for_adapter;
-                save_pulse_checkpoint(&pool, &reader.last_cursor()).await?;
+                save_checkpoint(&pool, "pulse", &reader.last_cursor()).await?;
             }
             println!("ingest complete: {total_new} new source items");
         }
@@ -135,7 +135,8 @@ async fn main() -> Result<()> {
             );
         }
         Command::Enrich { batch_size } => {
-            let client = llm::AnthropicClient::from_env()?;
+            let client = llm::LlmClient::from_env()?;
+            println!("llm: {}", client.describe());
             let stats = llm_enrich::enrich_batch(&pool, &client, batch_size).await?;
             println!(
                 "enriched {} items: {} entities updated, {} edges created, {} errors",
@@ -146,7 +147,7 @@ async fn main() -> Result<()> {
             );
         }
         Command::Ask { question } => {
-            let client = llm::AnthropicClient::from_env()?;
+            let client = llm::LlmClient::from_env()?;
             let answer = context::ask(&pool, &client, &question).await?;
             println!("{answer}");
         }
@@ -156,7 +157,9 @@ async fn main() -> Result<()> {
             reason,
         } => {
             resolve::decorrelate(&pool, &entity_a, &entity_b, reason.as_deref()).await?;
-            println!("decorrelated {entity_a} <-> {entity_b} - no future merge will re-propose this pair");
+            println!(
+                "decorrelated {entity_a} <-> {entity_b}; no future merge will re-propose this pair"
+            );
         }
         Command::Merge { keep, absorb } => {
             resolve::merge_entities(&pool, &keep, &absorb).await?;
@@ -166,26 +169,61 @@ async fn main() -> Result<()> {
             let n = resolve::expire_stale_entities(&pool).await?;
             println!("expired {n} stale entities (is_live=0)");
         }
+        Command::Status => {
+            let (entities,): (i64,) = sqlx::query_as("SELECT COUNT(*) FROM wm_entities")
+                .fetch_one(&pool)
+                .await?;
+            let (live,): (i64,) =
+                sqlx::query_as("SELECT COUNT(*) FROM wm_entities WHERE is_live = 1")
+                    .fetch_one(&pool)
+                    .await?;
+            let (edges,): (i64,) = sqlx::query_as("SELECT COUNT(*) FROM wm_edges")
+                .fetch_one(&pool)
+                .await?;
+            let (decor,): (i64,) = sqlx::query_as("SELECT COUNT(*) FROM wm_decorrelations")
+                .fetch_one(&pool)
+                .await?;
+            let candidates: Vec<(String, i64)> =
+                sqlx::query_as("SELECT status, COUNT(*) FROM wm_extraction_candidates GROUP BY status ORDER BY status")
+                    .fetch_all(&pool)
+                    .await?;
+            let sources: Vec<(String, String, i64)> = sqlx::query_as(
+                "SELECT source_type, license_class, COUNT(*) FROM wm_source_items GROUP BY source_type, license_class ORDER BY 1,2",
+            )
+            .fetch_all(&pool)
+            .await?;
+            println!(
+                "entities: {entities} ({live} live) · edges: {edges} · decorrelations: {decor}"
+            );
+            for (status, n) in candidates {
+                println!("candidates.{status}: {n}");
+            }
+            for (st, lc, n) in sources {
+                println!("sources.{st}.{lc}: {n}");
+            }
+        }
     }
 
     Ok(())
 }
 
-async fn load_pulse_checkpoint(pool: &sqlx::SqlitePool) -> Result<String> {
+async fn load_checkpoint(pool: &sqlx::SqlitePool, adapter: &str) -> Result<String> {
     let row: Option<(String,)> =
-        sqlx::query_as("SELECT cursor FROM wm_adapter_checkpoints WHERE adapter_name = 'pulse'")
+        sqlx::query_as("SELECT cursor FROM wm_adapter_checkpoints WHERE adapter_name = ?")
+            .bind(adapter)
             .fetch_optional(pool)
             .await?;
     Ok(row.map(|(c,)| c).unwrap_or_default())
 }
 
-async fn save_pulse_checkpoint(pool: &sqlx::SqlitePool, cursor: &str) -> Result<()> {
+async fn save_checkpoint(pool: &sqlx::SqlitePool, adapter: &str, cursor: &str) -> Result<()> {
     sqlx::query(
-        "INSERT INTO wm_adapter_checkpoints (adapter_name, cursor, updated_at) VALUES ('pulse', ?, ?) \
+        "INSERT INTO wm_adapter_checkpoints (adapter_name, cursor, updated_at) VALUES (?, ?, ?) \
          ON CONFLICT(adapter_name) DO UPDATE SET cursor = excluded.cursor, updated_at = excluded.updated_at",
     )
+    .bind(adapter)
     .bind(cursor)
-    .bind(entity_resolver::models::now())
+    .bind(enargeia::models::now())
     .execute(pool)
     .await?;
     Ok(())

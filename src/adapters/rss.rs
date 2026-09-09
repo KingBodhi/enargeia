@@ -1,8 +1,6 @@
-//! Minimal, tolerant RSS 2.0 / Atom parser on quick-xml.
-//!
-//! Reimplemented fresh rather than reusing pcg-cc-mcp's `pulse_collector.rs::parse_feed`,
-//! which is a private fn local to that binary crate (not exposed for reuse) — see plan
-//! `synchronous-nibbling-pie.md`.
+//! Minimal, tolerant RSS 2.0 / Atom adapter on quick-xml. No feed-parsing crate: the
+//! surface we need (title, link, description/content, CDATA) is small and this keeps the
+//! dependency tree short.
 
 use anyhow::{Context, Result};
 use async_trait::async_trait;
@@ -29,7 +27,7 @@ impl SourceAdapter for RssAdapter {
 
     async fn fetch(&self) -> Result<Vec<RawItem>> {
         let client = reqwest::Client::builder()
-            .user_agent("entity-resolver/0.1 (+wm-cli)")
+            .user_agent(crate::USER_AGENT)
             .build()?;
         let mut items = Vec::new();
         for url in &self.feed_urls {

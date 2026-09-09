@@ -1,4 +1,4 @@
--- World-model entity graph schema. Standalone: no FKs into pcg-cc-mcp's dev_assets/db.sqlite.
+-- World-model entity graph schema. Self-contained: one SQLite file, no external FKs.
 
 CREATE TABLE wm_entities (
     id TEXT PRIMARY KEY,

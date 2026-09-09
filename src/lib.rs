@@ -5,3 +5,9 @@ pub mod llm;
 pub mod llm_enrich;
 pub mod models;
 pub mod resolve;
+
+pub const USER_AGENT: &str = concat!(
+    "enargeia/",
+    env!("CARGO_PKG_VERSION"),
+    " (+https://github.com/KingBodhi/enargeia)"
+);

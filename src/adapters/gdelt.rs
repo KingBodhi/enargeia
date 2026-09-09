@@ -1,11 +1,8 @@
-//! GDELT DOC 2.0 API adapter - first "commercial_clean" feed source. Per the feed licensing
-//! map in memory `osint_defense_landscape_2026_09_08`: no auth, 15-min underlying cadence,
-//! explicitly permits commercial use AND redistribution - "best value/effort, build first."
+//! GDELT DOC 2.0 API adapter — the first `commercial_clean` source: no auth, 15-minute
+//! underlying cadence, and terms that explicitly permit commercial use and redistribution.
 //!
-//! v1 limitation: the DOC API's `artlist` mode returns article metadata (title/url/domain/
-//! date), not full body text - so `RawItem::text` here is thin (title only). Good enough to
-//! prove the entity-resolution pipeline against a clean commercial source; a body-fetch pass
-//! would be a follow-up, not blocking this adapter's usefulness.
+//! Limitation: `artlist` mode returns article metadata (title/url/domain/date), not body
+//! text, so `RawItem::text` is thin until a body-fetch pass exists.
 
 use std::time::Duration;
 
@@ -62,7 +59,7 @@ impl SourceAdapter for GdeltAdapter {
 
     async fn fetch(&self) -> Result<Vec<RawItem>> {
         let client = reqwest::Client::builder()
-            .user_agent("entity-resolver/0.1 (+wm-cli)")
+            .user_agent(crate::USER_AGENT)
             .build()?;
         let mut items = Vec::new();
 

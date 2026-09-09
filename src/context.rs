@@ -1,6 +1,6 @@
-//! Context assembler: the "reason over the graph, not raw documents" hop.
-//! Resolves a free-text question to matching entities, BFS's `wm_edges` to a bounded
-//! depth, and formats a source-cited text blob for the LLM to answer from.
+//! Context assembler: the "reason over the graph, not raw documents" hop. Resolves a
+//! free-text question to matching entities, walks `wm_edges` to a bounded depth, and
+//! formats a source-cited context for the LLM to answer from.
 
 use std::collections::{HashSet, VecDeque};
 
@@ -8,7 +8,7 @@ use anyhow::Result;
 use sqlx::SqlitePool;
 
 use crate::{
-    llm::AnthropicClient,
+    llm::LlmClient,
     models::{WmEdge, WmEntity},
 };
 
@@ -16,10 +16,8 @@ const MATCH_THRESHOLD: f64 = 0.55;
 const MAX_SEED_MATCHES: usize = 5;
 const DEFAULT_DEPTH: usize = 2;
 
-/// Only entities the resolver considers current - a world model should reason over live
-/// facts, not equally-weighted forever-facts. (Dedup/gazetteer matching in `resolve.rs`
-/// intentionally still considers dead entities too, to avoid re-creating duplicates of
-/// something that simply went stale.)
+/// Only entities the resolver considers current. Reasoning runs over live facts; resolution
+/// in `resolve.rs` still dedups against full history so stale entities are not re-created.
 async fn live_entities(pool: &SqlitePool) -> Result<Vec<WmEntity>> {
     Ok(
         sqlx::query_as::<_, WmEntity>("SELECT * FROM wm_entities WHERE is_live = 1")
@@ -120,38 +118,39 @@ fn format_context(slice: &GraphSlice) -> String {
         if !seen_edges.insert(edge.id.clone()) {
             continue;
         }
-        let from = slice
-            .entities
-            .iter()
-            .find(|e| e.id == edge.from_id)
-            .map(|e| e.canonical_name.as_str())
-            .unwrap_or("?");
-        let to = slice
-            .entities
-            .iter()
-            .find(|e| e.id == edge.to_id)
-            .map(|e| e.canonical_name.as_str())
-            .unwrap_or("?");
+        let name = |id: &str| {
+            slice
+                .entities
+                .iter()
+                .find(|e| e.id == id)
+                .map(|e| e.canonical_name.as_str())
+                .unwrap_or("?")
+        };
         out.push_str(&format!(
             "- {} --[{}]--> {} (sources: {})\n",
-            from, edge.edge_type, to, edge.source_item_ids
+            name(&edge.from_id),
+            edge.edge_type,
+            name(&edge.to_id),
+            edge.source_item_ids
         ));
     }
     out
 }
 
 const ASK_SYSTEM_PROMPT: &str = "You answer questions using ONLY the provided entity/relation \
-context below. If the context doesn't contain the answer, say so plainly - do not guess or use \
-outside knowledge. Cite entity names as they appear in the context.";
+context. If the context does not contain the answer, say so plainly; do not guess or use outside \
+knowledge. Cite entity names exactly as they appear in the context.";
 
-pub async fn ask(pool: &SqlitePool, client: &AnthropicClient, question: &str) -> Result<String> {
+pub async fn ask(pool: &SqlitePool, client: &LlmClient, question: &str) -> Result<String> {
     let seeds = find_matching_entities(pool, question).await?;
     if seeds.is_empty() {
-        return Ok("No entities in the graph match this question yet - ingest and resolve more content first.".to_string());
+        return Ok("No entities in the graph match this question yet; ingest and resolve more content first.".to_string());
     }
     let seed_ids: Vec<String> = seeds.iter().map(|e| e.id.clone()).collect();
     let slice = bfs(pool, &seed_ids, DEFAULT_DEPTH).await?;
     let context = format_context(&slice);
     let prompt = format!("CONTEXT:\n{context}\n\nQUESTION: {question}");
-    client.complete(ASK_SYSTEM_PROMPT, &prompt, 1024).await
+    client
+        .complete(ASK_SYSTEM_PROMPT, &prompt, 1024, false)
+        .await
 }

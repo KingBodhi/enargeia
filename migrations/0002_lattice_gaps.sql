@@ -1,11 +1,10 @@
--- Closes two gaps found by comparing our design against Anduril Lattice's public schema
--- (see memory osint_defense_landscape_2026_09_08 / [[pythia_worldmodel_digital_twin]]):
---   1. sticky decorrelation - a human "these are NOT the same entity" decision must persist
---      so the resolver never re-proposes a rejected merge.
---   2. entity liveness/expiry - facts shouldn't live forever with equal weight in a world model
---      tracking a changing reality.
--- Also adds license_class to source items so commercial output can be gated per-feed from day one
--- (feed licensing map: GDELT/FIRMS/USGS clean, ACLED/GTD/Cloudflare Radar/GFW poisoned for commercial use).
+-- Two correlation-discipline primitives modeled on Anduril Lattice's public entity schema:
+--   1. sticky decorrelation - a human "these are NOT the same entity" decision persists,
+--      so no later pass can re-propose the rejected merge.
+--   2. entity liveness/expiry - facts do not live forever with equal weight in a model of a
+--      changing world.
+-- Also adds license_class to source items so commercial output can be gated per feed
+-- (see DATA-ATTRIBUTION.md).
 
 ALTER TABLE wm_entities ADD COLUMN is_live INTEGER NOT NULL DEFAULT 1;
 ALTER TABLE wm_entities ADD COLUMN expiry_time TEXT; -- NULL = no expiry; else ISO8601, refreshed on touch

@@ -1,9 +1,9 @@
-//! Optional, read-only adapter over pcg-cc-mcp's existing Pulse Engine content.
+//! Optional, read-only adapter over a local Pulse Engine content database (the collector
+//! that ships with the PCG dashboard).
 //!
-//! Only activates if `PULSE_DB_PATH` is set. Opens that SQLite file with its own pool,
-//! never writes to it, and uses runtime `sqlx::query` (not `query!`) so this crate never
-//! needs pcg-cc-mcp's schema at compile time — keeps the "don't decide where this lives
-//! yet" decoupling real, not just aspirational.
+//! Activates only when `ENARGEIA_PULSE_DB_PATH` is set. Opens that SQLite file read-only
+//! with its own pool and uses runtime `sqlx::query` (not `query!`), so this crate never
+//! needs the upstream schema at compile time.
 
 use std::{str::FromStr, sync::Mutex};
 
@@ -19,21 +19,21 @@ use crate::models::RawItem;
 
 pub struct PulseContentReader {
     pool: SqlitePool,
-    /// in-memory cursor for this process run; persistent checkpointing happens in wm-cli
-    /// via `wm_adapter_checkpoints`, passed in as the starting value.
+    /// In-memory cursor for this run; the CLI persists it in `wm_adapter_checkpoints`
+    /// and passes it back in as the starting value.
     since: Mutex<String>,
 }
 
 impl PulseContentReader {
     pub async fn connect(pulse_db_path: &str, since_collected_at: String) -> Result<Self> {
         let opts = SqliteConnectOptions::from_str(&format!("sqlite://{pulse_db_path}"))
-            .context("invalid PULSE_DB_PATH")?
+            .context("invalid ENARGEIA_PULSE_DB_PATH")?
             .read_only(true);
         let pool = SqlitePoolOptions::new()
             .max_connections(2)
             .connect_with(opts)
             .await
-            .context("failed to open pcg-cc-mcp pulse DB read-only")?;
+            .context("failed to open Pulse Engine DB read-only")?;
         Ok(Self {
             pool,
             since: Mutex::new(since_collected_at),

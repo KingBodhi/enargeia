@@ -11,10 +11,9 @@ use crate::models::RawItem;
 pub trait SourceAdapter: Send + Sync {
     fn name(&self) -> &str;
 
-    /// 'commercial_clean' | 'non_commercial_only' | 'unknown'. See the feed licensing map in
-    /// memory `osint_defense_landscape_2026_09_08` - most "free" feeds in this space are
-    /// non-commercial-only (ACLED, GTD, Cloudflare Radar, Global Fishing Watch), so this is
-    /// asserted per-adapter, not assumed, and gates any future commercial output.
+    /// `commercial_clean` | `non_commercial_only` | `unknown`. Most "free" feeds in this
+    /// space are non-commercial-only (ACLED, GTD, Cloudflare Radar, Global Fishing Watch),
+    /// so the class is asserted per adapter, never assumed. See DATA-ATTRIBUTION.md.
     fn license_class(&self) -> &str {
         "unknown"
     }

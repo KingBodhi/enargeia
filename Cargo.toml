@@ -1,26 +1,30 @@
 [package]
-name = "entity-resolver"
+name = "enargeia"
 version = "0.1.0"
 edition = "2021"
-description = "Standalone entity-resolution / world-model graph layer: ingest -> resolve -> reason. Decoupled from pcg-cc-mcp's live DB by design."
+license = "Apache-2.0"
+description = "Single-binary, local-inference entity-resolution engine: turn open feeds into a resolved, time-aware, human-corrected world model."
+repository = "https://github.com/KingBodhi/enargeia"
+readme = "README.md"
+keywords = ["osint", "entity-resolution", "knowledge-graph", "intelligence"]
+categories = ["command-line-utilities"]
+
+[workspace]
 
 [[bin]]
-name = "wm-cli"
-path = "src/bin/wm-cli.rs"
+name = "enargeia"
+path = "src/bin/enargeia.rs"
 
 [dependencies]
-tokio = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-anyhow = { workspace = true }
-thiserror = { workspace = true }
-tracing = { workspace = true }
-tracing-subscriber = { workspace = true }
-
-sqlx = { version = "0.8.6", features = ["runtime-tokio-rustls", "sqlite", "chrono", "uuid"] }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "chrono", "uuid"] }
 uuid = { version = "1", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
-
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 quick-xml = "0.37"
 strsim = "0.11"

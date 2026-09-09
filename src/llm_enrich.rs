@@ -1,23 +1,26 @@
-//! Tier 2: selective LLM enrichment. Only runs against `wm_extraction_candidates`
-//! Tier 1 couldn't confidently resolve (`status = 'needs_llm'`). Run periodically
-//! (CLI subcommand / cron), never inline with ingestion - keeps cost bounded.
+//! Tier 2: selective LLM enrichment. Runs only against `wm_extraction_candidates` that
+//! Tier 1 could not confidently resolve (`status = 'needs_llm'`), in bounded batches, never
+//! inline with ingestion. LLM output is never trusted blindly: every proposed entity goes
+//! back through the same matcher as any other mention.
 
 use anyhow::Result;
 use serde::Deserialize;
 use sqlx::SqlitePool;
 
-use crate::llm::AnthropicClient;
+use crate::llm::{extract_json_object, LlmClient};
 
 const SYSTEM_PROMPT: &str = "You extract real-world entities and their relations from a short \
 text passage. Respond with ONLY a JSON object, no prose, matching this shape exactly: \
 {\"entities\":[{\"mention\":string,\"canonical_name\":string,\"entity_type\":string,\"confidence\":number(0-1)}],\
 \"relations\":[{\"a\":string,\"b\":string,\"relation_type\":string}]}. \
-entity_type should be one of: person, organization, location, product, event, other. \
-canonical_name should be the normalized real-world name (e.g. \"Recorded Future\" not \"RF\" or \"the company\"). \
-If nothing extractable, return {\"entities\":[],\"relations\":[]}.";
+entity_type must be one of: person, organization, location, event, product, vessel, aircraft, satellite, other. \
+canonical_name is the normalized real-world name (e.g. \"Recorded Future\" not \"RF\" or \"the company\"). \
+relation_type is a short snake_case verb phrase (e.g. acquired, ceo_of, invested_in, partner_of, located_in). \
+If nothing is extractable, return {\"entities\":[],\"relations\":[]}.";
 
 #[derive(Debug, Deserialize)]
 struct LlmExtraction {
+    #[serde(default)]
     entities: Vec<LlmEntity>,
     #[serde(default)]
     relations: Vec<LlmRelation>,
@@ -28,7 +31,12 @@ struct LlmEntity {
     mention: String,
     canonical_name: String,
     entity_type: String,
+    #[serde(default = "default_confidence")]
     confidence: f64,
+}
+
+fn default_confidence() -> f64 {
+    0.6
 }
 
 #[derive(Debug, Deserialize)]
@@ -46,11 +54,11 @@ pub struct EnrichStats {
     pub errors: usize,
 }
 
-/// Processes up to `batch_size` `needs_llm` candidates, one LLM call per distinct source item
-/// (so co-mentioned entities in the same text share one call instead of one-per-mention).
+/// Processes up to `batch_size` source items that have `needs_llm` candidates — one LLM call
+/// per item, so co-mentioned entities share a call instead of one-per-mention.
 pub async fn enrich_batch(
     pool: &SqlitePool,
-    client: &AnthropicClient,
+    client: &LlmClient,
     batch_size: i64,
 ) -> Result<EnrichStats> {
     let mut stats = EnrichStats::default();
@@ -71,7 +79,7 @@ pub async fn enrich_batch(
         let Some((text,)) = raw_text else { continue };
 
         let snippet: String = text.chars().take(4000).collect();
-        let response = match client.complete(SYSTEM_PROMPT, &snippet, 1024).await {
+        let response = match client.complete(SYSTEM_PROMPT, &snippet, 1024, true).await {
             Ok(r) => r,
             Err(e) => {
                 tracing::warn!(source_item_id, error = %e, "LLM enrichment call failed");
@@ -80,7 +88,12 @@ pub async fn enrich_batch(
             }
         };
 
-        let parsed: LlmExtraction = match serde_json::from_str(response.trim()) {
+        let Some(json) = extract_json_object(&response) else {
+            tracing::warn!(source_item_id, raw = %response, "LLM response contained no JSON object");
+            stats.errors += 1;
+            continue;
+        };
+        let parsed: LlmExtraction = match serde_json::from_str(json) {
             Ok(p) => p,
             Err(e) => {
                 tracing::warn!(source_item_id, error = %e, raw = %response, "LLM returned unparseable JSON");
@@ -93,12 +106,20 @@ pub async fn enrich_batch(
             std::collections::HashMap::new();
 
         for llm_entity in &parsed.entities {
+            if llm_entity.canonical_name.trim().is_empty() && llm_entity.mention.trim().is_empty() {
+                continue;
+            }
+            let canonical = if llm_entity.canonical_name.trim().is_empty() {
+                llm_entity.mention.as_str()
+            } else {
+                llm_entity.canonical_name.as_str()
+            };
             let eid = crate::resolve::upsert_resolved_entity(
                 pool,
                 &llm_entity.mention,
-                &llm_entity.canonical_name,
-                &llm_entity.entity_type,
-                llm_entity.confidence,
+                canonical,
+                &llm_entity.entity_type.to_lowercase(),
+                llm_entity.confidence.clamp(0.0, 1.0),
             )
             .await?;
             mention_to_entity.insert(llm_entity.mention.clone(), eid);
@@ -121,14 +142,12 @@ pub async fn enrich_batch(
             }
         }
 
-        // resolve every candidate tied to this source item, whether the LLM matched it or not -
-        // an item that comes back empty still shouldn't loop forever in `needs_llm`.
-        sqlx::query(
-            "UPDATE wm_extraction_candidates SET status = 'resolved' WHERE source_item_id = ? AND status = 'needs_llm'",
-        )
-        .bind(&source_item_id)
-        .execute(pool)
-        .await?;
+        // Resolve every candidate tied to this item whether or not the LLM matched it — an item
+        // that comes back empty must not loop forever in `needs_llm`.
+        sqlx::query("UPDATE wm_extraction_candidates SET status = 'resolved' WHERE source_item_id = ? AND status = 'needs_llm'")
+            .bind(&source_item_id)
+            .execute(pool)
+            .await?;
         sqlx::query("UPDATE wm_source_items SET status = 'resolved' WHERE id = ?")
             .bind(&source_item_id)
             .execute(pool)

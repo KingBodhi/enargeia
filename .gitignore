@@ -1,1 +1,6 @@
-data/
+/target
+/data
+/models
+*.sqlite
+*.sqlite-*
+.env
