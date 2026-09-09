@@ -58,6 +58,17 @@ enum Command {
     Expire,
     /// Print counts: entities, edges, pending review, sources by license class.
     Status,
+    /// Manage local models.
+    Models {
+        #[command(subcommand)]
+        action: ModelsAction,
+    },
+}
+
+#[derive(Subcommand)]
+enum ModelsAction {
+    /// Download the default GLiNER NER model into the model directory.
+    Fetch,
 }
 
 #[tokio::main]
@@ -168,6 +179,13 @@ async fn main() -> Result<()> {
         Command::Expire => {
             let n = resolve::expire_stale_entities(&pool).await?;
             println!("expired {n} stale entities (is_live=0)");
+        }
+        Command::Models {
+            action: ModelsAction::Fetch,
+        } => {
+            let dir = enargeia::extract::model_dir_from_env();
+            enargeia::extract::fetch_model(&dir).await?;
+            println!("model ready at {}", dir.display());
         }
         Command::Status => {
             let (entities,): (i64,) = sqlx::query_as("SELECT COUNT(*) FROM wm_entities")

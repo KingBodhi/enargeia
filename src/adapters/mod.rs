@@ -1,3 +1,4 @@
+pub mod body;
 pub mod gdelt;
 pub mod pulse_reader;
 pub mod rss;

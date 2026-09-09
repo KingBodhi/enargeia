@@ -1,40 +1,31 @@
-//! Tier 1: deterministic, always-on resolution. No LLM calls, pure CPU.
+//! Tier 1: deterministic, always-on resolution. No LLM calls.
 //!
-//! 1. Extract candidate mention spans from raw text (capitalized multi-word heuristic).
-//! 2. Score each mention against a gazetteer (existing entities' canonical_name + aliases)
-//!    with Jaro-Winkler similarity.
-//! 3. score >= AUTO_MERGE_THRESHOLD  -> merge into the matched entity.
-//!    score <  NEW_ENTITY_FLOOR (or no gazetteer hit at all) -> new low-confidence entity, needs_llm.
-//!    otherwise -> pending_review (ambiguous, cheap enough to also flag needs_llm for a real decision).
-
-use std::sync::OnceLock;
+//! 1. Extract mentions (GLiNER zero-shot NER when a model is present; regex fallback).
+//! 2. Score each mention against the gazetteer (canonical names + aliases).
+//! 3. score >= AUTO_MERGE_THRESHOLD  -> merge into the matched entity (unless decorrelated).
+//!    score <  NEW_ENTITY_FLOOR / no hit -> new low-confidence entity, flagged needs_llm.
+//!    otherwise -> pending_review for a human or Tier 2.
 
 use anyhow::{bail, Result};
 use chrono::{Duration, Utc};
-use regex::Regex;
 use sha2::{Digest, Sha256};
 use sqlx::SqlitePool;
 
-use crate::models::{new_id, now, RawItem, WmEntity};
+use crate::{
+    extract::default_extractor,
+    models::{new_id, now, RawItem, WmEntity},
+};
 
 const AUTO_MERGE_THRESHOLD: f64 = 0.87;
-const NEW_ENTITY_FLOOR: f64 = 0.5;
+/// Jaro-Winkler between unrelated names commonly lands at 0.5–0.7, so anything below this
+/// is a new entity, not a review case. Replaced by the probabilistic matcher in Phase 2.
+const NEW_ENTITY_FLOOR: f64 = 0.75;
 /// Lattice caps entity expiry at 30 days out unless `noExpiry` is set explicitly; we mirror
 /// that default rather than letting every fact live forever with equal weight.
 const DEFAULT_EXPIRY_DAYS: i64 = 30;
 
 fn default_expiry() -> String {
     (Utc::now() + Duration::days(DEFAULT_EXPIRY_DAYS)).to_rfc3339()
-}
-
-fn mention_regex() -> &'static Regex {
-    static RE: OnceLock<Regex> = OnceLock::new();
-    RE.get_or_init(|| {
-        // Runs of 1-4 capitalized words - a cheap, language-agnostic-ish proxy for
-        // named-entity spans. Deliberately permissive; false positives get filtered
-        // by the gazetteer/threshold step or fall through to Tier 2.
-        Regex::new(r"\b([A-Z][a-zA-Z0-9&\-]*(?:\s+[A-Z][a-zA-Z0-9&\-]*){0,3})\b").unwrap()
-    })
 }
 
 pub fn content_hash(text: &str) -> String {
@@ -103,25 +94,11 @@ fn best_match(mention: &str, gazetteer: &[WmEntity]) -> Option<(String, f64)> {
     best
 }
 
-fn extract_mentions(text: &str) -> Vec<String> {
-    let mut seen = std::collections::HashSet::new();
-    let mut out = Vec::new();
-    for cap in mention_regex().captures_iter(text) {
-        let m = cap[1].trim().to_string();
-        // filter obviously-not-entity single common words (very short, all-caps acronyms kept)
-        if m.split_whitespace().count() == 1 && m.len() < 3 {
-            continue;
-        }
-        if seen.insert(m.clone()) {
-            out.push(m);
-        }
-    }
-    out
-}
-
 /// Run the Tier 1 pass over every `pending` source item, capped at `limit` items per call.
 pub async fn resolve_pending(pool: &SqlitePool, limit: i64) -> Result<ResolveStats> {
     let mut stats = ResolveStats::default();
+    let extractor = default_extractor()?;
+    tracing::info!(extractor = extractor.name(), "tier 1 extractor");
 
     let items: Vec<(String, String)> =
         sqlx::query_as("SELECT id, raw_text FROM wm_source_items WHERE status = 'pending' LIMIT ?")
@@ -131,15 +108,17 @@ pub async fn resolve_pending(pool: &SqlitePool, limit: i64) -> Result<ResolveSta
 
     for (item_id, raw_text) in items {
         stats.items_processed += 1;
-        let mentions = extract_mentions(&raw_text);
+        let mentions = extractor.extract(&raw_text)?;
         let mut resolved_entity_ids: Vec<String> = Vec::new();
         let mut any_needs_llm = false;
 
-        for mention in mentions {
+        for m in mentions {
+            let mention = m.text.as_str();
+            let label = m.label.as_deref();
             // reload gazetteer each mention so within-item co-mentions can also resolve
             // against entities newly created earlier in this same loop
             let gazetteer = load_gazetteer(pool).await?;
-            let matched = best_match(&mention, &gazetteer);
+            let matched = best_match(mention, &gazetteer);
 
             let (status, entity_id, score) = match matched {
                 Some((eid, score)) if score >= AUTO_MERGE_THRESHOLD => {
@@ -148,13 +127,25 @@ pub async fn resolve_pending(pool: &SqlitePool, limit: i64) -> Result<ResolveSta
                     ("auto_merged", Some(eid), Some(score))
                 }
                 Some((_, score)) if score < NEW_ENTITY_FLOOR => {
-                    let eid = create_entity(pool, &mention, 0.4).await?;
+                    let eid = create_entity(
+                        pool,
+                        mention,
+                        label.unwrap_or("unknown"),
+                        f64::from(m.score).clamp(0.3, 0.9),
+                    )
+                    .await?;
                     stats.new_entities += 1;
                     any_needs_llm = true;
                     ("needs_llm", Some(eid), Some(score))
                 }
                 None => {
-                    let eid = create_entity(pool, &mention, 0.4).await?;
+                    let eid = create_entity(
+                        pool,
+                        mention,
+                        label.unwrap_or("unknown"),
+                        f64::from(m.score).clamp(0.3, 0.9),
+                    )
+                    .await?;
                     stats.new_entities += 1;
                     any_needs_llm = true;
                     ("needs_llm", Some(eid), None)
@@ -168,11 +159,12 @@ pub async fn resolve_pending(pool: &SqlitePool, limit: i64) -> Result<ResolveSta
 
             sqlx::query(
                 "INSERT INTO wm_extraction_candidates (id, source_item_id, mention_text, mention_type_guess, best_match_entity_id, match_score, status, created_at) \
-                 VALUES (?, ?, ?, NULL, ?, ?, ?, ?)",
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             )
             .bind(new_id())
             .bind(&item_id)
-            .bind(&mention)
+            .bind(mention)
+            .bind(label)
             .bind(&entity_id)
             .bind(score)
             .bind(status)
@@ -210,14 +202,20 @@ pub async fn resolve_pending(pool: &SqlitePool, limit: i64) -> Result<ResolveSta
     Ok(stats)
 }
 
-async fn create_entity(pool: &SqlitePool, mention: &str, confidence: f64) -> Result<String> {
+async fn create_entity(
+    pool: &SqlitePool,
+    mention: &str,
+    entity_type: &str,
+    confidence: f64,
+) -> Result<String> {
     let id = new_id();
     let ts = now();
     sqlx::query(
         "INSERT INTO wm_entities (id, entity_type, canonical_name, aliases, external_ids, confidence, metadata, first_seen, last_seen, is_live, expiry_time, last_source_update_time) \
-         VALUES (?, 'unknown', ?, '[]', '{}', ?, '{}', ?, ?, 1, ?, ?)",
+         VALUES (?, ?, ?, '[]', '{}', ?, '{}', ?, ?, 1, ?, ?)",
     )
     .bind(&id)
+    .bind(entity_type)
     .bind(mention)
     .bind(confidence)
     .bind(&ts)
@@ -498,15 +496,6 @@ mod tests {
 
     use super::*;
 
-    #[test]
-    fn extracts_capitalized_spans() {
-        let mentions =
-            extract_mentions("Recorded Future acquired by Mastercard, said Babel Street.");
-        assert!(mentions.iter().any(|m| m == "Recorded Future"));
-        assert!(mentions.iter().any(|m| m == "Mastercard"));
-        assert!(mentions.iter().any(|m| m.starts_with("Babel Street")));
-    }
-
     async fn memory_pool() -> SqlitePool {
         let pool = SqlitePoolOptions::new()
             .connect("sqlite::memory:")
@@ -519,8 +508,12 @@ mod tests {
     #[tokio::test]
     async fn decorrelated_pair_refuses_merge() {
         let pool = memory_pool().await;
-        let a = create_entity(&pool, "Apple Inc", 0.9).await.unwrap();
-        let b = create_entity(&pool, "Apple Records", 0.9).await.unwrap();
+        let a = create_entity(&pool, "Apple Inc", "organization", 0.9)
+            .await
+            .unwrap();
+        let b = create_entity(&pool, "Apple Records", "organization", 0.9)
+            .await
+            .unwrap();
 
         decorrelate(&pool, &a, &b, Some("different companies"))
             .await
@@ -545,8 +538,12 @@ mod tests {
     #[tokio::test]
     async fn undecorrelated_pair_merges_successfully() {
         let pool = memory_pool().await;
-        let a = create_entity(&pool, "Recorded Future", 0.9).await.unwrap();
-        let b = create_entity(&pool, "RF Inc", 0.5).await.unwrap();
+        let a = create_entity(&pool, "Recorded Future", "organization", 0.9)
+            .await
+            .unwrap();
+        let b = create_entity(&pool, "RF Inc", "organization", 0.5)
+            .await
+            .unwrap();
 
         merge_entities(&pool, &a, &b).await.unwrap();
 
@@ -566,7 +563,9 @@ mod tests {
     #[tokio::test]
     async fn stale_entity_expires_and_touch_revives() {
         let pool = memory_pool().await;
-        let id = create_entity(&pool, "Some Corp", 0.5).await.unwrap();
+        let id = create_entity(&pool, "Some Corp", "organization", 0.5)
+            .await
+            .unwrap();
         // force it into the past so expire_stale_entities has something to catch
         sqlx::query("UPDATE wm_entities SET expiry_time = '2000-01-01T00:00:00Z' WHERE id = ?")
             .bind(&id)

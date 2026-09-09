@@ -4,7 +4,7 @@
 //! back through the same matcher as any other mention.
 
 use anyhow::Result;
-use serde::Deserialize;
+use serde_json::Value;
 use sqlx::SqlitePool;
 
 use crate::llm::{extract_json_object, LlmClient};
@@ -16,34 +16,114 @@ text passage. Respond with ONLY a JSON object, no prose, matching this shape exa
 entity_type must be one of: person, organization, location, event, product, vessel, aircraft, satellite, other. \
 canonical_name is the normalized real-world name (e.g. \"Recorded Future\" not \"RF\" or \"the company\"). \
 relation_type is a short snake_case verb phrase (e.g. acquired, ceo_of, invested_in, partner_of, located_in). \
+Every relation must be an object with keys a, b, relation_type, where a and b are mention strings from entities. \
 If nothing is extractable, return {\"entities\":[],\"relations\":[]}.";
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default)]
 struct LlmExtraction {
-    #[serde(default)]
     entities: Vec<LlmEntity>,
-    #[serde(default)]
     relations: Vec<LlmRelation>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 struct LlmEntity {
     mention: String,
     canonical_name: String,
     entity_type: String,
-    #[serde(default = "default_confidence")]
     confidence: f64,
 }
 
-fn default_confidence() -> f64 {
-    0.6
-}
-
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 struct LlmRelation {
     a: String,
     b: String,
     relation_type: String,
+}
+
+fn str_at<'a>(v: &'a Value, keys: &[&str]) -> Option<&'a str> {
+    keys.iter()
+        .find_map(|k| v.get(*k).and_then(Value::as_str))
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+}
+
+/// Lenient decoder: small local models produce duplicate keys, array-shaped relations, and
+/// stray fields. Parsing to `Value` first (last duplicate wins) and reading fields by hand
+/// recovers most of those responses instead of discarding the whole item.
+fn decode_extraction(v: &Value) -> LlmExtraction {
+    let mut out = LlmExtraction::default();
+
+    if let Some(items) = v.get("entities").and_then(Value::as_array) {
+        for item in items {
+            let (mention, canonical, etype, conf) = match item {
+                Value::Object(_) => (
+                    str_at(item, &["mention", "text", "name"]),
+                    str_at(item, &["canonical_name", "canonical", "name"]),
+                    str_at(item, &["entity_type", "type", "label"]),
+                    item.get("confidence").and_then(Value::as_f64),
+                ),
+                Value::Array(parts) => (
+                    parts.first().and_then(Value::as_str),
+                    parts.get(1).and_then(Value::as_str),
+                    parts.get(2).and_then(Value::as_str),
+                    parts.get(3).and_then(Value::as_f64),
+                ),
+                Value::String(s) => (Some(s.as_str()), Some(s.as_str()), None, None),
+                _ => (None, None, None, None),
+            };
+            let mention = mention.or(canonical);
+            let Some(mention) = mention else { continue };
+            out.entities.push(LlmEntity {
+                mention: mention.to_string(),
+                canonical_name: canonical.unwrap_or(mention).to_string(),
+                entity_type: etype.unwrap_or("other").to_lowercase(),
+                confidence: conf.unwrap_or(0.6).clamp(0.0, 1.0),
+            });
+        }
+    }
+
+    if let Some(items) = v.get("relations").and_then(Value::as_array) {
+        for item in items {
+            let rel = match item {
+                Value::Object(_) => (
+                    str_at(item, &["a", "from", "subject", "source"]),
+                    str_at(item, &["b", "to", "object", "target"]),
+                    str_at(item, &["relation_type", "relation", "type", "predicate"]),
+                ),
+                Value::Array(parts) if parts.len() >= 3 => {
+                    (parts[0].as_str(), parts[1].as_str(), parts[2].as_str())
+                }
+                _ => (None, None, None),
+            };
+            if let (Some(a), Some(b), Some(t)) = rel {
+                out.relations.push(LlmRelation {
+                    a: a.to_string(),
+                    b: b.to_string(),
+                    relation_type: normalize_relation(t),
+                });
+            }
+        }
+    }
+    out
+}
+
+fn normalize_relation(t: &str) -> String {
+    let s: String = t
+        .trim()
+        .to_lowercase()
+        .chars()
+        .map(|c| if c.is_alphanumeric() { c } else { '_' })
+        .collect();
+    let collapsed = s
+        .split('_')
+        .filter(|p| !p.is_empty())
+        .collect::<Vec<_>>()
+        .join("_");
+    if collapsed.is_empty() {
+        "related_to".to_string()
+    } else {
+        collapsed.chars().take(48).collect()
+    }
 }
 
 #[derive(Debug, Default)]
@@ -79,7 +159,7 @@ pub async fn enrich_batch(
         let Some((text,)) = raw_text else { continue };
 
         let snippet: String = text.chars().take(4000).collect();
-        let response = match client.complete(SYSTEM_PROMPT, &snippet, 1024, true).await {
+        let response = match client.complete(SYSTEM_PROMPT, &snippet, 1536, true).await {
             Ok(r) => r,
             Err(e) => {
                 tracing::warn!(source_item_id, error = %e, "LLM enrichment call failed");
@@ -93,43 +173,37 @@ pub async fn enrich_batch(
             stats.errors += 1;
             continue;
         };
-        let parsed: LlmExtraction = match serde_json::from_str(json) {
-            Ok(p) => p,
+        let value: Value = match serde_json::from_str(json) {
+            Ok(v) => v,
             Err(e) => {
                 tracing::warn!(source_item_id, error = %e, raw = %response, "LLM returned unparseable JSON");
                 stats.errors += 1;
                 continue;
             }
         };
+        let parsed = decode_extraction(&value);
 
         let mut mention_to_entity: std::collections::HashMap<String, String> =
             std::collections::HashMap::new();
 
         for llm_entity in &parsed.entities {
-            if llm_entity.canonical_name.trim().is_empty() && llm_entity.mention.trim().is_empty() {
-                continue;
-            }
-            let canonical = if llm_entity.canonical_name.trim().is_empty() {
-                llm_entity.mention.as_str()
-            } else {
-                llm_entity.canonical_name.as_str()
-            };
             let eid = crate::resolve::upsert_resolved_entity(
                 pool,
                 &llm_entity.mention,
-                canonical,
-                &llm_entity.entity_type.to_lowercase(),
-                llm_entity.confidence.clamp(0.0, 1.0),
+                &llm_entity.canonical_name,
+                &llm_entity.entity_type,
+                llm_entity.confidence,
             )
             .await?;
-            mention_to_entity.insert(llm_entity.mention.clone(), eid);
+            mention_to_entity.insert(llm_entity.mention.to_lowercase(), eid.clone());
+            mention_to_entity.insert(llm_entity.canonical_name.to_lowercase(), eid);
             stats.entities_updated += 1;
         }
 
         for rel in &parsed.relations {
-            if let (Some(a), Some(b)) =
-                (mention_to_entity.get(&rel.a), mention_to_entity.get(&rel.b))
-            {
+            let a = mention_to_entity.get(&rel.a.to_lowercase());
+            let b = mention_to_entity.get(&rel.b.to_lowercase());
+            if let (Some(a), Some(b)) = (a, b) {
                 crate::resolve::link_entities_typed(
                     pool,
                     a,
@@ -157,4 +231,34 @@ pub async fn enrich_batch(
     }
 
     Ok(stats)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn decodes_duplicate_keys_and_array_relations() {
+        let raw = r#"{"entities":[{"mention":"UAE","canonical_name":"United Arab Emirates","canonical_name":"United Arab Emirates","entity_type":"location","confidence":0.8},
+            {"mention":"Fed","canonical_name":"Federal Reserve System","entity_type":"organization","confidence":0.9}],
+            "relations":[["Fed","UAE","talks_with"],{"a":"UAE","b":"Fed","relation_type":"Hosted Talks With"}]}"#;
+        let v: Value = serde_json::from_str(raw).unwrap();
+        let x = decode_extraction(&v);
+        assert_eq!(x.entities.len(), 2);
+        assert_eq!(x.entities[0].canonical_name, "United Arab Emirates");
+        assert_eq!(x.relations.len(), 2);
+        assert_eq!(x.relations[0].relation_type, "talks_with");
+        assert_eq!(x.relations[1].relation_type, "hosted_talks_with");
+    }
+
+    #[test]
+    fn tolerates_missing_fields() {
+        let v: Value =
+            serde_json::from_str(r#"{"entities":[{"name":"Anthropic"}],"relations":"none"}"#)
+                .unwrap();
+        let x = decode_extraction(&v);
+        assert_eq!(x.entities.len(), 1);
+        assert_eq!(x.entities[0].entity_type, "other");
+        assert!(x.relations.is_empty());
+    }
 }

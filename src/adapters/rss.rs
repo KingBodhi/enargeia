@@ -6,16 +6,27 @@ use anyhow::{Context, Result};
 use async_trait::async_trait;
 use quick_xml::{events::Event, Reader};
 
-use super::SourceAdapter;
+use super::{
+    body::{fetch_article_text, FETCH_GAP},
+    SourceAdapter,
+};
 use crate::models::RawItem;
+
+/// Feed descriptions shorter than this are treated as teasers and the linked page is fetched.
+const TEASER_CHARS: usize = 400;
 
 pub struct RssAdapter {
     pub feed_urls: Vec<String>,
+    /// Fetch the linked page when the feed only carries a teaser.
+    pub fetch_body: bool,
 }
 
 impl RssAdapter {
     pub fn new(feed_urls: Vec<String>) -> Self {
-        Self { feed_urls }
+        Self {
+            feed_urls,
+            fetch_body: true,
+        }
     }
 }
 
@@ -47,11 +58,25 @@ impl SourceAdapter for RssAdapter {
             match parse_feed(&body) {
                 Ok(parsed) => {
                     for (title, link, text) in parsed {
+                        let mut text = strip_tags(&text);
+                        if self.fetch_body
+                            && !link.is_empty()
+                            && text.chars().count() < TEASER_CHARS
+                        {
+                            tokio::time::sleep(FETCH_GAP).await;
+                            if let Some(page) = fetch_article_text(&client, &link).await {
+                                text = if text.is_empty() {
+                                    page
+                                } else {
+                                    format!("{text}\n\n{page}")
+                                };
+                            }
+                        }
                         items.push(RawItem {
                             source_type: "rss".to_string(),
                             source_ref: if link.is_empty() { url.clone() } else { link },
                             title: if title.is_empty() { None } else { Some(title) },
-                            text: strip_tags(&text),
+                            text,
                             // Per-publisher terms vary and aren't asserted here - default 'unknown'
                             // rather than falsely claiming clean commercial rights.
                             license_class: "unknown".to_string(),

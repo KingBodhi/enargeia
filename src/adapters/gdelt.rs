@@ -10,7 +10,10 @@ use anyhow::{Context, Result};
 use async_trait::async_trait;
 use serde::Deserialize;
 
-use super::SourceAdapter;
+use super::{
+    body::{fetch_article_text, FETCH_GAP},
+    SourceAdapter,
+};
 use crate::models::RawItem;
 
 const DOC_API_URL: &str = "https://api.gdeltproject.org/api/v2/doc/doc";
@@ -21,6 +24,8 @@ pub struct GdeltAdapter {
     pub queries: Vec<String>,
     pub timespan: String,
     pub max_records: u32,
+    /// Fetch each article page for body text (the DOC API returns metadata only).
+    pub fetch_body: bool,
 }
 
 impl GdeltAdapter {
@@ -29,6 +34,7 @@ impl GdeltAdapter {
             queries,
             timespan: "1d".to_string(),
             max_records: 50,
+            fetch_body: true,
         }
     }
 }
@@ -44,7 +50,6 @@ struct DocArticle {
     url: Option<String>,
     title: Option<String>,
     domain: Option<String>,
-    seendate: Option<String>,
 }
 
 #[async_trait]
@@ -96,16 +101,24 @@ impl SourceAdapter for GdeltAdapter {
                 if title.is_empty() {
                     continue;
                 }
+                let domain = article.domain.unwrap_or_default();
+                let body = if self.fetch_body {
+                    tokio::time::sleep(FETCH_GAP).await;
+                    fetch_article_text(&client, &url).await
+                } else {
+                    None
+                };
+                let text = match body {
+                    Some(b) => format!("{title}\n\n{b}"),
+                    None => format!("{title} ({domain})"),
+                };
                 items.push(RawItem {
                     source_type: "gdelt".to_string(),
                     source_ref: url,
-                    title: Some(title.clone()),
-                    // DOC artlist has no body text; title (+ domain/date for traceability) is
-                    // what Tier 1/2 have to work with until a body-fetch follow-up exists.
-                    text: format!("{title} ({})", article.domain.unwrap_or_default(),),
+                    title: Some(title),
+                    text,
                     license_class: "commercial_clean".to_string(),
                 });
-                let _ = article.seendate; // kept on the struct for future provenance use, unused for now
             }
         }
 
