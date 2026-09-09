@@ -21,6 +21,7 @@ use tower_http::cors::CorsLayer;
 
 use crate::{
     adapters::{celestrak, usgs},
+    auth::{self, Principal},
     block, context, geo, llm,
     matcher::Weights,
     models::{WmEdge, WmEntity},
@@ -61,24 +62,33 @@ fn internal(e: impl std::fmt::Display) -> (StatusCode, String) {
     err(StatusCode::INTERNAL_SERVER_ERROR, e)
 }
 
-fn authorize(
+/// Resolves the bearer token (root env token or a stored scoped token) to a principal.
+async fn authenticate(
     state: &AppState,
     headers: &HeaderMap,
-) -> std::result::Result<(), (StatusCode, String)> {
-    let Some(expected) = &state.token else {
-        return Ok(());
-    };
-    let got = headers
+) -> std::result::Result<Principal, (StatusCode, String)> {
+    let bearer = headers
         .get(header::AUTHORIZATION)
         .and_then(|v| v.to_str().ok())
-        .and_then(|v| v.strip_prefix("Bearer "))
-        .unwrap_or("");
-    if got == expected {
+        .and_then(|v| v.strip_prefix("Bearer "));
+    auth::authenticate(&state.pool, state.token.as_deref(), bearer)
+        .await
+        .map_err(internal)?
+        .ok_or_else(|| {
+            err(
+                StatusCode::UNAUTHORIZED,
+                "missing, revoked or invalid bearer token",
+            )
+        })
+}
+
+fn require(ok: bool, what: &str, p: &Principal) -> std::result::Result<(), (StatusCode, String)> {
+    if ok {
         Ok(())
     } else {
         Err(err(
-            StatusCode::UNAUTHORIZED,
-            "missing or invalid bearer token",
+            StatusCode::FORBIDDEN,
+            format!("role {} may not {what}", p.role.as_str()),
         ))
     }
 }
@@ -334,12 +344,13 @@ async fn decide(
     Path(id): Path<String>,
     Json(body): Json<DecisionBody>,
 ) -> ApiResult {
-    authorize(&state, &headers)?;
+    let p = authenticate(&state, &headers).await?;
+    require(p.role.can_decide(), "record decisions", &p)?;
     let msg = resolve::apply_decision(
         &state.pool,
         &id,
         &body.decision,
-        body.actor.as_deref().unwrap_or("api"),
+        body.actor.as_deref().unwrap_or(&p.name),
         body.reason.as_deref(),
     )
     .await
@@ -360,7 +371,8 @@ async fn decorrelate(
     headers: HeaderMap,
     Json(body): Json<DecorrelateBody>,
 ) -> ApiResult {
-    authorize(&state, &headers)?;
+    let p = authenticate(&state, &headers).await?;
+    require(p.role.can_decorrelate(), "decorrelate entities", &p)?;
     resolve::decorrelate(&state.pool, &body.a, &body.b, body.reason.as_deref())
         .await
         .map_err(|e| err(StatusCode::BAD_REQUEST, e))?;
@@ -379,14 +391,29 @@ async fn ask(
     headers: HeaderMap,
     Json(body): Json<AskBody>,
 ) -> ApiResult {
-    authorize(&state, &headers)?;
-    let client = llm::LlmClient::from_env().map_err(internal)?;
-    let answer = context::ask(&state.pool, &client, &body.question, body.as_of.as_deref())
+    let p = authenticate(&state, &headers).await?;
+    let remaining = auth::charge_ask(&state.pool, &p)
         .await
-        .map_err(internal)?;
-    Ok(Json(
-        json!({"question": body.question, "as_of": body.as_of, "answer": answer, "llm": client.describe()}),
-    ))
+        .map_err(|e| err(StatusCode::TOO_MANY_REQUESTS, e))?;
+    let client = llm::LlmClient::from_env().map_err(internal)?;
+    let answer = context::ask_filtered(
+        &state.pool,
+        &client,
+        &body.question,
+        body.as_of.as_deref(),
+        p.license_filter.as_deref(),
+    )
+    .await
+    .map_err(internal)?;
+    Ok(Json(json!({
+        "question": body.question, "as_of": body.as_of, "answer": answer, "llm": client.describe(),
+        "principal": p.name, "license_filter": p.license_filter, "asks_remaining_today": remaining,
+    })))
+}
+
+async fn whoami(State(state): State<Shared>, headers: HeaderMap) -> ApiResult {
+    let p = authenticate(&state, &headers).await?;
+    Ok(Json(serde_json::to_value(&p).map_err(internal)?))
 }
 
 async fn geo_features(State(state): State<Shared>) -> ApiResult {
@@ -467,6 +494,7 @@ pub fn router(state: Shared) -> Router {
         .route("/", get(index))
         .route("/api/health", get(health))
         .route("/api/status", get(status))
+        .route("/api/whoami", get(whoami))
         .route("/api/weights", get(weights))
         .route("/api/entities", get(entities))
         .route("/api/entities/{id}", get(entity))

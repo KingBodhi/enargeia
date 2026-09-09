@@ -110,6 +110,11 @@ enum Command {
         #[command(subcommand)]
         action: GeoAction,
     },
+    /// Scoped API tokens for analysts and clients (see README "Clients and scoped tokens").
+    Token {
+        #[command(subcommand)]
+        action: TokenAction,
+    },
     /// Standing watch: ingest a mission's sources on a cadence, resolve, enrich a bounded
     /// number of items, write a digest, and escalate only what warrants it.
     Watch {
@@ -168,6 +173,32 @@ enum MissionAction {
         #[arg(long)]
         out: Option<String>,
     },
+}
+
+#[derive(Subcommand)]
+enum TokenAction {
+    /// Create a scoped token; the plaintext is printed once and never stored.
+    Create {
+        /// Human label, e.g. "pcg-dashboard".
+        #[arg(long)]
+        name: String,
+        /// operator | analyst | client
+        #[arg(long, default_value = "client")]
+        role: String,
+        /// Maximum `ask` calls per UTC day (omit for unlimited).
+        #[arg(long)]
+        ask_daily_limit: Option<i64>,
+        /// Cite only commercially clean sources for this token (default for clients).
+        #[arg(long)]
+        commercial_only: bool,
+        /// Allow a client token to cite every source class (overrides the client default).
+        #[arg(long)]
+        any_source: bool,
+    },
+    /// List tokens (never shows plaintext).
+    List,
+    /// Revoke a token by id or name.
+    Revoke { token: String },
 }
 
 #[derive(Subcommand)]
@@ -442,6 +473,55 @@ async fn main() -> Result<()> {
                 report.graph_path.display()
             );
         }
+        Command::Token { action } => match action {
+            TokenAction::Create {
+                name,
+                role,
+                ask_daily_limit,
+                commercial_only,
+                any_source,
+            } => {
+                let role = enargeia::auth::Role::parse(&role)?;
+                let filter = if any_source {
+                    None
+                } else if commercial_only || role == enargeia::auth::Role::Client {
+                    Some("commercial_clean")
+                } else {
+                    None
+                };
+                let (id, plain) =
+                    enargeia::auth::create_token(&pool, &name, role, ask_daily_limit, filter)
+                        .await?;
+                println!("token id: {id}\nrole: {}\nask_daily_limit: {}\nlicense_filter: {}\n\n{plain}\n\nStore it now; it is not recoverable.", role.as_str(), ask_daily_limit.map(|n| n.to_string()).unwrap_or_else(|| "unlimited".into()), filter.unwrap_or("any"));
+            }
+            TokenAction::List => {
+                for t in enargeia::auth::list_tokens(&pool).await? {
+                    println!(
+                        "{}  {:<20} {:<9} limit={:<9} filter={:<16} created={} {}{}",
+                        t.id,
+                        t.name,
+                        t.role,
+                        t.ask_daily_limit
+                            .map(|n| n.to_string())
+                            .unwrap_or_else(|| "unlimited".into()),
+                        t.license_filter.as_deref().unwrap_or("any"),
+                        t.created_at.get(..10).unwrap_or(&t.created_at),
+                        t.last_used_at
+                            .as_deref()
+                            .map(|u| format!("last_used={} ", u.get(..16).unwrap_or(u)))
+                            .unwrap_or_default(),
+                        t.revoked_at
+                            .as_deref()
+                            .map(|r| format!("REVOKED {}", r.get(..10).unwrap_or(r)))
+                            .unwrap_or_default()
+                    );
+                }
+            }
+            TokenAction::Revoke { token } => {
+                let n = enargeia::auth::revoke_token(&pool, &token).await?;
+                println!("revoked {n} token(s)");
+            }
+        },
         Command::Watch {
             mission,
             interval_secs,

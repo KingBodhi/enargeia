@@ -69,6 +69,26 @@ queue, and the ask box. Everything it does goes through the JSON API under `/api
 `POST /api/decorrelate`). GET endpoints are open; endpoints that change the graph or call
 the LLM require `Authorization: Bearer <token>` when `--token`/`ENARGEIA_TOKEN` is set.
 
+## Clients and scoped tokens
+
+```sh
+enargeia token create --name pcg-dashboard --role client --ask-daily-limit 50
+enargeia token create --name analyst-1 --role analyst
+enargeia token list
+enargeia token revoke pcg-dashboard
+```
+
+| Role | Decisions | Decorrelate | `ask` | Sources cited |
+|---|---|---|---|---|
+| `operator` (root `ENARGEIA_TOKEN`, or a token) | yes | yes | unlimited | all |
+| `analyst` | yes | no | unlimited unless limited | all unless `--commercial-only` |
+| `client` | no | no | `--ask-daily-limit` per UTC day | `commercial_clean` only (unless `--any-source`) |
+
+Tokens are stored hashed and shown once. `GET /api/whoami` reports the caller's scope;
+`POST /api/ask` returns `asks_remaining_today` and answers only from sources the token may
+cite — a client is never handed non-commercial data by accident. With no root token and no
+stored tokens the API is open (it binds to loopback by default).
+
 ## Standing watch
 
 ```sh

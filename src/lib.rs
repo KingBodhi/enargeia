@@ -1,4 +1,5 @@
 pub mod adapters;
+pub mod auth;
 pub mod block;
 pub mod context;
 pub mod db;

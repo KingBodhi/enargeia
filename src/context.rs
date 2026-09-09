@@ -117,9 +117,9 @@ pub async fn find_matching_entities(
         .collect())
 }
 
-struct GraphSlice {
-    entities: Vec<WmEntity>,
-    edges: Vec<WmEdge>,
+pub struct GraphSlice {
+    pub entities: Vec<WmEntity>,
+    pub edges: Vec<WmEdge>,
 }
 
 /// Edges valid at `as_of` (or valid now when `None`): bi-temporal filtering on valid time.
@@ -348,6 +348,50 @@ bracketed numbers, e.g. [2], after each claim. Prefer typed relations (e.g. suin
 founder_of) over co-occurrence (mentioned_with). If the context does not support an answer, \
 say so plainly; never guess or use outside knowledge. Be concise and concrete.";
 
+/// Restricts a slice to relations backed by at least one source of `license_class`, and
+/// strips the other sources from those relations so they are never cited. Entities stay:
+/// existence is not licensed, evidence is.
+pub fn filter_slice_by_license(
+    slice: &mut GraphSlice,
+    license_of: &HashMap<String, String>,
+    license_class: &str,
+) {
+    slice.edges.retain_mut(|e| {
+        let allowed: Vec<String> = e
+            .source_ids()
+            .into_iter()
+            .filter(|id| license_of.get(id).map(String::as_str) == Some(license_class))
+            .collect();
+        if allowed.is_empty() {
+            return false;
+        }
+        e.source_item_ids = serde_json::to_string(&allowed).unwrap_or_else(|_| "[]".into());
+        true
+    });
+}
+
+async fn license_map(pool: &SqlitePool, slice: &GraphSlice) -> Result<HashMap<String, String>> {
+    let ids: Vec<String> = slice
+        .edges
+        .iter()
+        .flat_map(|e| e.source_ids())
+        .collect::<HashSet<_>>()
+        .into_iter()
+        .collect();
+    let mut out = HashMap::new();
+    for chunk in ids.chunks(500) {
+        let placeholders = chunk.iter().map(|_| "?").collect::<Vec<_>>().join(",");
+        let sql =
+            format!("SELECT id, license_class FROM wm_source_items WHERE id IN ({placeholders})");
+        let mut q = sqlx::query_as::<_, (String, String)>(&sql);
+        for id in chunk {
+            q = q.bind(id);
+        }
+        out.extend(q.fetch_all(pool).await?);
+    }
+    Ok(out)
+}
+
 /// Answers a question from the graph as it is now, or as it was at `as_of` (RFC3339 or
 /// YYYY-MM-DD). Returns the answer followed by a numbered source list.
 pub async fn ask(
@@ -355,6 +399,17 @@ pub async fn ask(
     client: &LlmClient,
     question: &str,
     as_of: Option<&str>,
+) -> Result<String> {
+    ask_filtered(pool, client, question, as_of, None).await
+}
+
+/// `ask`, citing only sources of `license_filter` when one is given.
+pub async fn ask_filtered(
+    pool: &SqlitePool,
+    client: &LlmClient,
+    question: &str,
+    as_of: Option<&str>,
+    license_filter: Option<&str>,
 ) -> Result<String> {
     let seeds = find_matching_entities(pool, question, as_of).await?;
     if seeds.is_empty() {
@@ -364,7 +419,16 @@ pub async fn ask(
         );
     }
     let seed_ids: Vec<String> = seeds.iter().map(|e| e.id.clone()).collect();
-    let slice = bfs(pool, &seed_ids, DEFAULT_DEPTH, as_of).await?;
+    let mut slice = bfs(pool, &seed_ids, DEFAULT_DEPTH, as_of).await?;
+    if let Some(class) = license_filter {
+        let licenses = license_map(pool, &slice).await?;
+        filter_slice_by_license(&mut slice, &licenses, class);
+        if slice.edges.is_empty() {
+            return Ok(format!(
+                "The graph has no relations about this backed by {class} sources; nothing can be cited under this token's license scope."
+            ));
+        }
+    }
     let sources = load_sources(pool, &slice).await?;
     let (context, source_list) = format_context(&slice, &sources);
     let when = as_of
@@ -387,6 +451,45 @@ pub async fn ask(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn edge(id: &str, sources: &[&str]) -> WmEdge {
+        WmEdge {
+            id: id.into(),
+            from_id: "a".into(),
+            to_id: "b".into(),
+            edge_type: "suing".into(),
+            weight: 1.0,
+            metadata: "{}".into(),
+            source_item_ids: serde_json::to_string(sources).unwrap(),
+            first_seen: String::new(),
+            last_seen: String::new(),
+            valid_at: None,
+            invalid_at: None,
+            superseded_by: None,
+        }
+    }
+
+    #[test]
+    fn license_filter_keeps_only_citable_evidence() {
+        let mut slice = GraphSlice {
+            entities: vec![],
+            edges: vec![
+                edge("e1", &["s_clean", "s_nc"]),
+                edge("e2", &["s_nc"]),
+                edge("e3", &["s_missing"]),
+            ],
+        };
+        let licenses: HashMap<String, String> = [
+            ("s_clean".to_string(), "commercial_clean".to_string()),
+            ("s_nc".to_string(), "non_commercial_only".to_string()),
+        ]
+        .into_iter()
+        .collect();
+        filter_slice_by_license(&mut slice, &licenses, "commercial_clean");
+        assert_eq!(slice.edges.len(), 1);
+        assert_eq!(slice.edges[0].id, "e1");
+        assert_eq!(slice.edges[0].source_ids(), vec!["s_clean".to_string()]);
+    }
 
     fn words(q: &str) -> Vec<String> {
         q.to_lowercase()
