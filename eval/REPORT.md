@@ -1,6 +1,6 @@
 # Matcher evaluation report
 
-Generated 2026-09-09 17:00 UTC by `enargeia eval match` from `eval/labels.jsonl`.
+Generated 2026-09-09 18:22 UTC by `enargeia eval match` from `eval/labels.jsonl`.
 
 **261 labeled pairs** — 50 matches, 211 non-matches. Only string/type features are exercised here; co-occurrence, corroboration and recency priors are zero. See `eval/README.md` for the labeling policy and provenance.
 
