@@ -376,14 +376,17 @@ pub fn plausible_name(text: &str, entity_type: &str) -> bool {
     if n == 1 && GENERIC_SINGLE.contains(&t.to_lowercase().as_str()) {
         return false;
     }
-    // "AI labs", "the company": nothing but suffix/filler tokens is not a name.
+    // "AI labs", "the company": nothing but suffix/filler tokens is not a name. A short
+    // all-caps location ("LA") is a name that happens to collide with filler.
+    let all_caps = t.chars().all(|c| !c.is_alphabetic() || c.is_uppercase());
     if tokens
         .iter()
         .all(|tok| crate::matcher::IGNORABLE_TOKENS.contains(&tok.to_lowercase().as_str()))
+        && !(n == 1 && all_caps && entity_type == "location")
     {
         return false;
     }
-    if n > 7 || (entity_type == "other" && n >= 4) {
+    if n > 10 || (entity_type == "other" && n >= 4) {
         return false;
     }
     let first = tokens[0].to_lowercase();
@@ -415,6 +418,11 @@ pub fn plausible_name(text: &str, entity_type: &str) -> bool {
             }
         }
         if low > cap {
+            return false;
+        }
+        // Long names are fine when they are mostly capitalized ("Association of Independent
+        // Regional Press Publishers of Ukraine"); long lowercase strings are descriptions.
+        if n > 7 && low > 0 {
             return false;
         }
     }
@@ -535,6 +543,15 @@ mod tests {
         assert!(plausible_name("iPhone", "product"));
         assert!(plausible_name("a16z", "organization"));
         assert!(plausible_name("TechCrunch Disrupt 2026", "event"));
+        assert!(plausible_name(
+            "Association of Independent Regional Press Publishers of Ukraine",
+            "organization"
+        ));
+        assert!(plausible_name("LA", "location"));
+        assert!(!plausible_name(
+            "Government public health and research institutions",
+            "organization"
+        ));
         assert!(is_generic("users"));
         assert!(is_generic("data breach"));
         assert!(!is_generic("a16z"));

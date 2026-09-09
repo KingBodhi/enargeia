@@ -129,6 +129,11 @@ enum Command {
         #[command(subcommand)]
         action: TokenAction,
     },
+    /// Entities: prune names that fail the plausibility gate (older graphs).
+    Entities {
+        #[command(subcommand)]
+        action: EntitiesAction,
+    },
     /// Typed relations: re-verify every stored relation against its source text.
     Relations {
         #[command(subcommand)]
@@ -191,6 +196,15 @@ enum MissionAction {
         /// Output directory (default missions/<name>).
         #[arg(long)]
         out: Option<String>,
+    },
+}
+
+#[derive(Subcommand)]
+enum EntitiesAction {
+    /// List entities whose names are descriptions or filler, not names; --delete removes them.
+    Prune {
+        #[arg(long)]
+        delete: bool,
     },
 }
 
@@ -534,6 +548,23 @@ async fn main() -> Result<()> {
                 report.answers,
                 report.brief_path.display(),
                 report.graph_path.display()
+            );
+        }
+        Command::Entities {
+            action: EntitiesAction::Prune { delete },
+        } => {
+            let (checked, failing) = enargeia::audit::prune_entities(&pool, delete).await?;
+            for f in &failing {
+                println!("IMPLAUSIBLE {f}");
+            }
+            println!(
+                "checked {checked} · implausible {} · {}",
+                failing.len(),
+                if delete {
+                    "deleted"
+                } else {
+                    "dry run (add --delete)"
+                }
             );
         }
         Command::Relations {

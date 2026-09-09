@@ -51,6 +51,7 @@ enargeia merge <keep_id> <absorb_id>      # refuses if the pair was decorrelated
 enargeia expire
 enargeia eval decorrelation               # proves a rejected merge never comes back
 enargeia relations audit [--delete]       # re-verify every typed relation against its source text
+enargeia entities prune [--delete]        # drop description-shaped "entities" from graphs built before the name gate
 ```
 
 Tier 2 output is grounded twice: a mention must occur in the source text, and a typed

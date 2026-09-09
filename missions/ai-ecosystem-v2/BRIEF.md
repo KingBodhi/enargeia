@@ -1,6 +1,6 @@
 # ai-ecosystem — intelligence brief
 
-Generated 2026-09-09 16:43 UTC by `enargeia mission run`. Leadership, investors, partners, disputes and product moves among the leading AI labs, as reported in current open sources.
+Generated 2026-09-09 16:46 UTC by `enargeia mission run`. Leadership, investors, partners, disputes and product moves among the leading AI labs, as reported in current open sources.
 
 **Scope:** Organizations and public figures acting in their professional capacity (executives, founders, investors, regulators). No private individuals.
 
@@ -10,26 +10,125 @@ Every claim below cites its source by number; the graph slice used for each answ
 
 ## 1. Who leads each of the major AI labs (OpenAI, Anthropic, Google DeepMind, Meta, Mistral, xAI), according to the sources?
 
-Based on the information provided in the context and relations section:
+⚠ UNVERIFIED — the model cited no sources; treat every claim below as unconfirmed.
 
-1. **OpenAI**: Greg Brockman is listed as the President of OpenAI since 2026-06-01.
-   - Source: [4]
-   
-2. **Anthropic**: Claude (a large language model by Anthropic) was developed by Anthropic, but there's no explicit mention in the provided sources who leads Anthropic. It would typically be a leader or team of leaders, but this is not specified here.
+Based on the information given in the context and relations provided:
 
-3. **Google DeepMind**: The leadership structure for Google DeepMind is also not directly stated within the given sources.
-   
-4. **Meta (formerly Facebook)**: The leadership of Meta AI group isn't detailed in these sources either.
-   
-5. **Mistral**: There's no information provided about who leads Mistral in these sources.
+- **OpenAI**: Sam Altman is listed as the CEO of OpenAI.
+  
+- **Anthropic**: While information about specific leadership within Anthropic (like Claude's maker) isn't provided directly, it is implied that it would be a key individual leading such an organization. 
 
-6. **xAI**: xAI isn't mentioned at all in the given context and relations, so there is no information available regarding its leadership team from this data set.
+- **Google DeepMind**: The context doesn’t include any specific CEO or leader for Google DeepMind.
 
-To directly answer your question based on the explicitly provided information:
-- Greg Brockman leads OpenAI.
-- We don't have explicit information for Anthropic, Google DeepMind, Meta (formerly Facebook), Mistral, or xAI.
+- **Meta/Facebook**: Facebook rebranded to Meta and its AI efforts are often associated with the Meta AI group. However, the specific leader is not provided in this text.
+  
+- **Mistral**: No information regarding leadership at Mistral is provided.
+  
+- **xAI**: There's no mention of xAI in the given context.
 
-— graph slice: 60 entities, 60 edges; seeds: Meta Platforms, Inc., Google DeepMind, major AI labs, Anthropic, Facebook, Alphabet
+So, based on what can be understood from the provided contexts:
+- OpenAI: Sam Altman
+- Anthropic: (Not specified in this text)
+- Google DeepMind: (Leadership not mentioned)
+- Meta/Facebook: (Meta/ Facebook leadership is not specified here) 
+- Mistral: (Leadership not mentioned)
+- xAI: (Not mentioned)
+
+Therefore, for the context provided:
+
+- OpenAI's current known leader is Sam Altman.
+
+— graph slice: 63 entities, 60 edges; seeds: Artificial Intelligence, Meta Platforms, Inc., Google DeepMind, major AI labs, Anthropic, Facebook, Greg Brockman, Endava, Singular Bank, clinician, Carlos Torres Vila, OpenAI
+Sources:
+[1] 2026-07-21 · David Vélez and Robin Vince join the boards of the OpenAI Foundation and OpenAI Group PBC — https://openai.com/index/david-velez-robin-vince-join-openai-boards (unknown)
+[2] 2025-12-12 · BBVA and OpenAI collaborate to transform global banking — https://openai.com/index/bbva-collaboration-expansion (unknown)
+[3] 2026-04-10 · Healthcare — https://openai.com/academy/healthcare (unknown)
+[4] 2026-06-24 · OpenAI and Broadcom unveil LLM-optimized inference chip — https://openai.com/index/openai-broadcom-jalapeno-inference-chip (unknown)
+[5] 2026-05-06 · Singular Bank helps bankers move fast with ChatGPT and Codex — https://openai.com/index/singular-bank (unknown)
+[6] 2026-06-01 · Our views on AI policy and political advocacy — https://openai.com/index/our-views-on-ai-policy-and-political-advocacy (unknown)
+[7] 2026-05-28 · How Endava builds an agentic organization with Codex — https://openai.com/index/endava (unknown)
+[8] 2025-12-16 · Staying ahead in the age of AI — https://openai.com/business/guides-and-resources/staying-ahead-in-the-age-of-ai (unknown)
+[9] 2026-05-27 · Building self-improving tax agents with Codex — https://openai.com/index/building-self-improving-tax-agents-with-codex (unknown)
+[10] 2026-04-02 · OpenAI acquires TBPN — https://openai.com/index/openai-acquires-tbpn (unknown)
+[11] 2026-06-03 · How Wasmer used Codex to build a Node.js runtime for the edge — https://openai.com/index/wasmer (unknown)
+[12] 2026-03-06 · How Descript engineers multilingual video dubbing at scale — https://openai.com/index/descript (unknown)
+[13] 2026-06-30 · How ChatGPT adoption has expanded — https://openai.com/index/how-chatgpt-adoption-has-expanded (unknown)
+[14] 2026-06-01 · “Data Center Bandwagon” Campaign: US-targeted influence activity — https://openai.com/index/disrupting-malicious-uses-of-ai-data-center-bandwagon (unknown)
+[15] 2026-04-28 · Our commitment to community safety — https://openai.com/index/our-commitment-to-community-safety (unknown)
+[16] 2026-02-27 · An update on our mental health-related work — https://openai.com/index/update-on-mental-health-related-work (unknown)
+[17] 2026-02-13 · Introducing Lockdown Mode and Elevated Risk labels in ChatGPT — https://openai.com/index/introducing-lockdown-mode-and-elevated-risk-labels-in-chatgpt (unknown)
+[18] 2026-05-08 · Running Codex safely at OpenAI — https://openai.com/index/running-codex-safely (unknown)
+[19] 2026-02-26 · OpenAI Codex and Figma launch seamless code-to-design experience — https://openai.com/index/figma-partnership (unknown)
+[20] 2026-06-11 · BBVA puts AI at the core of banking with OpenAI — https://openai.com/index/bbva (unknown)
+[21] 2026-04-21 · Scaling Codex to enterprises worldwide — https://openai.com/index/scaling-codex-to-enterprises-worldwide (unknown)
+[22] 2026-02-23 · OpenAI announces Frontier Alliance Partners — https://openai.com/index/frontier-alliance-partners (unknown)
+[23] 2026-06-02 · Advancing youth safety and opportunity through global leadership — https://openai.com/index/advancing-youth-safety-and-opportunity-through-global-leadership (unknown)
+[24] 2026-07-22 · Building AI infrastructure with the Effingham County community — https://openai.com/index/building-ai-infrastructure-with-the-effingham-county-community (unknown)
+[25] 2026-06-22 · Patch the Planet: a Daybreak initiative to support open source maintainers — https://openai.com/index/patch-the-planet (unknown)
+[26] 2025-12-18 · Introducing GPT-5.2-Codex — https://openai.com/index/introducing-gpt-5-2-codex (unknown)
+[27] 2026-01-09 · OpenAI and SoftBank Group partner with SB Energy — https://openai.com/index/stargate-sb-energy-partnership (unknown)
+[28] 2026-03-04 · Understanding AI and learning outcomes — https://openai.com/index/understanding-ai-and-learning-outcomes (unknown)
+[29] 2026-05-19 · Advancing content provenance for a safer, more transparent AI ecosystem — https://openai.com/index/advancing-content-provenance (unknown)
+[30] 2025-12-08 · Instacart and OpenAI partner on AI shopping experiences — https://openai.com/index/instacart-partnership (unknown)
+
+
+## 2. Which AI labs share investors or partners, and which investors or partners appear most often?
+
+Based on the provided relations and entities, there are no direct claims indicating that AI labs (as an organization) share specific investors or partners with OpenAI. The context mainly outlines various partnerships between OpenAI and other organizations such as Accenture, BBVA, Instacart, Commonwealth Bank of Australia, Dell Technologies, and others, but these partnerships do not directly pertain to AI labs.
+
+It's important to note that among the entities mentioned in the provided context, no explicit claims about shared investors or partners for multiple AI labs are present. Therefore, a clear answer cannot be given based strictly on the information provided.
+
+However, some key organizations partnering with OpenAI and their frequent occurrence are:
+
+- **OpenAI** (most frequent partner): It appears in numerous relations such as being partnered with Accenture [2], BBVA [4], Common Wealth Bank of Australia [11], Instacart [20], Commonwealth Bank of Australia [11], among others.
+  
+These partnerships highlight OpenAI's extensive engagement across various sectors and industries, with notable frequency for OpenAI itself. Thus, if the intent is to identify frequent partners alongside OpenAI, it would be OpenAI repeatedly appearing in different relations.
+
+If you need more detailed analysis or specific information regarding shared investors or partners between AI labs, we would require additional data or context focusing on such relationships.
+
+— graph slice: 63 entities, 60 edges; seeds: Artificial Intelligence, Partners, AI labs, AI, AI lab, AI21 Labs, OpenAI Workshop, Amazon, Figma Make, SB Energy, Accenture, OpenAI
+Sources:
+[1] 2026-04-21 · Scaling Codex to enterprises worldwide — https://openai.com/index/scaling-codex-to-enterprises-worldwide (unknown)
+[2] 2026-02-23 · OpenAI announces Frontier Alliance Partners — https://openai.com/index/frontier-alliance-partners (unknown)
+[3] 2026-06-11 · BBVA puts AI at the core of banking with OpenAI — https://openai.com/index/bbva (unknown)
+[4] 2025-12-12 · BBVA and OpenAI collaborate to transform global banking — https://openai.com/index/bbva-collaboration-expansion (unknown)
+[5] 2026-03-04 · Understanding AI and learning outcomes — https://openai.com/index/understanding-ai-and-learning-outcomes (unknown)
+[6] 2026-06-14 · Introducing the OpenAI Partner Network — https://openai.com/index/introducing-openai-partner-network (unknown)
+[7] 2026-06-23 · Helping build shared standards for advanced AI — https://openai.com/index/helping-build-shared-standards-for-advanced-ai (unknown)
+[8] 2026-06-10 · Access OpenAI models and Codex through your Oracle cloud commitment — https://openai.com/index/openai-on-oracle-cloud (unknown)
+[9] 2026-02-02 · Snowflake and OpenAI partner to bring frontier intelligence to enterprise data — https://openai.com/index/snowflake-partnership (unknown)
+[10] 2026-06-01 · Building the infrastructure for the Intelligence Age in Michigan — https://openai.com/index/stargate-michigan-data-center (unknown)
+[11] 2025-12-09 · Commonwealth Bank of Australia builds AI fluency at scale — https://openai.com/index/commonwealth-bank-of-australia (unknown)
+[12] 2026-05-18 · OpenAI and Dell partner to bring Codex to hybrid and on-premise enterprise environments — https://openai.com/index/dell-codex-enterprise-partnership (unknown)
+[13] 2026-03-29 · Helping disaster response teams turn AI into action across Asia — https://openai.com/index/helping-disaster-response-teams-asia (unknown)
+[14] 2026-07-22 · Advancing the next era of national science — https://openai.com/index/advancing-the-next-era-of-national-science (unknown)
+[15] 2025-12-11 · The Walt Disney Company and OpenAI reach landmark agreement to bring beloved characters to Sora — https://openai.com/index/disney-sora-agreement (unknown)
+[16] 2026-05-25 · OpenAI, Grupo Folha and Grupo UOL announce strategic content partnership — https://openai.com/index/grupo-folha-grupo-uol-partnership (unknown)
+[17] 2026-01-14 · OpenAI partners with Cerebras   — https://openai.com/index/cerebras-partnership (unknown)
+[18] 2026-02-19 · Advancing independent research on AI alignment — https://openai.com/index/advancing-independent-research-ai-alignment (unknown)
+[19] 2026-02-27 · OpenAI and Amazon announce strategic partnership — https://openai.com/index/amazon-partnership (unknown)
+[20] 2025-12-08 · Instacart and OpenAI partner on AI shopping experiences — https://openai.com/index/instacart-partnership (unknown)
+[21] 2026-02-26 · Pacific Northwest National Laboratory and OpenAI partner to accelerate federal permitting  — https://openai.com/index/pacific-northwest-national-laboratory (unknown)
+[22] 2026-07-10 · How Deutsche Telekom is rewiring telecommunications with AI — https://openai.com/index/deutsche-telekom (unknown)
+[23] 2026-01-09 · OpenAI and SoftBank Group partner with SB Energy — https://openai.com/index/stargate-sb-energy-partnership (unknown)
+[24] 2026-02-26 · OpenAI Codex and Figma launch seamless code-to-design experience — https://openai.com/index/figma-partnership (unknown)
+[25] 2026-05-16 · OpenAI and Malta partner to bring ChatGPT Plus to all citizens — https://openai.com/index/malta-chatgpt-plus-partnership (unknown)
+[26] 2025-12-17 · Introducing OpenAI Academy for News Organizations — https://openai.com/index/openai-academy-for-news-organizations (unknown)
+[27] 2026-01-27 · PVH reimagines the future of fashion with OpenAI — https://openai.com/index/pvh-future-of-fashion (unknown)
+[28] 2026-05-27 · Election information and safeguards in 2026 — https://openai.com/index/election-safeguards-2026 (unknown)
+[29] 2026-02-09 · Bringing ChatGPT to GenAI.mil — https://openai.com/index/bringing-chatgpt-to-genaimil (unknown)
+[30] 2026-06-30 · How ChatGPT adoption has expanded — https://openai.com/index/how-chatgpt-adoption-has-expanded (unknown)
+
+
+## 3. What lawsuits, disputes or regulatory actions involve AI labs, and who is on each side?
+
+⚠ UNVERIFIED — the model cited no sources; treat every claim below as unconfirmed.
+
+Based on the provided context, there are no explicit claims regarding lawsuits, disputes, or regulatory actions involving AI Labs [organization]. The context focuses mainly on the partnerships, products, and events related to OpenAI and its collaborators. Therefore, I cannot provide information about any legal cases or disputes involving AI labs from the given data sources.
+
+[No relation relevant to the question was found in the provided context.]
+
+— graph slice: 59 entities, 60 edges; seeds: Artificial Intelligence, AI labs, AI, AI lab, AI21 Labs
 Sources:
 [1] 2026-06-30 · How ChatGPT adoption has expanded — https://openai.com/index/how-chatgpt-adoption-has-expanded (unknown)
 [2] 2026-06-01 · “Data Center Bandwagon” Campaign: US-targeted influence activity — https://openai.com/index/disrupting-malicious-uses-of-ai-data-center-bandwagon (unknown)
@@ -37,200 +136,123 @@ Sources:
 [4] 2026-02-27 · An update on our mental health-related work — https://openai.com/index/update-on-mental-health-related-work (unknown)
 [5] 2026-02-13 · Introducing Lockdown Mode and Elevated Risk labels in ChatGPT — https://openai.com/index/introducing-lockdown-mode-and-elevated-risk-labels-in-chatgpt (unknown)
 [6] 2026-07-21 · David Vélez and Robin Vince join the boards of the OpenAI Foundation and OpenAI Group PBC — https://openai.com/index/david-velez-robin-vince-join-openai-boards (unknown)
-[7] 2026-05-08 · Running Codex safely at OpenAI — https://openai.com/index/running-codex-safely (unknown)
-[8] 2026-02-26 · OpenAI Codex and Figma launch seamless code-to-design experience — https://openai.com/index/figma-partnership (unknown)
-[9] 2026-04-21 · Scaling Codex to enterprises worldwide — https://openai.com/index/scaling-codex-to-enterprises-worldwide (unknown)
-[10] 2026-02-23 · OpenAI announces Frontier Alliance Partners — https://openai.com/index/frontier-alliance-partners (unknown)
-[11] 2026-06-11 · BBVA puts AI at the core of banking with OpenAI — https://openai.com/index/bbva (unknown)
-[12] 2025-12-12 · BBVA and OpenAI collaborate to transform global banking — https://openai.com/index/bbva-collaboration-expansion (unknown)
-[13] 2025-12-18 · Deepening our collaboration with the U.S. Department of Energy — https://openai.com/index/us-department-of-energy-collaboration (unknown)
-[14] 2026-06-01 · Our views on AI policy and political advocacy — https://openai.com/index/our-views-on-ai-policy-and-political-advocacy (unknown)
-[15] 2026-03-05 · Introducing ChatGPT for Excel and new financial data integrations — https://openai.com/index/chatgpt-for-excel (unknown)
-[16] 2026-02-24 · Arvind KC appointed Chief People Officer — https://openai.com/index/arvind-kc-chief-people-officer (unknown)
-[17] 2026-04-13 · Enterprises power agentic workflows in Cloudflare Agent Cloud with OpenAI  — https://openai.com/index/cloudflare-openai-agent-cloud (unknown)
-[18] 2026-05-18 · OpenAI and Dell partner to bring Codex to hybrid and on-premise enterprise environments — https://openai.com/index/dell-codex-enterprise-partnership (unknown)
-[19] 2026-03-06 · How Balyasny Asset Management built an AI research engine — https://openai.com/index/balyasny-asset-management (unknown)
-[20] 2025-12-11 · The Walt Disney Company and OpenAI reach landmark agreement to bring beloved characters to Sora — https://openai.com/index/disney-sora-agreement (unknown)
-[21] 2026-05-29 · Strengthening societal resilience with Rosalind Biodefense — https://openai.com/index/strengthening-societal-resilience-with-rosalind-biodefense (unknown)
-[22] 2026-05-11 · OpenAI launches DeployCo to help businesses build around intelligence — https://openai.com/index/openai-launches-the-deployment-company (unknown)
-[23] 2026-03-25 · Introducing the OpenAI Safety Bug Bounty program — https://openai.com/index/safety-bug-bounty (unknown)
-[24] 2026-07-15 · The US is advancing AI safety through state and federal action — https://openai.com/index/advancing-ai-safety-through-state-and-federal-action (unknown)
-[25] 2026-04-29 · Building the compute infrastructure for the Intelligence Age — https://openai.com/index/building-the-compute-infrastructure-for-the-intelligence-age (unknown)
-[26] 2026-07-21 · OpenAI and Hugging Face partner to address security incident during model evaluation — https://openai.com/index/hugging-face-model-evaluation-security-incident (unknown)
-[27] 2026-05-27 · Building self-improving tax agents with Codex — https://openai.com/index/building-self-improving-tax-agents-with-codex (unknown)
-[28] 2026-06-04 · Biodefense in the Intelligence Age — https://openai.com/index/biodefense-in-the-intelligence-age (unknown)
-[29] 2026-07-22 · How news organizations are using AI to advance their vital missions — https://openai.com/index/how-news-organizations-are-using-ai (unknown)
-[30] 2026-06-25 · How agents are transforming work — https://openai.com/index/how-agents-are-transforming-work (unknown)
-
-
-## 2. Which AI labs share investors or partners, and which investors or partners appear most often?
-
-Based on the provided relations and entities, there is no direct evidence of shared investors between any of the listed AI laboratories. The context primarily describes partnerships, usage of products, and mentions without specific information about common investors.
-
-The entity that appears most frequently as a partner in various contexts is **OpenAI**:
-- Part 1: Partnered with AWS since 2026-04-28 [2]
-- Part 2: Partnered with UK AISI since 2026-06-23 [4]
-- Part 3: OpenAI for Government (partner of) Pentagon since 2026-02-09 [3]
-- Part 4: Partnered with Business since 2026-04-09 [1]
-
-Thus, **OpenAI** appears most often as a partner. However, there is no explicit information about it sharing investors or partners with other entities within the provided data.
-
-— graph slice: 57 entities, 60 edges; seeds: Partners, AI labs, AI lab, AI21 Labs
-Sources:
-[1] 2026-04-09 · CyberAgent moves faster with ChatGPT Enterprise and Codex — https://openai.com/index/cyberagent (unknown)
-[2] 2026-04-28 · OpenAI models, Codex, and Managed Agents come to AWS — https://openai.com/index/openai-on-aws (unknown)
-[3] 2026-02-09 · Bringing ChatGPT to GenAI.mil — https://openai.com/index/bringing-chatgpt-to-genaimil (unknown)
-[4] 2026-06-23 · Helping build shared standards for advanced AI — https://openai.com/index/helping-build-shared-standards-for-advanced-ai (unknown)
-[5] 2026-05-29 · How Braintrust turns customer requests into code with Codex — https://openai.com/index/braintrust (unknown)
-[6] 2024-03-29 · Navigating the challenges and opportunities of synthetic voices — https://openai.com/index/navigating-the-challenges-and-opportunities-of-synthetic-voices (unknown)
-[7] 2026-08-04 · Third-party cyber evaluations involving OpenAI models — https://openai.com/index/third-party-cyber-evaluations-involving-openai-models (unknown)
-[8] 2026-04-10 · AI fundamentals — https://openai.com/academy/what-is-ai (unknown)
-[9] 2026-07-08 · Our approach to government and national security partnerships — https://openai.com/index/government-national-security-partnerships (unknown)
-[10] 2026-09-08 · Mistral raises €3B as sovereign AI becomes big business — https://techcrunch.com/2026/09/08/mistral-raises-e3b-as-sovereign-ai-becomes-big-business/ (unknown)
-[11] 2025-10-02 · With GPT-5, Wrtn builds lifestyle AI for millions in Korea — https://openai.com/index/wrtn (unknown)
-[12] 2026-02-28 · Our agreement with the Department of War — https://openai.com/index/our-agreement-with-the-department-of-war (unknown)
-[13] 2026-06-14 · Introducing the OpenAI Partner Network — https://openai.com/index/introducing-openai-partner-network (unknown)
-[14] 2026-09-02 · Google releases Gemini 3.8 Flash, its third Flash model in six weeks — https://arstechnica.com/ai/2026/09/google-releases-gemini-3-8-flash-its-third-flash-model-in-six-weeks/ (unknown)
-[15] 2026-08-17 · The Defender’s Window — https://openai.com/index/the-defenders-window (unknown)
-[16] 2026-09-04 · XDOF, just 3 months out of stealth, is in talks for a Series B at a $1.2B valuation — https://techcrunch.com/2026/09/04/xdof-just-three-months-out-of-stealth-is-in-talks-for-a-series-b-at-a-1-2b-valuation/ (unknown)
-[17] 2026-09-07 · Opaque recurrence, and other AI terms that you should probably know — https://techcrunch.com/2026/09/07/artificial-intelligence-definition-glossary-hallucinations-guide-to-common-ai-terms/ (unknown)
-[18] 2022-06-02 · Best practices for deploying language models — https://openai.com/index/best-practices-for-deploying-language-models (unknown)
-[19] 2019-02-14 · Better language models and their implications — https://openai.com/index/better-language-models (unknown)
-[20] 2023-08-01 · Confidence-Building Measures for Artificial Intelligence: Workshop proceedings — https://openai.com/index/confidence-building-measures-for-artificial-intelligence (unknown)
-[21] 2026-04-26 · Our principles — https://openai.com/index/our-principles (unknown)
-[22] 2024-06-06 · Extracting Concepts from GPT-4 — https://openai.com/index/extracting-concepts-from-gpt-4 (unknown)
-[23] 2023-11-29 · Sam Altman returns as CEO, OpenAI has a new initial board — https://openai.com/index/sam-altman-returns-as-ceo-openai-has-a-new-initial-board (unknown)
-[24] 2023-11-17 · OpenAI announces leadership transition — https://openai.com/index/openai-announces-leadership-transition (unknown)
-[25] 2022-03-03 · Lessons learned on language model safety and misuse — https://openai.com/index/language-model-safety-and-misuse (unknown)
-[26] 2020-09-04 · Learning to summarize with human feedback — https://openai.com/index/learning-to-summarize-with-human-feedback (unknown)
-[27] 2019-12-13 · Dota 2 with large scale deep reinforcement learning — https://openai.com/index/dota-2-with-large-scale-deep-reinforcement-learning (unknown)
-[28] 2019-03-11 · OpenAI LP — https://openai.com/index/openai-lp (unknown)
-[29] 2019-03-04 · Neural MMO: A massively multiagent game environment — https://openai.com/index/neural-mmo (unknown)
-[30] 2018-10-31 · Reinforcement learning with prediction-based rewards — https://openai.com/index/reinforcement-learning-with-prediction-based-rewards (unknown)
-
-
-## 3. What lawsuits, disputes or regulatory actions involve AI labs, and who is on each side?
-
-⚠ UNVERIFIED — the model cited no sources; treat every claim below as unconfirmed.
-
-Based on the provided context, there are no explicit claims indicating any lawsuits, disputes, or regulatory actions involving AI labs. The relations given are mostly partnerships, mentions, and availability of services rather than legal or regulatory issues. Therefore, I cannot provide information about any lawsuits or disputes involving AI labs from the available data.
-
-— graph slice: 54 entities, 60 edges; seeds: AI labs, WHO, AI lab, AI21 Labs
-Sources:
-[1] 2026-04-28 · OpenAI models, Codex, and Managed Agents come to AWS — https://openai.com/index/openai-on-aws (unknown)
-[2] 2026-02-09 · Bringing ChatGPT to GenAI.mil — https://openai.com/index/bringing-chatgpt-to-genaimil (unknown)
-[3] 2026-06-23 · Helping build shared standards for advanced AI — https://openai.com/index/helping-build-shared-standards-for-advanced-ai (unknown)
-[4] 2019-02-14 · Better language models and their implications — https://openai.com/index/better-language-models (unknown)
-[5] 2025-10-02 · With GPT-5, Wrtn builds lifestyle AI for millions in Korea — https://openai.com/index/wrtn (unknown)
-[6] 2026-08-04 · Third-party cyber evaluations involving OpenAI models — https://openai.com/index/third-party-cyber-evaluations-involving-openai-models (unknown)
-[7] 2026-09-08 · Mistral raises €3B as sovereign AI becomes big business — https://techcrunch.com/2026/09/08/mistral-raises-e3b-as-sovereign-ai-becomes-big-business/ (unknown)
-[8] 2026-04-26 · Our principles — https://openai.com/index/our-principles (unknown)
-[9] 2023-08-01 · Confidence-Building Measures for Artificial Intelligence: Workshop proceedings — https://openai.com/index/confidence-building-measures-for-artificial-intelligence (unknown)
-[10] 2026-09-02 · Google releases Gemini 3.8 Flash, its third Flash model in six weeks — https://arstechnica.com/ai/2026/09/google-releases-gemini-3-8-flash-its-third-flash-model-in-six-weeks/ (unknown)
-[11] 2025-07-22 · Pioneering an AI clinical copilot with Penda Health — https://openai.com/index/ai-clinical-copilot-penda-health (unknown)
-[12] 2026-02-28 · Our agreement with the Department of War — https://openai.com/index/our-agreement-with-the-department-of-war (unknown)
-[13] 2026-07-08 · Our approach to government and national security partnerships — https://openai.com/index/government-national-security-partnerships (unknown)
-[14] 2026-09-04 · XDOF, just 3 months out of stealth, is in talks for a Series B at a $1.2B valuation — https://techcrunch.com/2026/09/04/xdof-just-three-months-out-of-stealth-is-in-talks-for-a-series-b-at-a-1-2b-valuation/ (unknown)
-[15] 2026-08-17 · The Defender’s Window — https://openai.com/index/the-defenders-window (unknown)
-[16] 2026-04-10 · AI fundamentals — https://openai.com/academy/what-is-ai (unknown)
-[17] 2022-06-02 · Best practices for deploying language models — https://openai.com/index/best-practices-for-deploying-language-models (unknown)
-[18] 2026-09-07 · Opaque recurrence, and other AI terms that you should probably know — https://techcrunch.com/2026/09/07/artificial-intelligence-definition-glossary-hallucinations-guide-to-common-ai-terms/ (unknown)
-[19] 2026-04-09 · CyberAgent moves faster with ChatGPT Enterprise and Codex — https://openai.com/index/cyberagent (unknown)
-[20] 2024-06-06 · Extracting Concepts from GPT-4 — https://openai.com/index/extracting-concepts-from-gpt-4 (unknown)
-[21] 2023-11-29 · Sam Altman returns as CEO, OpenAI has a new initial board — https://openai.com/index/sam-altman-returns-as-ceo-openai-has-a-new-initial-board (unknown)
-[22] 2023-11-17 · OpenAI announces leadership transition — https://openai.com/index/openai-announces-leadership-transition (unknown)
-[23] 2022-03-03 · Lessons learned on language model safety and misuse — https://openai.com/index/language-model-safety-and-misuse (unknown)
-[24] 2020-09-04 · Learning to summarize with human feedback — https://openai.com/index/learning-to-summarize-with-human-feedback (unknown)
-[25] 2019-12-13 · Dota 2 with large scale deep reinforcement learning — https://openai.com/index/dota-2-with-large-scale-deep-reinforcement-learning (unknown)
-[26] 2019-03-11 · OpenAI LP — https://openai.com/index/openai-lp (unknown)
-[27] 2019-03-04 · Neural MMO: A massively multiagent game environment — https://openai.com/index/neural-mmo (unknown)
-[28] 2018-10-31 · Reinforcement learning with prediction-based rewards — https://openai.com/index/reinforcement-learning-with-prediction-based-rewards (unknown)
-[29] 2018-07-30 · Learning dexterity — https://openai.com/index/learning-dexterity (unknown)
-[30] 2018-06-25 · OpenAI Five — https://openai.com/index/openai-five (unknown)
+[7] 2026-04-21 · Scaling Codex to enterprises worldwide — https://openai.com/index/scaling-codex-to-enterprises-worldwide (unknown)
+[8] 2026-02-23 · OpenAI announces Frontier Alliance Partners — https://openai.com/index/frontier-alliance-partners (unknown)
+[9] 2026-06-11 · BBVA puts AI at the core of banking with OpenAI — https://openai.com/index/bbva (unknown)
+[10] 2025-12-12 · BBVA and OpenAI collaborate to transform global banking — https://openai.com/index/bbva-collaboration-expansion (unknown)
+[11] 2026-05-08 · Running Codex safely at OpenAI — https://openai.com/index/running-codex-safely (unknown)
+[12] 2026-02-26 · OpenAI Codex and Figma launch seamless code-to-design experience — https://openai.com/index/figma-partnership (unknown)
+[13] 2026-01-29 · Taisei Corporation shapes the next generation of talent with AI — https://openai.com/index/taisei (unknown)
+[14] 2026-03-05 · Reasoning models struggle to control their chains of thought, and that’s good — https://openai.com/index/reasoning-models-chain-of-thought-controllability (unknown)
+[15] 2026-06-21 · Samsung Electronics brings ChatGPT and Codex to employees — https://openai.com/index/samsung-electronics-chatgpt-codex-deployment (unknown)
+[16] 2026-06-23 · Helping build shared standards for advanced AI — https://openai.com/index/helping-build-shared-standards-for-advanced-ai (unknown)
+[17] 2026-05-25 · OpenAI, Grupo Folha and Grupo UOL announce strategic content partnership — https://openai.com/index/grupo-folha-grupo-uol-partnership (unknown)
+[18] 2026-03-05 · Introducing GPT-5.4 — https://openai.com/index/introducing-gpt-5-4 (unknown)
+[19] 2026-05-27 · Election information and safeguards in 2026 — https://openai.com/index/election-safeguards-2026 (unknown)
+[20] 2026-04-02 · OpenAI acquires TBPN — https://openai.com/index/openai-acquires-tbpn (unknown)
+[21] 2026-06-25 · How agents are transforming work — https://openai.com/index/how-agents-are-transforming-work (unknown)
+[22] 2026-04-28 · OpenAI models, Codex, and Managed Agents come to AWS — https://openai.com/index/openai-on-aws (unknown)
+[23] 2026-03-11 · Wayfair boosts catalog accuracy and support speed with OpenAI — https://openai.com/index/wayfair (unknown)
+[24] 2026-06-22 · Daybreak: Tools for securing every organization in the world — https://openai.com/index/daybreak-securing-the-world (unknown)
+[25] 2026-03-05 · Introducing ChatGPT for Excel and new financial data integrations — https://openai.com/index/chatgpt-for-excel (unknown)
+[26] 2025-12-16 · Measuring AI’s capability to accelerate biological research — https://openai.com/index/accelerating-biological-research-in-the-wet-lab (unknown)
+[27] 2026-07-22 · How news organizations are using AI to advance their vital missions — https://openai.com/index/how-news-organizations-are-using-ai (unknown)
+[28] 2026-05-22 · OpenAI named a Leader in enterprise coding agents by Gartner — https://openai.com/index/gartner-2026-agentic-coding-leader (unknown)
+[29] 2025-12-17 · Developers can now submit apps to ChatGPT — https://openai.com/index/developers-can-now-submit-apps-to-chatgpt (unknown)
+[30] 2026-05-12 · How NVIDIA engineers and researchers build with Codex — https://openai.com/index/nvidia (unknown)
 
 
 ## 4. Which people are connected to more than one AI lab or company?
 
-⚠ UNVERIFIED — the model cited no sources; treat every claim below as unconfirmed.
+Based on the provided context, there is only one individual who appears to be connected to multiple entities that could be considered AI labs or companies:
 
-Based on the information provided in the context, the person who is connected to more than one organization is:
+- **David Vélez** --[member_of]--> OpenAI (since 2026-07-21) [6]
 
-- **David Vélez and Robin Vince** - Both join the boards of the OpenAI Foundation and OpenAI Group PBC.
+While David Vélez is listed as a member of OpenAI, no other individual from the given connections appears to be explicitly linked to more than one AI lab or company.
 
-No other individual is mentioned as being associated with multiple AI labs or companies.
-
-— graph slice: 63 entities, 60 edges; seeds: AI lab, People, AI labs, People team, AI21 Labs, Open AI
+— graph slice: 62 entities, 60 edges; seeds: Artificial Intelligence, AI lab, People, AI, AI labs, People team
 Sources:
 [1] 2026-06-30 · How ChatGPT adoption has expanded — https://openai.com/index/how-chatgpt-adoption-has-expanded (unknown)
 [2] 2026-06-01 · “Data Center Bandwagon” Campaign: US-targeted influence activity — https://openai.com/index/disrupting-malicious-uses-of-ai-data-center-bandwagon (unknown)
 [3] 2026-04-28 · Our commitment to community safety — https://openai.com/index/our-commitment-to-community-safety (unknown)
 [4] 2026-02-27 · An update on our mental health-related work — https://openai.com/index/update-on-mental-health-related-work (unknown)
 [5] 2026-02-13 · Introducing Lockdown Mode and Elevated Risk labels in ChatGPT — https://openai.com/index/introducing-lockdown-mode-and-elevated-risk-labels-in-chatgpt (unknown)
-[6] 2026-06-11 · BBVA puts AI at the core of banking with OpenAI — https://openai.com/index/bbva (unknown)
-[7] 2025-12-12 · BBVA and OpenAI collaborate to transform global banking — https://openai.com/index/bbva-collaboration-expansion (unknown)
-[8] 2026-07-21 · David Vélez and Robin Vince join the boards of the OpenAI Foundation and OpenAI Group PBC — https://openai.com/index/david-velez-robin-vince-join-openai-boards (unknown)
-[9] 2026-04-21 · Scaling Codex to enterprises worldwide — https://openai.com/index/scaling-codex-to-enterprises-worldwide (unknown)
-[10] 2026-02-23 · OpenAI announces Frontier Alliance Partners — https://openai.com/index/frontier-alliance-partners (unknown)
-[11] 2026-05-08 · Running Codex safely at OpenAI — https://openai.com/index/running-codex-safely (unknown)
-[12] 2026-02-26 · OpenAI Codex and Figma launch seamless code-to-design experience — https://openai.com/index/figma-partnership (unknown)
-[13] 2026-02-18 · Introducing EVMbench — https://openai.com/index/introducing-evmbench (unknown)
-[14] 2026-04-28 · OpenAI models, Codex, and Managed Agents come to AWS — https://openai.com/index/openai-on-aws (unknown)
-[15] 2025-12-16 · Measuring AI’s capability to accelerate biological research — https://openai.com/index/accelerating-biological-research-in-the-wet-lab (unknown)
-[16] 2026-07-22 · How news organizations are using AI to advance their vital missions — https://openai.com/index/how-news-organizations-are-using-ai (unknown)
-[17] 2026-04-16 · Introducing GPT-Rosalind for life sciences research — https://openai.com/index/introducing-gpt-rosalind (unknown)
-[18] 2026-05-07 · Simplex rethinks software development with Codex — https://openai.com/index/simplex (unknown)
-[19] 2026-05-06 · Uber uses OpenAI to help people earn smarter and book faster — https://openai.com/index/uber (unknown)
-[20] 2026-06-04 · Biodefense in the Intelligence Age — https://openai.com/index/biodefense-in-the-intelligence-age (unknown)
-[21] 2026-07-21 · Introducing the ChatGPT for small business program — https://openai.com/index/introducing-chatgpt-small-business-program (unknown)
-[22] 2026-07-09 · GPT-5.5 Bio Bug Bounty — https://openai.com/index/bio-bug-bounty (unknown)
-[23] 2026-02-18 · Introducing OpenAI for India — https://openai.com/index/openai-for-india (unknown)
-[24] 2026-01-02 · Announcing OpenAI Grove Cohort 2 — https://openai.com/index/openai-grove (unknown)
-[25] 2026-05-05 · Advancing youth safety and wellbeing in EMEA — https://openai.com/index/advancing-youth-safety-in-emea (unknown)
-[26] 2026-07-09 · GPT-5.6 is now the preferred model in Microsoft 365 Copilot — https://openai.com/index/gpt-5-6-preferred-model-microsoft-365-copilot (unknown)
-[27] 2026-03-19 · OpenAI to acquire Astral — https://openai.com/index/openai-to-acquire-astral (unknown)
-[28] 2026-05-15 · Databricks brings GPT-5.5 to enterprise agent workflows — https://openai.com/index/databricks (unknown)
-[29] 2025-12-17 · The state of enterprise AI — https://openai.com/business/guides-and-resources/the-state-of-enterprise-ai-2025-report (unknown)
-[30] 2026-06-02 · Advancing youth safety and opportunity through global leadership — https://openai.com/index/advancing-youth-safety-and-opportunity-through-global-leadership (unknown)
+[6] 2026-07-21 · David Vélez and Robin Vince join the boards of the OpenAI Foundation and OpenAI Group PBC — https://openai.com/index/david-velez-robin-vince-join-openai-boards (unknown)
+[7] 2026-04-21 · Scaling Codex to enterprises worldwide — https://openai.com/index/scaling-codex-to-enterprises-worldwide (unknown)
+[8] 2026-02-23 · OpenAI announces Frontier Alliance Partners — https://openai.com/index/frontier-alliance-partners (unknown)
+[9] 2026-05-08 · Running Codex safely at OpenAI — https://openai.com/index/running-codex-safely (unknown)
+[10] 2026-02-26 · OpenAI Codex and Figma launch seamless code-to-design experience — https://openai.com/index/figma-partnership (unknown)
+[11] 2026-06-11 · BBVA puts AI at the core of banking with OpenAI — https://openai.com/index/bbva (unknown)
+[12] 2025-12-12 · BBVA and OpenAI collaborate to transform global banking — https://openai.com/index/bbva-collaboration-expansion (unknown)
+[13] 2026-06-10 · From data to decisions: how LSEG is scaling trusted AI — https://openai.com/index/lseg (unknown)
+[14] 2026-05-18 · OpenAI and Dell partner to bring Codex to hybrid and on-premise enterprise environments — https://openai.com/index/dell-codex-enterprise-partnership (unknown)
+[15] 2026-05-20 · How Ramp engineers accelerate code review with Codex — https://openai.com/index/ramp (unknown)
+[16] 2026-07-22 · Advancing the next era of national science — https://openai.com/index/advancing-the-next-era-of-national-science (unknown)
+[17] 2026-04-22 · Introducing OpenAI Privacy Filter — https://openai.com/index/introducing-openai-privacy-filter (unknown)
+[18] 2025-12-09 · How Scout24 is building the next generation of real-estate search with AI — https://openai.com/index/scout24 (unknown)
+[19] 2026-05-16 · OpenAI and Malta partner to bring ChatGPT Plus to all citizens — https://openai.com/index/malta-chatgpt-plus-partnership (unknown)
+[20] 2026-03-25 · Inside our approach to the Model Spec — https://openai.com/index/our-approach-to-the-model-spec (unknown)
+[21] 2026-07-15 · The US is advancing AI safety through state and federal action — https://openai.com/index/advancing-ai-safety-through-state-and-federal-action (unknown)
+[22] 2026-07-22 · How news organizations are using AI to advance their vital missions — https://openai.com/index/how-news-organizations-are-using-ai (unknown)
+[23] 2026-01-29 · Inside OpenAI’s in-house data agent — https://openai.com/index/inside-our-in-house-data-agent (unknown)
+[24] 2026-04-29 · Building the compute infrastructure for the Intelligence Age — https://openai.com/index/building-the-compute-infrastructure-for-the-intelligence-age (unknown)
+[25] 2026-07-21 · Introducing the ChatGPT for small business program — https://openai.com/index/introducing-chatgpt-small-business-program (unknown)
+[26] 2026-04-09 · CyberAgent moves faster with ChatGPT Enterprise and Codex — https://openai.com/index/cyberagent (unknown)
+[27] 2026-01-15 · Investing in Merge Labs — https://openai.com/index/investing-in-merge-labs (unknown)
+[28] 2025-12-18 · Updating our Model Spec with teen protections — https://openai.com/index/updating-model-spec-with-teen-protections (unknown)
+[29] 2026-06-22 · Daybreak: Tools for securing every organization in the world — https://openai.com/index/daybreak-securing-the-world (unknown)
+[30] 2026-07-15 · GPT-Red: Unlocking Self-Improvement for Robustness — https://openai.com/index/unlocking-self-improvement-gpt-red (unknown)
 
 
 ## 5. What acquisitions, product launches or funding rounds involving AI companies are recorded, with dates?
 
-⚠ UNVERIFIED — the model cited no sources; treat every claim below as unconfirmed.
+Based on the provided entities, relations, and sources, here are the acquisitions, product launches, and funding rounds involving AI companies, along with their respective dates:
 
-The provided entity graph does not contain any explicit information about acquisitions, product launches, or funding rounds involving AI companies. The RELATIONS and ENTITIES focus on usage of ChatGPT Enterprise by various organizations, partnerships between OpenAI and governmental bodies, and mentions of AI-related entities but do not include specific dates for acquisitions, product launches, or funding rounds [1,2,...30].
+1. OpenAI acquired Rockset (since 2026-06-30) [29]
+2. OpenAI launched GPT-Rosalind for life sciences research (since 2026-04-16) [2] 
+3. OpenAI and Broadcom unveiled LLM-optimized inference chip (since 2026-03-05) [5]
+4. OpenAI acquired TBPN (since 2026-04-02) [6]
+5. OpenAI launched DeployCo to help businesses build around intelligence (since 2026-05-11) [8]
+6. OpenAI introduced EVMbench (since 2026-02-18) [9]
+7. OpenAI launched the ChatGPT for small business program (since 2026-07-21) [10]
+8. OpenAI introduced OpenAI Presence (since 2026-07-22) [11]
+9. OpenAI and Broadband, a partner of SB Energy, co-created a next-generation product through an undisclosed partnership (since 2026-01-09) - though not explicitly stated as "acquisition", this indicates a significant business relationship [7]
+10. OpenAI launched Daybreak: Tools for securing every organization in the world (since 2026-06-22) [14]
 
-— graph slice: 56 entities, 60 edges; seeds: AI companies
+These appear to be the relevant events from the provided information that fall under acquisitions, product launches or collaborations involving AI companies.
+
+— graph slice: 63 entities, 60 edges; seeds: Artificial Intelligence, AI companies, AI, Choco, OrderAgent, Horizon 1000, SB Energy, Codex (tool), OpenAI
 Sources:
-[1] 2026-06-10 · From data to decisions: how LSEG is scaling trusted AI — https://openai.com/index/lseg (unknown)
-[2] 2026-07-07 · Australian Payments Plus moves faster with ChatGPT and Codex — https://openai.com/index/australian-payments-plus (unknown)
-[3] 2026-07-22 · Advancing the next era of national science — https://openai.com/index/advancing-the-next-era-of-national-science (unknown)
-[4] 2026-06-21 · Samsung Electronics brings ChatGPT and Codex to employees — https://openai.com/index/samsung-electronics-chatgpt-codex-deployment (unknown)
-[5] 2026-07-07 · MUFG aims to become AI-native with OpenAI — https://openai.com/index/mufg (unknown)
-[6] 2026-04-09 · CyberAgent moves faster with ChatGPT Enterprise and Codex — https://openai.com/index/cyberagent (unknown)
-[7] 2026-01-29 · Taisei Corporation shapes the next generation of talent with AI — https://openai.com/index/taisei (unknown)
-[8] 2026-07-31 · Univé builds an AI-ready workforce — https://openai.com/index/unive (unknown)
-[9] 2025-12-18 · Deepening our collaboration with the U.S. Department of Energy — https://openai.com/index/us-department-of-energy-collaboration (unknown)
-[10] 2026-05-07 · Simplex rethinks software development with Codex — https://openai.com/index/simplex (unknown)
-[11] 2026-06-11 · BBVA puts AI at the core of banking with OpenAI — https://openai.com/index/bbva (unknown)
-[12] 2026-06-23 · Helping build shared standards for advanced AI — https://openai.com/index/helping-build-shared-standards-for-advanced-ai (unknown)
-[13] 2026-07-22 · NTT DATA Group cuts incident analysis to 30 minutes with Codex — https://openai.com/index/ntt-data (unknown)
-[14] 2023-07-21 · Moving AI governance forward — https://openai.com/index/moving-ai-governance-forward (unknown)
-[15] 2026-09-08 · US Warns Chinese AI Firms Are Illicitly Distilling Models — https://www.bankinfosecurity.com/us-warns-chinese-ai-firms-are-illicitly-distilling-models-a-32773 (commercial_clean)
-[16] 2026-09-09 · US Warns Chinese AI Firms Are Illicitly Distilling Models — https://www.govinfosecurity.com/us-warns-chinese-ai-firms-are-illicitly-distilling-models-a-32773 (commercial_clean)
-[17] 2026-07-17 · A scorecard for the AI age — https://openai.com/index/a-scorecard-for-the-ai-age (unknown)
-[18] 2026-06-18 · New usage analytics and updated spend controls for enterprises — https://openai.com/index/chatgpt-enterprise-spend-controls (unknown)
-[19] 2025-11-12 · Fighting the New York Times’ invasion of user privacy — https://openai.com/index/fighting-nyt-user-privacy-invasion (unknown)
-[20] 2023-07-26 · Frontier Model Forum — https://openai.com/index/frontier-model-forum (unknown)
-[21] 2025-02-01 · Deceptive Employment Scheme: AI-assisted hiring deception — https://openai.com/index/disrupting-malicious-uses-of-ai-deceptive-employment-scheme (unknown)
-[22] 2024-05-07 · Understanding the source of what we see and hear online — https://openai.com/index/understanding-the-source-of-what-we-see-and-hear-online (unknown)
-[23] 2026-09-09 · The US went all in on AI investment . Is it driving up consumer prices ?  — https://www.aol.com/articles/us-went-ai-investment-driving-011059000.html (commercial_clean)
-[24] 2026-06-03 · OpenAI public policy agenda — https://openai.com/index/public-policy-agenda (unknown)
-[25] 2026-09-04 · Data from drones in Ukraine is fueling a new Wild West marketplace — https://www.technologyreview.com/2026/09/04/1143452/drone-data-wild-west/ (unknown)
-[26] 2025-04-09 · OpenAI Pioneers Program — https://openai.com/index/openai-pioneers-program (unknown)
-[27] 2026-07-14 · How to manage AI investments in the agentic era — https://openai.com/index/managing-ai-investments-in-agentic-era (unknown)
-[28] 2025-07-21 · AI as the greatest source of empowerment for all — https://openai.com/index/ai-as-the-greatest-source-of-empowerment-for-all (unknown)
-[29] 2025-04-02 · Our response to the UK’s copyright consultation — https://openai.com/global-affairs/response-to-uk-copyright-consultation (unknown)
-[30] 2025-12-09 · OpenAI appoints Denise Dresser as Chief Revenue Officer — https://openai.com/index/openai-appoints-denise-dresser (unknown)
+[1] 2026-03-25 · Introducing the OpenAI Safety Bug Bounty program — https://openai.com/index/safety-bug-bounty (unknown)
+[2] 2026-04-16 · Introducing GPT-Rosalind for life sciences research — https://openai.com/index/introducing-gpt-rosalind (unknown)
+[3] 2026-07-22 · Building AI infrastructure with the Effingham County community — https://openai.com/index/building-ai-infrastructure-with-the-effingham-county-community (unknown)
+[4] 2026-06-24 · OpenAI and Broadcom unveil LLM-optimized inference chip — https://openai.com/index/openai-broadcom-jalapeno-inference-chip (unknown)
+[5] 2026-03-05 · Reasoning models struggle to control their chains of thought, and that’s good — https://openai.com/index/reasoning-models-chain-of-thought-controllability (unknown)
+[6] 2026-04-02 · OpenAI acquires TBPN — https://openai.com/index/openai-acquires-tbpn (unknown)
+[7] 2026-01-09 · OpenAI and SoftBank Group partner with SB Energy — https://openai.com/index/stargate-sb-energy-partnership (unknown)
+[8] 2026-05-11 · OpenAI launches DeployCo to help businesses build around intelligence — https://openai.com/index/openai-launches-the-deployment-company (unknown)
+[9] 2026-02-18 · Introducing EVMbench — https://openai.com/index/introducing-evmbench (unknown)
+[10] 2026-07-21 · Introducing the ChatGPT for small business program — https://openai.com/index/introducing-chatgpt-small-business-program (unknown)
+[11] 2026-07-22 · Introducing OpenAI Presence — https://openai.com/index/introducing-openai-presence (unknown)
+[12] 2026-01-20 · Horizon 1000: Advancing AI for primary healthcare — https://openai.com/index/horizon-1000 (unknown)
+[13] 2026-04-27 · Choco automates food distribution with AI agents — https://openai.com/index/choco (unknown)
+[14] 2026-06-22 · Daybreak: Tools for securing every organization in the world — https://openai.com/index/daybreak-securing-the-world (unknown)
+[15] 2026-06-03 · A blueprint for democratic governance of frontier AI — https://openai.com/index/frontier-safety-blueprint (unknown)
+[16] 2026-06-02 · Codex is becoming a productivity tool for everyone — https://openai.com/index/codex-for-knowledge-work (unknown)
+[17] 2026-02-05 · GPT-5 lowers the cost of cell-free protein synthesis — https://openai.com/index/gpt-5-lowers-protein-synthesis-cost (unknown)
+[18] 2026-06-16 · Predicting model behavior before release by simulating deployment — https://openai.com/index/deployment-simulation (unknown)
+[19] 2026-02-19 · Advancing independent research on AI alignment — https://openai.com/index/advancing-independent-research-ai-alignment (unknown)
+[20] 2026-06-04 · Biodefense in the Intelligence Age — https://openai.com/index/biodefense-in-the-intelligence-age (unknown)
+[21] 2026-05-05 · Unlocking large scale AI training networks with MRC (Multipath Reliable Connection) — https://openai.com/index/mrc-supercomputer-networking (unknown)
+[22] 2026-06-22 · Patch the Planet: a Daybreak initiative to support open source maintainers — https://openai.com/index/patch-the-planet (unknown)
+[23] 2026-06-25 · How agents are transforming work — https://openai.com/index/how-agents-are-transforming-work (unknown)
+[24] 2026-07-15 · GPT-Red: Unlocking Self-Improvement for Robustness — https://openai.com/index/unlocking-self-improvement-gpt-red (unknown)
+[25] 2026-05-18 · OpenAI and Dell partner to bring Codex to hybrid and on-premise enterprise environments — https://openai.com/index/dell-codex-enterprise-partnership (unknown)
+[26] 2026-04-22 · Introducing OpenAI Privacy Filter — https://openai.com/index/introducing-openai-privacy-filter (unknown)
+[27] 2026-04-21 · Scaling Codex to enterprises worldwide — https://openai.com/index/scaling-codex-to-enterprises-worldwide (unknown)
+[28] 2026-04-13 · Enterprises power agentic workflows in Cloudflare Agent Cloud with OpenAI  — https://openai.com/index/cloudflare-openai-agent-cloud (unknown)
+[29] 2026-06-30 · Core dump epidemiology: fixing an 18-year-old bug — https://openai.com/index/core-dump-epidemiology-data-infrastructure-bug (unknown)
+[30] 2025-12-12 · BNY builds “AI for everyone, everywhere” with OpenAI — https://openai.com/index/bny (unknown)
 
 
 ## Appendix A — entity counts by type
