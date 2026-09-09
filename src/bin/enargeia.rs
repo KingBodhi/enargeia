@@ -349,10 +349,12 @@ async fn main() -> Result<()> {
             println!("llm: {}", client.describe());
             let stats = llm_enrich::enrich_batch(&pool, &client, batch_size).await?;
             println!(
-                "enriched {} items: {} entities updated, {} edges created, {} errors",
+                "enriched {} items: {} entities updated, {} edges created, {} ungrounded mentions, {} ungrounded relations, {} errors",
                 stats.candidates_processed,
                 stats.entities_updated,
                 stats.edges_created,
+                stats.ungrounded,
+                stats.relations_rejected,
                 stats.errors
             );
         }

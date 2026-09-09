@@ -146,11 +146,13 @@ pub async fn run(pool: &SqlitePool, mission: &Mission, opts: &RunOptions) -> Res
             report.enriched_items += s.candidates_processed;
             report.enrich_errors += s.errors;
             println!(
-                "enriched {} (total {}) · {} entities updated · {} edges · {} errors",
+                "enriched {} (total {}) · {} entities updated · {} edges · {} ungrounded mentions · {} ungrounded relations · {} errors",
                 s.candidates_processed,
                 report.enriched_items,
                 s.entities_updated,
                 s.edges_created,
+                s.ungrounded,
+                s.relations_rejected,
                 s.errors
             );
             if s.candidates_processed == 0 {
