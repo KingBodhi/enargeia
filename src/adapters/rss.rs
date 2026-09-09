@@ -197,10 +197,8 @@ fn push_field(cur: &mut FeedEntry, tag: &str, text: &str) {
         "link" => cur.link.push_str(text),
         "description" | "summary" | "content" | "encoded" => cur.text.push_str(text),
         // RSS pubDate, Atom published/updated, Dublin Core dc:date (local name "date")
-        "pubDate" | "published" | "updated" | "date" => {
-            if cur.date.is_empty() {
-                cur.date.push_str(text);
-            }
+        "pubDate" | "published" | "updated" | "date" if cur.date.is_empty() => {
+            cur.date.push_str(text);
         }
         _ => {}
     }
