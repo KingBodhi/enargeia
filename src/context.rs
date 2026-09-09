@@ -355,6 +355,39 @@ bracketed numbers, e.g. [2], after each claim. Prefer typed relations (e.g. suin
 founder_of) over co-occurrence (mentioned_with). If the context does not support an answer, \
 say so plainly; never guess or use outside knowledge. Be concise and concrete.";
 
+/// Number of `[n]` source citations in model output.
+pub fn citation_count(text: &str) -> usize {
+    let bytes = text.as_bytes();
+    let mut n = 0;
+    let mut i = 0;
+    while i + 1 < bytes.len() {
+        if bytes[i] == b'[' && bytes[i + 1].is_ascii_digit() {
+            let mut j = i + 1;
+            while j < bytes.len() && bytes[j].is_ascii_digit() {
+                j += 1;
+            }
+            if j < bytes.len() && bytes[j] == b']' {
+                n += 1;
+                i = j;
+            }
+        }
+        i += 1;
+    }
+    n
+}
+
+/// Smaller models sometimes answer without citing. Output that cannot be traced to a source
+/// is marked rather than passed off as sourced.
+pub fn flag_uncited(text: &str) -> String {
+    if citation_count(text) == 0 {
+        format!(
+            "⚠ UNVERIFIED — the model cited no sources; treat every claim below as unconfirmed.\n\n{text}"
+        )
+    } else {
+        text.to_string()
+    }
+}
+
 /// Restricts a slice to relations backed by at least one source of `license_class`, and
 /// strips the other sources from those relations so they are never cited. Entities stay:
 /// existence is not licensed, evidence is.
@@ -448,6 +481,7 @@ pub async fn ask_filtered(
     let answer = client
         .complete(ASK_SYSTEM_PROMPT, &prompt, 1024, false)
         .await?;
+    let answer = flag_uncited(&answer);
     let seed_names: Vec<&str> = seeds.iter().map(|e| e.canonical_name.as_str()).collect();
     Ok(format!(
         "{answer}\n\n— graph slice{}: {} entities, {} edges; seeds: {}\nSources:\n{source_list}",
@@ -477,6 +511,14 @@ mod tests {
             invalid_at: None,
             superseded_by: None,
         }
+    }
+
+    #[test]
+    fn uncited_output_is_flagged() {
+        assert_eq!(citation_count("A sued B [2]. C acquired D [10][3]."), 3);
+        assert_eq!(citation_count("array[0] index [x] and [ 1 ]"), 1);
+        assert!(flag_uncited("No citations here.").starts_with("⚠ UNVERIFIED"));
+        assert_eq!(flag_uncited("Cited [1]."), "Cited [1].");
     }
 
     #[test]

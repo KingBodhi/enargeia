@@ -204,7 +204,7 @@ pub async fn dossier(
             md.push_str(&format!(
                 "\n## Assessment ({})\n\n{}\n",
                 client.describe(),
-                text.trim()
+                context::flag_uncited(text.trim())
             ));
         }
     }
