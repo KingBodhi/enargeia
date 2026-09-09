@@ -7,6 +7,7 @@ pub mod extract;
 pub mod llm;
 pub mod llm_enrich;
 pub mod matcher;
+pub mod mission;
 pub mod models;
 pub mod resolve;
 pub mod why;

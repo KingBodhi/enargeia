@@ -1,0 +1,33 @@
+# First mission: map the leadership and inter-organizational relationships of the leading
+# AI labs and their most-cited executives, with sources. Run with:
+#   ENARGEIA_DB_PATH=data/mission-ai.sqlite enargeia mission run missions/ai-ecosystem.toml
+
+name = "ai-ecosystem"
+description = "Leadership, investors, partners, disputes and product moves among the leading AI labs, as reported in current open sources."
+target_class = "Organizations and public figures acting in their professional capacity (executives, founders, investors, regulators). No private individuals."
+
+rss = [
+  "https://techcrunch.com/category/artificial-intelligence/feed/",
+  "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
+  "https://venturebeat.com/category/ai/feed/",
+  "https://arstechnica.com/ai/feed/",
+  "https://openai.com/news/rss.xml",
+  "https://blog.google/technology/ai/rss/",
+  "https://www.technologyreview.com/topic/artificial-intelligence/feed",
+]
+
+gdelt = [
+  "OpenAI",
+  "Anthropic",
+  "Google DeepMind",
+  "Mistral AI",
+  "xAI",
+]
+
+questions = [
+  "Who leads each of the major AI labs (OpenAI, Anthropic, Google DeepMind, Meta, Mistral, xAI), according to the sources?",
+  "Which AI labs share investors or partners, and which investors or partners appear most often?",
+  "What lawsuits, disputes or regulatory actions involve AI labs, and who is on each side?",
+  "Which people are connected to more than one AI lab or company?",
+  "What acquisitions, product launches or funding rounds involving AI companies are recorded, with dates?",
+]

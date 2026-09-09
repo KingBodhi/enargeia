@@ -92,6 +92,31 @@ enum Command {
     },
     /// Rebuild the blocking index from all entities.
     Reindex,
+    /// Run a mission file: ingest its sources, resolve, enrich, answer its questions into a brief.
+    Mission {
+        #[command(subcommand)]
+        action: MissionAction,
+    },
+}
+
+#[derive(Subcommand)]
+enum MissionAction {
+    /// Run a mission TOML file end to end; writes missions/<name>/BRIEF.md and graph.json.
+    Run {
+        file: String,
+        /// Skip fetching sources (answer from what is already in the database).
+        #[arg(long)]
+        skip_ingest: bool,
+        /// Skip Tier 2 enrichment.
+        #[arg(long)]
+        skip_enrich: bool,
+        /// Maximum source items to enrich with the LLM.
+        #[arg(long, default_value = "120")]
+        enrich_limit: usize,
+        /// Output directory (default missions/<name>).
+        #[arg(long)]
+        out: Option<String>,
+    },
 }
 
 #[derive(Subcommand)]
@@ -331,6 +356,40 @@ async fn main() -> Result<()> {
             if !outcome.passed {
                 anyhow::bail!("decorrelation evaluation FAILED");
             }
+        }
+        Command::Mission {
+            action:
+                MissionAction::Run {
+                    file,
+                    skip_ingest,
+                    skip_enrich,
+                    enrich_limit,
+                    out,
+                },
+        } => {
+            let mission = enargeia::mission::load(std::path::Path::new(&file))?;
+            println!(
+                "mission: {} ({} questions)",
+                mission.name,
+                mission.questions.len()
+            );
+            let opts = enargeia::mission::RunOptions {
+                skip_ingest,
+                skip_enrich,
+                enrich_limit,
+                out_dir: out.map(std::path::PathBuf::from),
+            };
+            let report = enargeia::mission::run(&pool, &mission, &opts).await?;
+            println!(
+                "mission complete: {} new items, {} resolved, {} enriched ({} errors), {} answers\nbrief: {}\ngraph: {}",
+                report.new_items,
+                report.resolved_items,
+                report.enriched_items,
+                report.enrich_errors,
+                report.answers,
+                report.brief_path.display(),
+                report.graph_path.display()
+            );
         }
         Command::Reindex => {
             let n = enargeia::block::reindex_all(&pool).await?;
