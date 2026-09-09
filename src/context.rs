@@ -402,8 +402,9 @@ pub fn citation_count(text: &str) -> usize {
 
 /// Smaller models sometimes answer without citing. Output that cannot be traced to a source
 /// is marked rather than passed off as sourced.
-pub fn flag_uncited(text: &str) -> String {
-    if citation_count(text) == 0 {
+pub fn flag_uncited(text: &str, source_refs: &[&str]) -> String {
+    let cites_url = source_refs.iter().any(|u| u.len() > 12 && text.contains(u));
+    if citation_count(text) == 0 && !cites_url {
         format!(
             "⚠ UNVERIFIED — the model cited no sources; treat every claim below as unconfirmed.\n\n{text}"
         )
@@ -512,7 +513,8 @@ pub async fn ask_filtered(
     let answer = client
         .complete(ASK_SYSTEM_PROMPT, &prompt, 1024, false)
         .await?;
-    let answer = flag_uncited(&answer);
+    let refs: Vec<&str> = sources.values().map(|s| s.source_ref.as_str()).collect();
+    let answer = flag_uncited(&answer, &refs);
     let seed_names: Vec<&str> = seeds.iter().map(|e| e.canonical_name.as_str()).collect();
     Ok(format!(
         "{answer}\n\n— graph slice{}: {} entities, {} edges; seeds{}: {}\nSources:\n{source_list}",
@@ -553,8 +555,13 @@ mod tests {
     fn uncited_output_is_flagged() {
         assert_eq!(citation_count("A sued B [2]. C acquired D [10][3]."), 3);
         assert_eq!(citation_count("array[0] index [x] and [ 1 ]"), 1);
-        assert!(flag_uncited("No citations here.").starts_with("⚠ UNVERIFIED"));
-        assert_eq!(flag_uncited("Cited [1]."), "Cited [1].");
+        assert!(flag_uncited("No citations here.", &[]).starts_with("⚠ UNVERIFIED"));
+        assert_eq!(flag_uncited("Cited [1].", &[]), "Cited [1].");
+        let url = "https://example.org/story/123";
+        assert_eq!(
+            flag_uncited(&format!("See {url}"), &[url]),
+            format!("See {url}")
+        );
     }
 
     #[test]
