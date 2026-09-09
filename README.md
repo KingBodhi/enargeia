@@ -20,9 +20,12 @@ tier usually skips:
 
 ## Status
 
-Early. The pipeline works end to end and is tested, but extraction is currently heuristic
-(regex + Jaro-Winkler), GDELT items are title-only, and match quality has not yet been measured
-on a labeled sample. The roadmap below is in order of what closes that gap.
+Working, early, honest about its numbers. Zero-shot NER runs locally (GLiNER, ONNX, CPU); the
+matcher is measured on 261 labeled pairs from a real corpus ([eval/REPORT.md](eval/REPORT.md));
+bi-temporal relations, sticky decorrelation, provenance, missions, a standing watch, scoped
+client tokens, and a globe with live satellite and seismic layers are all in. Tier 2 quality
+is bounded by the local model you point it at (a 7B model needs the grounding checks it gets);
+the corpus is whatever feeds you give it. See the roadmap for what is next.
 
 ## Quickstart
 
@@ -88,6 +91,8 @@ Tokens are stored hashed and shown once. `GET /api/whoami` reports the caller's 
 `POST /api/ask` returns `asks_remaining_today` and answers only from sources the token may
 cite — a client is never handed non-commercial data by accident. With no root token and no
 stored tokens the API is open (it binds to loopback by default).
+
+Integration recipe for a dashboard or agent: [docs/INTEGRATION.md](docs/INTEGRATION.md).
 
 ## Standing watch
 
