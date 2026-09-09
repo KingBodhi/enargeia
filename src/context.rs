@@ -652,11 +652,16 @@ pub async fn ask_filtered(
     license_filter: Option<&str>,
 ) -> Result<String> {
     let mut seeds = find_matching_entities(pool, question, as_of).await?;
+    let preferred = relevant_relation_types(question);
     let mut seeded_by_hubs = false;
     if seeds.is_empty() {
         // A question that names nothing ("which organizations were charged?") is a survey:
-        // seed from the most-connected live entities instead of refusing.
-        seeds = hub_entities(pool, as_of, MAX_SEED_MATCHES).await?;
+        // seed from the entities that carry the relations it asks about, else from the
+        // most-connected live entities, instead of refusing.
+        seeds = typed_hubs(pool, &preferred, as_of, MAX_SEED_MATCHES).await?;
+        if seeds.is_empty() {
+            seeds = hub_entities(pool, as_of, MAX_SEED_MATCHES).await?;
+        }
         seeded_by_hubs = true;
     }
     if seeds.is_empty() {
@@ -665,9 +670,7 @@ pub async fn ask_filtered(
                 .to_string(),
         );
     }
-    let seed_ids: Vec<String> = seeds.iter().map(|e| e.id.clone()).collect();
-    let preferred = relevant_relation_types(question);
-    let mut seed_ids = seed_ids;
+    let mut seed_ids: Vec<String> = seeds.iter().map(|e| e.id.clone()).collect();
     if !preferred.is_empty() {
         // "What lawsuits…": the entities that actually carry such relations are seeds too.
         for e in typed_hubs(pool, &preferred, as_of, MAX_SEED_MATCHES).await? {
@@ -705,7 +708,7 @@ pub async fn ask_filtered(
         slice.entities.len(),
         slice.edges.len(),
         if seeded_by_hubs {
-            " (question named no entity; most-connected entities used)"
+            " (question named no entity; entities carrying the asked-about relations used)"
         } else {
             ""
         },
