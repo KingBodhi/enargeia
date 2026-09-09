@@ -166,11 +166,131 @@ async fn load_edges(pool: &SqlitePool, as_of: Option<&str>) -> Result<Vec<WmEdge
     })
 }
 
+/// Relation types a question is asking about, from its wording. Edges of these types are
+/// ranked first in the slice so a lawsuit question is not answered from partnerships.
+pub fn relevant_relation_types(question: &str) -> Vec<&'static str> {
+    const MAP: &[(&[&str], &[&str])] = &[
+        (
+            &[
+                "lawsuit",
+                "sue",
+                "sued",
+                "suing",
+                "litigation",
+                "court",
+                "dispute",
+                "regulat",
+                "fine",
+                "charge",
+                "indict",
+                "sanction",
+            ],
+            &[
+                "suing",
+                "sued_by",
+                "indicted",
+                "charged",
+                "sanctioned",
+                "fined",
+                "investigated",
+                "regulated_by",
+            ],
+        ),
+        (
+            &["acqui", "bought", "merger", "merged", "takeover"],
+            &["acquired", "acquired_by", "merged_with"],
+        ),
+        (
+            &["fund", "invest", "raised", "round", "valuation", "backer"],
+            &[
+                "invested_in",
+                "investor_in",
+                "funded",
+                "funded_by",
+                "backed_by",
+            ],
+        ),
+        (
+            &[
+                "lead",
+                "leads",
+                "ceo",
+                "chief",
+                "founder",
+                "run",
+                "runs",
+                "head",
+                "executive",
+                "board",
+            ],
+            &[
+                "ceo_of",
+                "cfo_of",
+                "cto_of",
+                "chairman_of",
+                "founder_of",
+                "cofounder_of",
+                "president_of",
+                "board_member_of",
+                "member_of",
+            ],
+        ),
+        (
+            &["partner", "alliance", "collaborat"],
+            &["partner_of", "partnered_with", "working_with"],
+        ),
+        (
+            &["launch", "release", "product", "unveil"],
+            &["launched", "launches", "released", "owned_by"],
+        ),
+        (&["compet", "rival"], &["competes_with", "competitor_of"]),
+        (
+            &["headquarter", "based", "located", "where"],
+            &["headquartered_in", "based_in", "located_in"],
+        ),
+        (
+            &["employ", "hired", "joined", "left", "moved", "role", "job"],
+            &[
+                "employed_by",
+                "works_at",
+                "joined",
+                "left",
+                "resigned_from",
+                "hired_by",
+                "ceo_of",
+                "founder_of",
+            ],
+        ),
+    ];
+    let q = question.to_lowercase();
+    let mut out = Vec::new();
+    for (cues, types) in MAP {
+        if cues.iter().any(|c| q.contains(c)) {
+            for t in *types {
+                if !out.contains(t) {
+                    out.push(*t);
+                }
+            }
+        }
+    }
+    out
+}
+
 pub(crate) async fn bfs(
     pool: &SqlitePool,
     seeds: &[String],
     depth: usize,
     as_of: Option<&str>,
+) -> Result<GraphSlice> {
+    bfs_ranked(pool, seeds, depth, as_of, &[]).await
+}
+
+pub(crate) async fn bfs_ranked(
+    pool: &SqlitePool,
+    seeds: &[String],
+    depth: usize,
+    as_of: Option<&str>,
+    preferred_types: &[&str],
 ) -> Result<GraphSlice> {
     let all_edges = load_edges(pool, as_of).await?;
     let mut visited: HashSet<String> = seeds.iter().cloned().collect();
@@ -203,9 +323,11 @@ pub(crate) async fn bfs(
     // before lighter — then cap, so a hub entity yields a focused slice rather than everything.
     let mut ranked: Vec<(usize, WmEdge)> = used.into_values().collect();
     ranked.sort_by(|(da, a), (db, b)| {
+        let pa = !preferred_types.contains(&a.edge_type.as_str());
+        let pb = !preferred_types.contains(&b.edge_type.as_str());
         let ta = a.edge_type == "mentioned_with";
         let tb = b.edge_type == "mentioned_with";
-        ta.cmp(&tb).then(da.cmp(db)).then(
+        pa.cmp(&pb).then(ta.cmp(&tb)).then(da.cmp(db)).then(
             b.weight
                 .partial_cmp(&a.weight)
                 .unwrap_or(std::cmp::Ordering::Equal),
@@ -494,7 +616,8 @@ pub async fn ask_filtered(
         );
     }
     let seed_ids: Vec<String> = seeds.iter().map(|e| e.id.clone()).collect();
-    let mut slice = bfs(pool, &seed_ids, DEFAULT_DEPTH, as_of).await?;
+    let preferred = relevant_relation_types(question);
+    let mut slice = bfs_ranked(pool, &seed_ids, DEFAULT_DEPTH, as_of, &preferred).await?;
     if let Some(class) = license_filter {
         let licenses = license_map(pool, &slice).await?;
         filter_slice_by_license(&mut slice, &licenses, class);
@@ -549,6 +672,15 @@ mod tests {
             invalid_at: None,
             superseded_by: None,
         }
+    }
+
+    #[test]
+    fn question_wording_selects_relation_types() {
+        let t = relevant_relation_types("What lawsuits or regulatory actions involve AI labs?");
+        assert!(t.contains(&"suing") && t.contains(&"sanctioned"));
+        assert!(!t.contains(&"acquired"));
+        assert!(relevant_relation_types("Who leads each lab?").contains(&"ceo_of"));
+        assert!(relevant_relation_types("hello").is_empty());
     }
 
     #[test]
