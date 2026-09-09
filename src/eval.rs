@@ -117,10 +117,15 @@ pub fn run(labels_path: &Path, weights: &Weights) -> Result<EvalOutcome> {
                 corroboration: 0,
                 recent: false,
             };
-            Scored {
-                pair: p,
-                ms: score(&p.mention, p.mention_type.as_deref(), &cand, weights),
+            let mut ms = score(&p.mention, p.mention_type.as_deref(), &cand, weights);
+            // The pipeline never scores a mention that fails the name gate; the eval
+            // must not either, or gate-rejected junk shows up as matcher errors.
+            let mtype = p.mention_type.as_deref().unwrap_or(&p.candidate_type);
+            if !crate::extract::plausible_name(&p.mention, mtype) {
+                ms.total = -10.0;
+                ms.contributions.push(("name_gate".to_string(), -10.0));
             }
+            Scored { pair: p, ms }
         })
         .collect();
 
