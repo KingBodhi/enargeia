@@ -139,7 +139,8 @@ graph (entities · edges · decorrelations) ──> context assembler ──> as
 Resolution uses blocking (name/token/phonetic keys) plus a multi-signal Fellegi–Sunter
 scorer: name similarity, alias match, token overlap, phonetic agreement, type agreement,
 extra-token and containment structure, acronym/initials logic, and — at runtime — co-mention
-context, corroboration and recency. Every candidate stores its feature breakdown. Measured on
+context, corroboration and recency (applied only to a review-worthy name match, and capped so
+context can confirm a match but never carry one). Every candidate stores its feature breakdown. Measured on
 labeled pairs from a real corpus; see [eval/REPORT.md](eval/REPORT.md) for the current
 precision/recall against the single-metric baseline it replaced.
 

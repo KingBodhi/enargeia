@@ -302,6 +302,9 @@ pub struct Weights {
     pub cooc: [f64; 3],
     pub corroboration: [f64; 4],
     pub recent: f64,
+    /// Ceiling on the summed runtime priors (cooc + corroboration + recency). Context can
+    /// confirm a plausible name match; it must never bridge the review→merge gap on its own.
+    pub prior_cap: f64,
     pub upper: f64,
     pub lower: f64,
 }
@@ -321,6 +324,7 @@ impl Default for Weights {
             cooc: [0.0, 1.5, 2.5],
             corroboration: [0.0, 0.3, 0.7, 1.0],
             recent: 0.3,
+            prior_cap: 2.0,
             upper: 5.0,
             lower: 1.0,
         }
@@ -464,16 +468,16 @@ pub fn score(
     };
 
     let mut contributions: Vec<(String, f64)> = Vec::new();
-    let mut push = |name: &str, v: f64| {
+    fn push(c: &mut Vec<(String, f64)>, name: &str, v: f64) {
         if v != 0.0 {
-            contributions.push((name.to_string(), v));
+            c.push((name.to_string(), v));
         }
-    };
+    }
 
     if acronym == 1 {
         // Initials match: string similarity is meaningless here (FTC vs Federal Trade
         // Commission scores ~0 on every string metric) — the acronym evidence stands in.
-        push("acronym_match", w.acronym_match);
+        push(&mut contributions, "acronym_match", w.acronym_match);
     } else {
         // Jaro-Winkler's prefix bonus makes "circle" ≈ "circle k"; when the other side carries
         // extra content tokens the top similarity level is not trustworthy. Conversely, when
@@ -486,9 +490,9 @@ pub fn score(
         if token_subset >= 1 {
             name_idx = name_idx.max(1);
         }
-        push("name_jw", w.name[name_idx]);
+        push(&mut contributions, "name_jw", w.name[name_idx]);
         if alias_exact {
-            push("alias_exact", w.alias_exact);
+            push(&mut contributions, "alias_exact", w.alias_exact);
         }
         let jl = if token_jaccard >= 0.8 {
             2
@@ -497,35 +501,63 @@ pub fn score(
         } else {
             0
         };
-        push("token_jaccard", w.jaccard[jl]);
-        push("phonetic", w.phonetic[phon as usize]);
-        push("extra_tokens", w.extra_tokens[extra_tokens.min(2)]);
-        push("token_subset", w.token_subset[token_subset as usize]);
+        push(&mut contributions, "token_jaccard", w.jaccard[jl]);
+        push(&mut contributions, "phonetic", w.phonetic[phon as usize]);
+        push(
+            &mut contributions,
+            "extra_tokens",
+            w.extra_tokens[extra_tokens.min(2)],
+        );
+        push(
+            &mut contributions,
+            "token_subset",
+            w.token_subset[token_subset as usize],
+        );
         if acronym == -1 {
-            push("acronym_mismatch", w.acronym_mismatch);
+            push(&mut contributions, "acronym_mismatch", w.acronym_mismatch);
         }
     }
-    push("type_agree", w.type_agree[type_agree as usize]);
-    let cl = if cand.cooc >= 0.5 {
-        2
-    } else if cand.cooc > 0.0 {
-        1
-    } else {
-        0
-    };
-    push("cooc", w.cooc[cl]);
-    let kl = if cand.corroboration >= 8 {
-        3
-    } else if cand.corroboration >= 3 {
-        2
-    } else if cand.corroboration >= 1 {
-        1
-    } else {
-        0
-    };
-    push("corroboration", w.corroboration[kl]);
-    if cand.recent {
-        push("recent", w.recent);
+    push(
+        &mut contributions,
+        "type_agree",
+        w.type_agree[type_agree as usize],
+    );
+
+    // Runtime priors are applied only when the string/type evidence alone is at least
+    // review-worthy — context cannot rescue a name that does not match — and their sum is
+    // capped so they cannot alone carry a review-band pair over the merge threshold.
+    let evidence: f64 = contributions.iter().map(|(_, v)| v).sum();
+    if evidence >= w.lower {
+        let cl = if cand.cooc >= 0.5 {
+            2
+        } else if cand.cooc > 0.0 {
+            1
+        } else {
+            0
+        };
+        let kl = if cand.corroboration >= 8 {
+            3
+        } else if cand.corroboration >= 3 {
+            2
+        } else if cand.corroboration >= 1 {
+            1
+        } else {
+            0
+        };
+        let recent = if cand.recent { w.recent } else { 0.0 };
+        let raw = w.cooc[cl] + w.corroboration[kl] + recent;
+        let scale = if raw > w.prior_cap {
+            w.prior_cap / raw
+        } else {
+            1.0
+        };
+        push(&mut contributions, "cooc", w.cooc[cl] * scale);
+        push(
+            &mut contributions,
+            "corroboration",
+            w.corroboration[kl] * scale,
+        );
+        push(&mut contributions, "recent", recent * scale);
     }
 
     let total = contributions.iter().map(|(_, v)| v).sum();
@@ -549,6 +581,52 @@ mod tests {
             corroboration: 0,
             recent: false,
         }
+    }
+
+    fn prior_sum(ms: &MatchScore) -> f64 {
+        ms.contributions
+            .iter()
+            .filter(|(n, _)| matches!(n.as_str(), "cooc" | "corroboration" | "recent"))
+            .map(|(_, v)| v)
+            .sum()
+    }
+
+    #[test]
+    fn context_priors_confirm_but_never_rescue_or_carry() {
+        let w = Weights::default();
+        let strong_context = |canonical: &'static str, t: &'static str| Candidate {
+            canonical,
+            aliases: &[],
+            entity_type: t,
+            cooc: 1.0,
+            corroboration: 20,
+            recent: true,
+        };
+        // A name that does not match gets no help from context at all.
+        let ms = score(
+            "OpenAI",
+            Some("organization"),
+            &strong_context("Open Source Initiative", "organization"),
+            &w,
+        );
+        assert_eq!(prior_sum(&ms), 0.0, "{:?}", ms.contributions);
+        assert_eq!(decide(ms.total, &w), Decision::New);
+
+        // A review-band name gets context, but never more than the cap.
+        let ms = score(
+            "Circle",
+            Some("organization"),
+            &strong_context("Circle K", "organization"),
+            &w,
+        );
+        assert!(prior_sum(&ms) > 0.0);
+        assert!(
+            prior_sum(&ms) <= w.prior_cap + 1e-9,
+            "{:?}",
+            ms.contributions
+        );
+        let raw = w.cooc[2] + w.corroboration[3] + w.recent;
+        assert!(raw > w.prior_cap, "test assumes the cap binds");
     }
 
     #[test]

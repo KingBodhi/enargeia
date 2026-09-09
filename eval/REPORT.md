@@ -1,6 +1,6 @@
 # Matcher evaluation report
 
-Generated 2026-09-09 04:24 UTC by `enargeia eval match` from `eval/labels.jsonl`.
+Generated 2026-09-09 16:00 UTC by `enargeia eval match` from `eval/labels.jsonl`.
 
 **261 labeled pairs** — 50 matches, 211 non-matches. Only string/type features are exercised here; co-occurrence, corroboration and recency priors are zero. See `eval/README.md` for the labeling policy and provenance.
 
@@ -156,6 +156,7 @@ Best merge threshold with precision ≥ 0.85 on this sample: **6.5** (P 0.903, R
     1.0
   ],
   "recent": 0.3,
+  "prior_cap": 2.0,
   "upper": 5.0,
   "lower": 1.0
 }
