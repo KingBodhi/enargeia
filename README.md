@@ -50,7 +50,15 @@ enargeia decorrelate <entity_a> <entity_b> --reason "different companies"
 enargeia merge <keep_id> <absorb_id>      # refuses if the pair was decorrelated
 enargeia expire
 enargeia eval decorrelation               # proves a rejected merge never comes back
+enargeia relations audit [--delete]       # re-verify every typed relation against its source text
 ```
+
+Tier 2 output is grounded twice: a mention must occur in the source text, and a typed
+relation must be claimed there — both names close together, a lexical cue for the relation
+in the claiming sentence(s), entity types that make sense (an organization has no CEO of
+another organization; a person is not acquired). On a 300-item run with a 7B model this
+rejected 36% of stored relations; the sampled rejections were invented ("Samsung Electronics
+acquired OpenAI", "Microsoft ceo_of OpenAI") and the sampled keeps were real.
 
 Relations are bi-temporal: `valid_at` comes from the source's publication date, and
 exclusive relation types (`ceo_of`, `headquartered_in`, `acquired_by`, …) invalidate their

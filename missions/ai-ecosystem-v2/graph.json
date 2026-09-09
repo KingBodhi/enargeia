@@ -1,6 +1,6 @@
 {
   "mission": "ai-ecosystem",
-  "generated_at": "2026-09-09T16:39:25.399290983+00:00",
+  "generated_at": "2026-09-09T16:43:34.547927226+00:00",
   "entities": [
     {
       "id": "09e27e09-1432-466d-b36b-f5b9cbb9f877",
@@ -216465,28 +216465,6 @@
       ]
     },
     {
-      "from": "9007c5e5-61c0-47f8-b283-9d330c12b8ab",
-      "to": "d2f7b6b0-9c78-49b5-a5f5-4199b278d256",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-07-30T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "f456f877-0862-424c-b4d3-2589b9f0b0bb"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "e1426195-1b46-424c-bba2-453cd5f447d7",
-      "edge_type": "launches",
-      "weight": 1.0,
-      "valid_at": "2026-07-29T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "91afc2de-05a5-4bec-bfbd-3f6d07adae44"
-      ]
-    },
-    {
       "from": "e1426195-1b46-424c-bba2-453cd5f447d7",
       "to": "8e203175-f3bd-4eef-a0e6-47f955776068",
       "edge_type": "incorporates",
@@ -216554,17 +216532,6 @@
     },
     {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "66a28eaa-744e-453f-909d-5af8e5757c08",
-      "edge_type": "supports",
-      "weight": 1.0,
-      "valid_at": "2026-07-22T13:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "5f4acc06-814e-4838-9ee9-2494b5b12adb"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "acc3f250-7bb0-4046-8fc1-e63681f4e09a",
       "edge_type": "supports",
       "weight": 1.0,
@@ -216578,28 +216545,6 @@
       "from": "79ecb177-78dc-436e-ab71-8bb82890734f",
       "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "edge_type": "renewed_support_for",
-      "weight": 1.0,
-      "valid_at": "2026-07-22T13:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "5f4acc06-814e-4838-9ee9-2494b5b12adb"
-      ]
-    },
-    {
-      "from": "e5caafa1-0b7a-4a19-89b7-0bc9bcfaa6d7",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "supports",
-      "weight": 1.0,
-      "valid_at": "2026-07-22T13:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "5f4acc06-814e-4838-9ee9-2494b5b12adb"
-      ]
-    },
-    {
-      "from": "6cfe0b06-86cf-4689-951f-e48e30398c64",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "supports",
       "weight": 1.0,
       "valid_at": "2026-07-22T13:00:00+00:00",
       "invalid_at": null,
@@ -216663,28 +216608,6 @@
       ]
     },
     {
-      "from": "3eccfbc7-b76c-4df4-85f3-4e3dee7a7bbd",
-      "to": "1a0b47dc-ca85-4b62-ae75-49a04330ddac",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-07-22T05:30:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "98cb7001-125f-43d2-82ff-69e826027c03"
-      ]
-    },
-    {
-      "from": "3eccfbc7-b76c-4df4-85f3-4e3dee7a7bbd",
-      "to": "0f165215-63f2-45f3-ba09-04c70a33f003",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-07-22T05:30:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "98cb7001-125f-43d2-82ff-69e826027c03"
-      ]
-    },
-    {
       "from": "1a1e896d-3795-4100-bf5b-ab346c5a47f5",
       "to": "4922eb80-7127-4818-b854-189db0cc35d9",
       "edge_type": "deployed",
@@ -216740,28 +216663,6 @@
       ]
     },
     {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "f26d0034-e09d-416a-9fab-f979f7b22dc7",
-      "edge_type": "work_with",
-      "weight": 1.0,
-      "valid_at": "2026-07-21T07:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "7948ca15-fe5e-42ad-812f-7df0e777b40e"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "a86012e2-027b-4ad9-a549-f88a0b6f63eb",
-      "edge_type": "work_with",
-      "weight": 1.0,
-      "valid_at": "2026-07-21T07:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "7948ca15-fe5e-42ad-812f-7df0e777b40e"
-      ]
-    },
-    {
       "from": "830090cb-e3a5-4310-b7b6-0395c97ece15",
       "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "edge_type": "member_of",
@@ -216806,17 +216707,6 @@
       ]
     },
     {
-      "from": "b697a12b-279d-45fc-a001-06cfbd3c31ea",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "launched",
-      "weight": 1.0,
-      "valid_at": "2026-07-20T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "c2b7b45e-0266-45fc-9a34-44a85634fd34"
-      ]
-    },
-    {
       "from": "274ef54d-1eac-4721-9f09-d1528a23bbcc",
       "to": "b697a12b-279d-45fc-a001-06cfbd3c31ea",
       "edge_type": "solved",
@@ -216825,52 +216715,6 @@
       "invalid_at": null,
       "sources": [
         "c2b7b45e-0266-45fc-9a34-44a85634fd34"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "b697a12b-279d-45fc-a001-06cfbd3c31ea",
-      "edge_type": "owned_by",
-      "weight": 1.0,
-      "valid_at": "2026-07-20T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "c2b7b45e-0266-45fc-9a34-44a85634fd34"
-      ]
-    },
-    {
-      "from": "fbe1e3db-b920-42e2-8564-939a422a8bc3",
-      "to": "b697a12b-279d-45fc-a001-06cfbd3c31ea",
-      "edge_type": "developed",
-      "weight": 1.0,
-      "valid_at": "2026-07-20T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "c2b7b45e-0266-45fc-9a34-44a85634fd34"
-      ]
-    },
-    {
-      "from": "b697a12b-279d-45fc-a001-06cfbd3c31ea",
-      "to": "fbe1e3db-b920-42e2-8564-939a422a8bc3",
-      "edge_type": "used",
-      "weight": 1.0,
-      "valid_at": "2026-07-20T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "c2b7b45e-0266-45fc-9a34-44a85634fd34"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "e1426195-1b46-424c-bba2-453cd5f447d7",
-      "edge_type": "launched",
-      "weight": 3.0,
-      "valid_at": "2026-01-18T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "c3213722-2de6-4a76-9951-eecd8a74c14c",
-        "4bfaf8d7-0dd5-41d0-9f40-f99347216ddd",
-        "b3bb234e-239e-4f9d-8b4e-d8b19a58c248"
       ]
     },
     {
@@ -216929,17 +216773,6 @@
       ]
     },
     {
-      "from": "11faf08f-9f5e-4404-9376-b196338cfda8",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "grounded_principle",
-      "weight": 1.0,
-      "valid_at": "2026-07-15T12:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "eb13e816-8dc8-40b4-99bb-9cc435629791"
-      ]
-    },
-    {
       "from": "56c225e0-4544-46c1-9406-ed2b768384a1",
       "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "edge_type": "owned_by",
@@ -216984,61 +216817,6 @@
       ]
     },
     {
-      "from": "d9b93c43-a7d0-4004-ac08-65dca8726ad4",
-      "to": "c7eee27b-d4bd-4751-83dd-6efd160b96f6",
-      "edge_type": "launches",
-      "weight": 1.0,
-      "valid_at": "2026-07-09T13:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "470193ef-0d33-426b-b63c-feb6aee220b9"
-      ]
-    },
-    {
-      "from": "d9b93c43-a7d0-4004-ac08-65dca8726ad4",
-      "to": "7d3f5b82-18ea-43b9-9465-26ac41d29349",
-      "edge_type": "launches",
-      "weight": 1.0,
-      "valid_at": "2026-07-09T13:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "470193ef-0d33-426b-b63c-feb6aee220b9"
-      ]
-    },
-    {
-      "from": "d9b93c43-a7d0-4004-ac08-65dca8726ad4",
-      "to": "0dd3578d-dfc6-4efc-963e-bf113b4f9866",
-      "edge_type": "launches",
-      "weight": 1.0,
-      "valid_at": "2026-07-09T13:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "470193ef-0d33-426b-b63c-feb6aee220b9"
-      ]
-    },
-    {
-      "from": "d9b93c43-a7d0-4004-ac08-65dca8726ad4",
-      "to": "849d7080-cc61-4591-a5b3-5e6d0e5c1470",
-      "edge_type": "launches",
-      "weight": 1.0,
-      "valid_at": "2026-07-09T13:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "470193ef-0d33-426b-b63c-feb6aee220b9"
-      ]
-    },
-    {
-      "from": "d9b93c43-a7d0-4004-ac08-65dca8726ad4",
-      "to": "59166559-5d83-4880-bade-b8127c267499",
-      "edge_type": "launches",
-      "weight": 1.0,
-      "valid_at": "2026-07-09T13:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "470193ef-0d33-426b-b63c-feb6aee220b9"
-      ]
-    },
-    {
       "from": "d90ceb7f-ae19-46f1-bafc-823896e15d7e",
       "to": "baf513c7-9ceb-4df0-a61d-9deb9f0e7cb9",
       "edge_type": "powered_by",
@@ -217047,17 +216825,6 @@
       "invalid_at": null,
       "sources": [
         "470193ef-0d33-426b-b63c-feb6aee220b9"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "6b08b34c-8264-4ab0-9a6c-27e2a625555f",
-      "edge_type": "launched",
-      "weight": 1.0,
-      "valid_at": "2026-07-09T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "78b38c06-d24f-43dc-9bd9-e391e3d66815"
       ]
     },
     {
@@ -217083,61 +216850,6 @@
       ]
     },
     {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "a21c4d24-171c-40ec-95c4-2d40346ac186",
-      "edge_type": "launched",
-      "weight": 1.0,
-      "valid_at": "2026-07-08T13:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "eecbf33c-699e-4881-ae17-ebba1b7c461f"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "8e39059e-a264-4c85-9355-00a0a18f8ee2",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-07-08T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "333a6337-ed57-472f-a47e-24316620215b"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "b18c6a74-c4d4-4bea-97fa-c35020bd8aa5",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-07-08T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "333a6337-ed57-472f-a47e-24316620215b"
-      ]
-    },
-    {
-      "from": "b2381711-c9d4-4db0-a607-dd7f72e18c3b",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-07-07T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "c2fddeb9-b253-49ed-99e5-c444a4503fc2"
-      ]
-    },
-    {
-      "from": "b2381711-c9d4-4db0-a607-dd7f72e18c3b",
-      "to": "1fdec688-80f7-439e-989d-d41834379892",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-07-07T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "c2fddeb9-b253-49ed-99e5-c444a4503fc2"
-      ]
-    },
-    {
       "from": "4922eb80-7127-4818-b854-189db0cc35d9",
       "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "edge_type": "developed_by",
@@ -217152,17 +216864,6 @@
       "from": "b2381711-c9d4-4db0-a607-dd7f72e18c3b",
       "to": "4922eb80-7127-4818-b854-189db0cc35d9",
       "edge_type": "deployed",
-      "weight": 1.0,
-      "valid_at": "2026-07-07T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "c2fddeb9-b253-49ed-99e5-c444a4503fc2"
-      ]
-    },
-    {
-      "from": "4982d807-ec64-452f-9a56-b457341a6ebc",
-      "to": "b2381711-c9d4-4db0-a607-dd7f72e18c3b",
-      "edge_type": "ceo_of",
       "weight": 1.0,
       "valid_at": "2026-07-07T00:00:00+00:00",
       "invalid_at": null,
@@ -217274,105 +216975,6 @@
       ]
     },
     {
-      "from": "9e7639d6-0296-40f9-b5e0-459a6ca8503d",
-      "to": "19df62b8-e80b-4088-9e0d-4e7f2ae9a95f",
-      "edge_type": "contains",
-      "weight": 1.0,
-      "valid_at": "2026-06-30T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "86437f93-5afd-4f82-bb14-abc952594080"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "e164dd4b-f9db-4288-90f2-6a03f4a2ac62",
-      "edge_type": "based_in",
-      "weight": 1.0,
-      "valid_at": "2026-06-29T07:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "63461715-c62c-4aa0-be32-e52e5e8ce440"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "11faf08f-9f5e-4404-9376-b196338cfda8",
-      "edge_type": "launched",
-      "weight": 1.0,
-      "valid_at": "2026-06-29T07:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "63461715-c62c-4aa0-be32-e52e5e8ce440"
-      ]
-    },
-    {
-      "from": "a03f448a-cd8d-4f3f-b249-c88ffe7003bd",
-      "to": "e164dd4b-f9db-4288-90f2-6a03f4a2ac62",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-29T07:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "63461715-c62c-4aa0-be32-e52e5e8ce440"
-      ]
-    },
-    {
-      "from": "20049f23-d114-4f41-bc90-b72a825dda99",
-      "to": "e164dd4b-f9db-4288-90f2-6a03f4a2ac62",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-29T07:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "63461715-c62c-4aa0-be32-e52e5e8ce440"
-      ]
-    },
-    {
-      "from": "68280cd8-7325-4582-a1b5-3689c4d294d1",
-      "to": "e164dd4b-f9db-4288-90f2-6a03f4a2ac62",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-29T07:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "63461715-c62c-4aa0-be32-e52e5e8ce440"
-      ]
-    },
-    {
-      "from": "9e67bc7c-4f56-4fb3-9bb3-51fccf0cd968",
-      "to": "e164dd4b-f9db-4288-90f2-6a03f4a2ac62",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-29T07:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "63461715-c62c-4aa0-be32-e52e5e8ce440"
-      ]
-    },
-    {
-      "from": "9fcfb41b-df90-46fb-b263-7f87e168d43d",
-      "to": "e164dd4b-f9db-4288-90f2-6a03f4a2ac62",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-29T07:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "63461715-c62c-4aa0-be32-e52e5e8ce440"
-      ]
-    },
-    {
-      "from": "b3e82df9-aef2-4ed7-92df-c43af2caf882",
-      "to": "e164dd4b-f9db-4288-90f2-6a03f4a2ac62",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-29T07:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "63461715-c62c-4aa0-be32-e52e5e8ce440"
-      ]
-    },
-    {
       "from": "b073d5ed-c5d5-445f-83ba-1981b34af07c",
       "to": "46c74cb5-6959-4a1f-8d38-b39590d72570",
       "edge_type": "partner_of",
@@ -217381,17 +216983,6 @@
       "invalid_at": null,
       "sources": [
         "f3874808-8db7-4231-b012-749a2166d6ad"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "6219b9e6-0c10-40f7-85f0-b271d369114a",
-      "edge_type": "launches",
-      "weight": 1.0,
-      "valid_at": "2026-06-26T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "6c39870b-6958-4bb8-b91b-285f045bcf10"
       ]
     },
     {
@@ -217505,17 +217096,6 @@
       ]
     },
     {
-      "from": "d92dff57-e287-444b-ab0d-1f302cad7583",
-      "to": "813b44ab-ef2a-449a-8f8b-2371e5ffcb2a",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-24T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "342d140d-5c11-436b-a68b-1142403a11e1"
-      ]
-    },
-    {
       "from": "bd4bb337-f5f1-4dd1-a665-20fb2ebf5847",
       "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "edge_type": "ceo_of",
@@ -217530,17 +217110,6 @@
       "from": "0d1b618c-865c-440a-80c2-53c0040765a6",
       "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "edge_type": "president_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-24T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "342d140d-5c11-436b-a68b-1142403a11e1"
-      ]
-    },
-    {
-      "from": "7f224024-42b0-4c27-bfdd-cca92c45ac73",
-      "to": "d92dff57-e287-444b-ab0d-1f302cad7583",
-      "edge_type": "chairman_of",
       "weight": 1.0,
       "valid_at": "2026-06-24T06:00:00+00:00",
       "invalid_at": null,
@@ -217583,17 +217152,6 @@
     },
     {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "d0a21e89-0523-419d-bd11-c76909171f0f",
-      "edge_type": "suiing",
-      "weight": 1.0,
-      "valid_at": "2026-06-23T13:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "0b5c4a0d-4d5f-4699-8095-a332eddf6969"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "3a42701a-6156-4827-9bc9-371f6906b084",
       "edge_type": "partner_of",
       "weight": 1.0,
@@ -217604,30 +217162,8 @@
       ]
     },
     {
-      "from": "58f4d21b-8bb4-43dd-b3ee-3bafb745ce94",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-23T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "9fd4518b-8f86-4197-973a-bb6f028b5457"
-      ]
-    },
-    {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "4a4df7ac-0a1f-4f0c-b143-a616a048f1b5",
-      "edge_type": "launched",
-      "weight": 1.0,
-      "valid_at": "2026-06-22T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "4703ad76-87b8-42fd-8bf1-7d0e402efe42"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "30e21775-f4f1-4c21-abfa-b6a2d90a6087",
       "edge_type": "launched",
       "weight": 1.0,
       "valid_at": "2026-06-22T10:00:00+00:00",
@@ -217649,52 +217185,8 @@
     },
     {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "96dea97c-f356-4d04-af8b-40b829d30131",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-22T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "4703ad76-87b8-42fd-8bf1-7d0e402efe42"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "3d7ef303-bb66-4a99-9e20-7fd6ae5b2f74",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-22T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "4703ad76-87b8-42fd-8bf1-7d0e402efe42"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "1b1a826b-f5ec-46da-a1f0-71704c7a388a",
       "edge_type": "launched",
-      "weight": 1.0,
-      "valid_at": "2026-06-22T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "7b7d1b9b-0456-4a0c-bfc9-5e529eb058f5"
-      ]
-    },
-    {
-      "from": "4a4df7ac-0a1f-4f0c-b143-a616a048f1b5",
-      "to": "1b1a826b-f5ec-46da-a1f0-71704c7a388a",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-22T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "7b7d1b9b-0456-4a0c-bfc9-5e529eb058f5"
-      ]
-    },
-    {
-      "from": "96dea97c-f356-4d04-af8b-40b829d30131",
-      "to": "1b1a826b-f5ec-46da-a1f0-71704c7a388a",
-      "edge_type": "partner_of",
       "weight": 1.0,
       "valid_at": "2026-06-22T10:00:00+00:00",
       "invalid_at": null,
@@ -217711,17 +217203,6 @@
       "invalid_at": null,
       "sources": [
         "5df9526b-6289-4c13-8a0f-b0144e32e354"
-      ]
-    },
-    {
-      "from": "d22abcef-147e-44b7-87ec-0358b92b45e3",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "acquired",
-      "weight": 1.0,
-      "valid_at": "2026-06-21T23:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "0a20324f-5699-4d83-9479-0c2b2f70a1ba"
       ]
     },
     {
@@ -217777,61 +217258,6 @@
       "invalid_at": null,
       "sources": [
         "f4bde924-123f-47d0-833e-623cc4e233d2"
-      ]
-    },
-    {
-      "from": "057971ea-4dcf-40df-af77-7549d4ea625b",
-      "to": "97e1389a-9948-4a90-ba8b-8efc995a8758",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-18T08:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "206d8917-5646-4281-a310-d85bea41bb37"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "e4f15f91-50e8-4ec4-8248-7faddf4d3fce",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-17T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "0401ddce-52eb-42a5-a40a-8b9f31401518"
-      ]
-    },
-    {
-      "from": "80094e2d-4fa8-450a-af59-d93c53db0352",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "launched",
-      "weight": 1.0,
-      "valid_at": "2026-06-17T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "0401ddce-52eb-42a5-a40a-8b9f31401518"
-      ]
-    },
-    {
-      "from": "80094e2d-4fa8-450a-af59-d93c53db0352",
-      "to": "bdc12805-8aee-4fef-bd0a-dcd1ca6badf8",
-      "edge_type": "used_in",
-      "weight": 1.0,
-      "valid_at": "2026-06-17T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "0401ddce-52eb-42a5-a40a-8b9f31401518"
-      ]
-    },
-    {
-      "from": "bdc12805-8aee-4fef-bd0a-dcd1ca6badf8",
-      "to": "e4f15f91-50e8-4ec4-8248-7faddf4d3fce",
-      "edge_type": "owned_by",
-      "weight": 1.0,
-      "valid_at": "2026-06-17T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "0401ddce-52eb-42a5-a40a-8b9f31401518"
       ]
     },
     {
@@ -217934,17 +217360,6 @@
       ]
     },
     {
-      "from": "1d51ce46-b912-47b7-ba0c-debdd107065e",
-      "to": "a65446ac-83c9-4197-8ead-b254f2501965",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-11T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "03193a6d-48cf-422f-93d8-f6a8185c97ae"
-      ]
-    },
-    {
       "from": "1a0b47dc-ca85-4b62-ae75-49a04330ddac",
       "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "edge_type": "partner_of",
@@ -217971,17 +217386,6 @@
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "df9de1e1-0b0c-4838-a859-c5dbb4da8df2",
       "edge_type": "acquires",
-      "weight": 1.0,
-      "valid_at": "2026-06-11T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "43165b2a-8903-4b16-98bc-e77a0993a53c"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "e968589d-2a8a-48fa-9d3c-2b5f138f583d",
-      "edge_type": "launches",
       "weight": 1.0,
       "valid_at": "2026-06-11T00:00:00+00:00",
       "invalid_at": null,
@@ -218100,28 +217504,6 @@
       ]
     },
     {
-      "from": "fe843cc8-759a-4ff8-a323-b2c32a103090",
-      "to": "ce2522b2-aa0c-479f-b6c8-7674095020d4",
-      "edge_type": "cto_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-04T12:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "a3c9f58a-2d7e-40bd-a166-2f4bbc8bdfe5"
-      ]
-    },
-    {
-      "from": "fe843cc8-759a-4ff8-a323-b2c32a103090",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-04T12:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "a3c9f58a-2d7e-40bd-a166-2f4bbc8bdfe5"
-      ]
-    },
-    {
       "from": "e1426195-1b46-424c-bba2-453cd5f447d7",
       "to": "892bc7cd-be0c-4c24-a646-31fc0eadf796",
       "edge_type": "launches",
@@ -218163,39 +217545,6 @@
       "invalid_at": null,
       "sources": [
         "ca541058-01c4-40e4-9352-f4240d144f46"
-      ]
-    },
-    {
-      "from": "23ef3788-84bf-4f97-9bb2-185dd6f82116",
-      "to": "da3ab3ba-45e5-4fc0-ad57-4a9c20796251",
-      "edge_type": "out_performs",
-      "weight": 1.0,
-      "valid_at": "2026-06-03T13:15:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "9496e726-04c6-4bb8-81f2-ddff762f35cb"
-      ]
-    },
-    {
-      "from": "23ef3788-84bf-4f97-9bb2-185dd6f82116",
-      "to": "316b1a0d-6f74-4203-ba11-ec5bd83efe1d",
-      "edge_type": "out_performs",
-      "weight": 1.0,
-      "valid_at": "2026-06-03T13:15:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "9496e726-04c6-4bb8-81f2-ddff762f35cb"
-      ]
-    },
-    {
-      "from": "23ef3788-84bf-4f97-9bb2-185dd6f82116",
-      "to": "02cf8ada-007d-4414-b5de-b2bb9b5d266d",
-      "edge_type": "out_performs",
-      "weight": 1.0,
-      "valid_at": "2026-06-03T13:15:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "9496e726-04c6-4bb8-81f2-ddff762f35cb"
       ]
     },
     {
@@ -218251,50 +217600,6 @@
       "invalid_at": null,
       "sources": [
         "79975390-a7f9-4f71-a982-f8cbe8c4ce7d"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "08fe1147-3ae4-4dea-abe2-b754bf15210e",
-      "edge_type": "supports",
-      "weight": 1.0,
-      "valid_at": "2026-06-03T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "eaad30f9-1a95-46dd-a87d-e8ff7f04ca35"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "8d258bdc-9d16-494f-880b-dc61800e6bfd",
-      "edge_type": "supports",
-      "weight": 1.0,
-      "valid_at": "2026-06-03T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "eaad30f9-1a95-46dd-a87d-e8ff7f04ca35"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "6907f0a7-6ba2-4503-b95d-73a769d054c9",
-      "edge_type": "supports",
-      "weight": 1.0,
-      "valid_at": "2026-06-03T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "eaad30f9-1a95-46dd-a87d-e8ff7f04ca35"
-      ]
-    },
-    {
-      "from": "a07d25c7-8950-4245-8c40-ca4b013e7ce1",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "acquired",
-      "weight": 1.0,
-      "valid_at": "2026-06-02T12:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "886a68f6-49bc-4ec9-a308-d1bd91a3e87f"
       ]
     },
     {
@@ -218386,72 +217691,6 @@
       ]
     },
     {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "88094b1e-595c-4286-a0e6-695539687c84",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-01T12:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "b7b0e923-d981-41e3-98c1-29d3e5069a4d"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "b2cf110c-9ffa-40e1-81cf-504c6278bcfa",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-01T12:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "b7b0e923-d981-41e3-98c1-29d3e5069a4d"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "7765b5ae-5945-439c-89c3-ae17e18e7d0a",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-01T12:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "b7b0e923-d981-41e3-98c1-29d3e5069a4d"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "bc769af5-66ac-43a7-88b6-a0caf838b126",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-01T12:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "b7b0e923-d981-41e3-98c1-29d3e5069a4d"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "1a9873c0-1981-4fc4-83dc-ac97f977e9a1",
-      "edge_type": "launched",
-      "weight": 1.0,
-      "valid_at": "2026-06-01T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "f5a6c13e-2366-47bb-8647-7a687bc6fede"
-      ]
-    },
-    {
-      "from": "54ff4b03-64e2-45fa-8c2c-c33dd47b8ffe",
-      "to": "c111f245-5a07-4edd-a705-ff1737d03cf2",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-01T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "f5a6c13e-2366-47bb-8647-7a687bc6fede"
-      ]
-    },
-    {
       "from": "2cc22eef-4548-477c-a62e-d0516dae82cc",
       "to": "cb13aced-c261-4687-b577-7197311fdfa8",
       "edge_type": "supports",
@@ -218471,50 +217710,6 @@
       "invalid_at": null,
       "sources": [
         "6c650d89-6fce-4f13-88a2-cad327e2fb0a"
-      ]
-    },
-    {
-      "from": "cb13aced-c261-4687-b577-7197311fdfa8",
-      "to": "889e4049-2be6-49eb-a7cf-4ee236f6ef7a",
-      "edge_type": "supported_by",
-      "weight": 1.0,
-      "valid_at": "2026-06-01T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "6c650d89-6fce-4f13-88a2-cad327e2fb0a"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "930614f7-dc83-4020-9d71-20a2adb53f7a",
-      "edge_type": "acquired",
-      "weight": 1.0,
-      "valid_at": "2026-06-01T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d3c99b11-f5e2-4f8d-a0a4-3629b2699b08"
-      ]
-    },
-    {
-      "from": "930614f7-dc83-4020-9d71-20a2adb53f7a",
-      "to": "56332350-6d11-4e3e-aebf-7fefce28d3d0",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-01T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d3c99b11-f5e2-4f8d-a0a4-3629b2699b08"
-      ]
-    },
-    {
-      "from": "aff2915b-d398-44e2-b6c8-7f7f862f9b79",
-      "to": "930614f7-dc83-4020-9d71-20a2adb53f7a",
-      "edge_type": "ceo_of",
-      "weight": 1.0,
-      "valid_at": "2026-06-01T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d3c99b11-f5e2-4f8d-a0a4-3629b2699b08"
       ]
     },
     {
@@ -218565,17 +217760,6 @@
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "a2be2cbe-f93e-44bc-b497-2acca0aee0cb",
       "edge_type": "launching",
-      "weight": 1.0,
-      "valid_at": "2026-05-29T03:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "ebfb8590-c5b5-4c2e-a533-519b5f40275f"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "df2993e2-ed82-4bd4-a62a-37c69d557129",
-      "edge_type": "partner_of",
       "weight": 1.0,
       "valid_at": "2026-05-29T03:00:00+00:00",
       "invalid_at": null,
@@ -218636,28 +217820,6 @@
       "invalid_at": null,
       "sources": [
         "f2374d08-8575-46bf-a532-2c7a6090371d"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "6e4f5031-323b-4226-ae32-625396d0b5f1",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-05-27T11:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "b6cf9fef-cd08-49bd-9f1c-d9037830a010"
-      ]
-    },
-    {
-      "from": "6e4f5031-323b-4226-ae32-625396d0b5f1",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "acquired",
-      "weight": 1.0,
-      "valid_at": "2026-05-27T11:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "b6cf9fef-cd08-49bd-9f1c-d9037830a010"
       ]
     },
     {
@@ -218728,17 +217890,6 @@
     },
     {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "18a1e410-1819-427a-b893-9a221ccf308e",
-      "edge_type": "suing",
-      "weight": 1.0,
-      "valid_at": "2026-05-27T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "038697c1-cdc6-4088-980a-0ac731ce4338"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "df9833b3-ad5b-48d5-8ca1-f84f662eff80",
       "edge_type": "partner_of",
       "weight": 1.0,
@@ -218795,17 +217946,6 @@
     {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "e3e33025-72fb-46b3-8a07-5c69f497fb2b",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-05-25T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "025a1bf2-78ed-4af3-9d1a-446fdff6bcb6"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "4982184c-57a7-4851-bc0d-8f97f2a15c23",
       "edge_type": "partner_of",
       "weight": 1.0,
       "valid_at": "2026-05-25T00:00:00+00:00",
@@ -218893,41 +218033,8 @@
     },
     {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "7a516b74-9589-449d-8c8a-92ea03e68502",
-      "edge_type": "launched",
-      "weight": 1.0,
-      "valid_at": "2026-05-20T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "e5097a21-709d-452d-b07f-c15b1b35d752"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "29cb3d7a-2a65-49be-9510-168df75b5beb",
-      "edge_type": "launched",
-      "weight": 1.0,
-      "valid_at": "2026-05-19T10:45:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "79eb2fd9-0a09-4836-9222-1580d42be8e9"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "9db769e1-4891-43a3-94cc-3e66b8b11ef3",
       "edge_type": "using",
-      "weight": 1.0,
-      "valid_at": "2026-05-19T10:45:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "79eb2fd9-0a09-4836-9222-1580d42be8e9"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "8ccb1b7d-4caf-4d07-89fe-c569c51e7204",
-      "edge_type": "member_of",
       "weight": 1.0,
       "valid_at": "2026-05-19T10:45:00+00:00",
       "invalid_at": null,
@@ -219068,28 +218175,6 @@
       ]
     },
     {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "164dcf9f-0710-4e72-8c42-57c4f0a4b932",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-05-13T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "b2cf2f15-8fda-45f1-b5de-7d186e9d719a"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "1d3b5f83-6480-48e6-aba8-207d23e7bedc",
-      "edge_type": "suing",
-      "weight": 1.0,
-      "valid_at": "2026-05-13T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "b2cf2f15-8fda-45f1-b5de-7d186e9d719a"
-      ]
-    },
-    {
       "from": "e968589d-2a8a-48fa-9d3c-2b5f138f583d",
       "to": "abb86abe-04e1-4bf7-8b23-75554e095f2b",
       "edge_type": "built_on",
@@ -219165,17 +218250,6 @@
       "sources": [
         "79ee2782-c24b-4468-ab46-6ca82bae209c",
         "4e95236d-dc47-42f9-9c2e-5f8219d0611b"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "abb86abe-04e1-4bf7-8b23-75554e095f2b",
-      "edge_type": "launched",
-      "weight": 2.0,
-      "valid_at": "2026-05-07T13:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "4733d7ea-903a-493f-a0cd-02f5356b5c13"
       ]
     },
     {
@@ -219344,17 +218418,6 @@
       ]
     },
     {
-      "from": "c595b446-e6c7-4218-a911-e7c1d48dc3a1",
-      "to": "bbbca731-df49-46dc-b043-14dfa61b7714",
-      "edge_type": "honoree_of",
-      "weight": 1.0,
-      "valid_at": "2026-05-06T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "fc18bd6a-9d6d-4989-a4a7-e4d29ddcd10c"
-      ]
-    },
-    {
       "from": "93fcb824-d64b-4093-84ea-eac9d629fbf7",
       "to": "9169d7fc-4a23-4c3d-8e46-2ba1885d11fc",
       "edge_type": "student_of",
@@ -219410,117 +218473,7 @@
       ]
     },
     {
-      "from": "8a19d1e3-b4e2-43b3-94c3-6e959afa7b98",
-      "to": "e14c7518-e7eb-4241-a51c-cc07a286b98f",
-      "edge_type": "recipient_of",
-      "weight": 1.0,
-      "valid_at": "2026-05-05T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "77a912d0-39e3-4ae3-9cc8-8536c21ffdab"
-      ]
-    },
-    {
-      "from": "fc4bad6e-de39-4bca-99e5-9f1fceb57c6e",
-      "to": "e14c7518-e7eb-4241-a51c-cc07a286b98f",
-      "edge_type": "recipient_of",
-      "weight": 1.0,
-      "valid_at": "2026-05-05T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "77a912d0-39e3-4ae3-9cc8-8536c21ffdab"
-      ]
-    },
-    {
-      "from": "78a7542c-c30e-4f5f-9040-3658d8fecc43",
-      "to": "e14c7518-e7eb-4241-a51c-cc07a286b98f",
-      "edge_type": "recipient_of",
-      "weight": 1.0,
-      "valid_at": "2026-05-05T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "77a912d0-39e3-4ae3-9cc8-8536c21ffdab"
-      ]
-    },
-    {
-      "from": "f7084ad0-67f9-4f98-931d-724571a13b83",
-      "to": "e14c7518-e7eb-4241-a51c-cc07a286b98f",
-      "edge_type": "recipient_of",
-      "weight": 1.0,
-      "valid_at": "2026-05-05T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "77a912d0-39e3-4ae3-9cc8-8536c21ffdab"
-      ]
-    },
-    {
-      "from": "79242205-31e6-4d79-8703-1c147c56ed82",
-      "to": "e14c7518-e7eb-4241-a51c-cc07a286b98f",
-      "edge_type": "recipient_of",
-      "weight": 1.0,
-      "valid_at": "2026-05-05T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "77a912d0-39e3-4ae3-9cc8-8536c21ffdab"
-      ]
-    },
-    {
       "from": "160f587e-6de5-4dbd-9461-842292c6c965",
-      "to": "e14c7518-e7eb-4241-a51c-cc07a286b98f",
-      "edge_type": "recipient_of",
-      "weight": 1.0,
-      "valid_at": "2026-05-05T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "77a912d0-39e3-4ae3-9cc8-8536c21ffdab"
-      ]
-    },
-    {
-      "from": "ca739c75-af5d-4456-b496-ef58846f91a4",
-      "to": "e14c7518-e7eb-4241-a51c-cc07a286b98f",
-      "edge_type": "recipient_of",
-      "weight": 1.0,
-      "valid_at": "2026-05-05T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "77a912d0-39e3-4ae3-9cc8-8536c21ffdab"
-      ]
-    },
-    {
-      "from": "1e91d9a5-6335-4707-8976-366d1ee795e7",
-      "to": "e14c7518-e7eb-4241-a51c-cc07a286b98f",
-      "edge_type": "recipient_of",
-      "weight": 1.0,
-      "valid_at": "2026-05-05T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "77a912d0-39e3-4ae3-9cc8-8536c21ffdab"
-      ]
-    },
-    {
-      "from": "5785e7b1-018e-40d4-a9eb-cd8d4915c112",
-      "to": "e14c7518-e7eb-4241-a51c-cc07a286b98f",
-      "edge_type": "recipient_of",
-      "weight": 1.0,
-      "valid_at": "2026-05-05T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "77a912d0-39e3-4ae3-9cc8-8536c21ffdab"
-      ]
-    },
-    {
-      "from": "06af2df9-75e9-48d1-a4e0-be3fb4060582",
-      "to": "e14c7518-e7eb-4241-a51c-cc07a286b98f",
-      "edge_type": "recipient_of",
-      "weight": 1.0,
-      "valid_at": "2026-05-05T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "77a912d0-39e3-4ae3-9cc8-8536c21ffdab"
-      ]
-    },
-    {
-      "from": "d921cdaf-27b5-4820-ab21-5e331e68381d",
       "to": "e14c7518-e7eb-4241-a51c-cc07a286b98f",
       "edge_type": "recipient_of",
       "weight": 1.0,
@@ -219609,17 +218562,6 @@
     },
     {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "096f1b4c-e94c-4759-8422-7f8a10c4f171",
-      "edge_type": "partnered_with",
-      "weight": 1.0,
-      "valid_at": "2026-04-28T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "4ef8f633-ad03-4ce0-a98b-847946e6d849"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "efc88772-a9e5-4bcb-83b2-b855ba28cf39",
       "edge_type": "enabled_secure_ai_adoption",
       "weight": 1.0,
@@ -219660,39 +218602,6 @@
       "invalid_at": null,
       "sources": [
         "d82e09df-bf9d-4daf-ab1a-825a456540c1"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "46ddbc72-3aa2-4adc-a87b-b845ba40aa4a",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-04-27T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d82e09df-bf9d-4daf-ab1a-825a456540c1"
-      ]
-    },
-    {
-      "from": "abb86abe-04e1-4bf7-8b23-75554e095f2b",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "launched",
-      "weight": 1.0,
-      "valid_at": "2026-04-23T11:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "59d7e78b-7fdf-4285-99e4-3a88c1983d3d"
-      ]
-    },
-    {
-      "from": "ab56d899-b1ac-40ef-b3be-b67502a78ec6",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-04-22T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d59ffe78-289b-4fc1-a175-7a2b8bdcb46f"
       ]
     },
     {
@@ -219742,17 +218651,6 @@
     },
     {
       "from": "63ec8c1d-cb09-4626-a958-0a06b49a0e76",
-      "to": "4922eb80-7127-4818-b854-189db0cc35d9",
-      "edge_type": "deployed",
-      "weight": 1.0,
-      "valid_at": "2026-04-20T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "e29d3c6f-3bd6-41a9-9933-9b8f44f65940"
-      ]
-    },
-    {
-      "from": "63ec8c1d-cb09-4626-a958-0a06b49a0e76",
       "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "edge_type": "collaborates_with",
       "weight": 1.0,
@@ -219785,105 +218683,6 @@
       ]
     },
     {
-      "from": "f44e8a21-2b66-442c-a9a3-ea5c1ff870fb",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-04-16T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "76b8ff45-ffeb-478a-8438-0e803f1966b6"
-      ]
-    },
-    {
-      "from": "3b49160c-9b0a-4049-b7b7-1891b380c452",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-04-16T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "76b8ff45-ffeb-478a-8438-0e803f1966b6"
-      ]
-    },
-    {
-      "from": "f2031858-8d4f-4587-954b-f8e61c4a6686",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-04-16T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "76b8ff45-ffeb-478a-8438-0e803f1966b6"
-      ]
-    },
-    {
-      "from": "96dea97c-f356-4d04-af8b-40b829d30131",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-04-16T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "76b8ff45-ffeb-478a-8438-0e803f1966b6"
-      ]
-    },
-    {
-      "from": "dd2f2326-58ea-4358-883d-fd2b22e4899e",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "acquired_by",
-      "weight": 1.0,
-      "valid_at": "2026-04-16T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "76b8ff45-ffeb-478a-8438-0e803f1966b6"
-      ]
-    },
-    {
-      "from": "b33b5b14-c522-4d29-b629-ef934a1309f2",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "acquired_by",
-      "weight": 1.0,
-      "valid_at": "2026-04-16T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "76b8ff45-ffeb-478a-8438-0e803f1966b6"
-      ]
-    },
-    {
-      "from": "b61030c9-d859-4cf4-b9f2-5dbe1ef3d2a9",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "acquired_by",
-      "weight": 1.0,
-      "valid_at": "2026-04-16T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "76b8ff45-ffeb-478a-8438-0e803f1966b6"
-      ]
-    },
-    {
-      "from": "ec61888a-2e7f-4dbc-8895-a28e52c0af13",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "acquired_by",
-      "weight": 1.0,
-      "valid_at": "2026-04-16T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "76b8ff45-ffeb-478a-8438-0e803f1966b6"
-      ]
-    },
-    {
-      "from": "0eb87f85-3962-4a7c-a5ce-c10887e9b2cd",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "acquired_by",
-      "weight": 1.0,
-      "valid_at": "2026-04-16T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "76b8ff45-ffeb-478a-8438-0e803f1966b6"
-      ]
-    },
-    {
       "from": "2e47b771-1cb2-4f07-8f45-3e9d2eb2e266",
       "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "edge_type": "owned_by",
@@ -219896,28 +218695,6 @@
     },
     {
       "from": "7bd86495-2dd4-4965-8aab-0c503551883c",
-      "to": "4f5bce21-68eb-47c9-ae17-da7cc8c9bab4",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-04-10T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "bb697bc5-2b3b-486b-bd61-51b70bff981d"
-      ]
-    },
-    {
-      "from": "4a225188-7d65-4609-8937-68fdadfb9eda",
-      "to": "4f5bce21-68eb-47c9-ae17-da7cc8c9bab4",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-04-10T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "bb697bc5-2b3b-486b-bd61-51b70bff981d"
-      ]
-    },
-    {
-      "from": "1ce869dc-0ca5-406c-8040-1ab5785e3c65",
       "to": "4f5bce21-68eb-47c9-ae17-da7cc8c9bab4",
       "edge_type": "member_of",
       "weight": 1.0,
@@ -220027,18 +218804,6 @@
       ]
     },
     {
-      "from": "46c74cb5-6959-4a1f-8d38-b39590d72570",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "launched",
-      "weight": 2.0,
-      "valid_at": "2026-02-05T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "5d874ee6-d1a5-4a79-bb14-c98c8d653351",
-        "d5d39a8c-3aae-4fa3-9647-1dda6ee08e23"
-      ]
-    },
-    {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "c0263ca3-f305-46dc-83f5-44e71168adee",
       "edge_type": "acquired",
@@ -220139,17 +218904,6 @@
     },
     {
       "from": "1d364f94-07bb-4d6f-a78d-32db02f64bf8",
-      "to": "ad723be4-bbd1-40e5-9b58-822491915fd3",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-03-29T22:15:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "693e0405-676a-4422-a9b1-83376e563a56"
-      ]
-    },
-    {
-      "from": "1d364f94-07bb-4d6f-a78d-32db02f64bf8",
       "to": "527e52f5-ef75-479d-b8ca-4707190ce635",
       "edge_type": "partner_of",
       "weight": 1.0,
@@ -220196,17 +218950,6 @@
       "from": "85469d3e-cade-4e3c-a368-3b2311a32eed",
       "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "edge_type": "embodies_philosophical_principles",
-      "weight": 1.0,
-      "valid_at": "2026-03-25T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "bb4923ed-184b-4dbc-89f3-65458406e11a"
-      ]
-    },
-    {
-      "from": "85469d3e-cade-4e3c-a368-3b2311a32eed",
-      "to": "f22d8860-7f28-42f6-91c8-9ef3abb3f6b3",
-      "edge_type": "addresses",
       "weight": 1.0,
       "valid_at": "2026-03-25T10:00:00+00:00",
       "invalid_at": null,
@@ -220392,17 +219135,6 @@
     },
     {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "617c8bd5-d955-446a-a2ea-2a6152cd665d",
-      "edge_type": "launched",
-      "weight": 1.0,
-      "valid_at": "2026-03-05T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "a4611874-724e-4e9d-a3c1-6a6c78e3e044"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "e1426195-1b46-424c-bba2-453cd5f447d7",
       "edge_type": "owns_or_develops",
       "weight": 1.0,
@@ -220447,61 +219179,6 @@
     },
     {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "134aacdc-46ef-4386-9c87-6cef81693838",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-03-05T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "425f40b9-4333-4397-9b5e-372b338c9da3"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "4f06a219-065d-4a9c-b004-5d1586601cf5",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-03-05T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "425f40b9-4333-4397-9b5e-372b338c9da3"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "f98a2998-5687-4d1b-9acf-04a65df1fe5b",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-03-05T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "425f40b9-4333-4397-9b5e-372b338c9da3"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "da7a8849-6bee-4c75-a63c-21f1cd6b3014",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-03-05T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "425f40b9-4333-4397-9b5e-372b338c9da3"
-      ]
-    },
-    {
-      "from": "66a28eaa-744e-453f-909d-5af8e5757c08",
-      "to": "90b945f9-b70f-4239-ab79-0111de8b09e4",
-      "edge_type": "ceo_of",
-      "weight": 1.0,
-      "valid_at": "2026-03-04T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "b953d53a-9df8-4f6b-839b-05ae776a3a39"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "261e7c4c-d1e3-4925-8c1b-4878fac0499d",
       "edge_type": "partner_of",
       "weight": 1.0,
@@ -220515,39 +219192,6 @@
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "ba522e3a-d752-4862-8212-9527a1663f73",
       "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-03-04T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "70cad441-6dc4-44c1-a868-3fc268527ead"
-      ]
-    },
-    {
-      "from": "643703f0-1943-4e91-b2a6-e48460eb86d8",
-      "to": "268568a7-a461-456a-91f4-b9a2ccdfaf42",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-03-04T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "70cad441-6dc4-44c1-a868-3fc268527ead"
-      ]
-    },
-    {
-      "from": "174c72e3-bd8e-496d-9443-64499f624f2a",
-      "to": "268568a7-a461-456a-91f4-b9a2ccdfaf42",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-03-04T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "70cad441-6dc4-44c1-a868-3fc268527ead"
-      ]
-    },
-    {
-      "from": "351fbae3-6a25-4b57-ba90-e48dcd58d4d9",
-      "to": "268568a7-a461-456a-91f4-b9a2ccdfaf42",
-      "edge_type": "member_of",
       "weight": 1.0,
       "valid_at": "2026-03-04T00:00:00+00:00",
       "invalid_at": null,
@@ -220575,17 +219219,6 @@
       "invalid_at": null,
       "sources": [
         "cea2837b-0c2b-49f5-9296-da81999b47fa"
-      ]
-    },
-    {
-      "from": "baf513c7-9ceb-4df0-a61d-9deb9f0e7cb9",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-02-27T05:30:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "7535e077-f76f-4788-a934-fb3f4789326f"
       ]
     },
     {
@@ -220619,28 +219252,6 @@
       "invalid_at": null,
       "sources": [
         "8a3369ab-62bf-40d7-b264-c2925c81b39d"
-      ]
-    },
-    {
-      "from": "42fdb7c1-1aca-4930-8e3f-b14a24dd70af",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-02-27T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "254b1f1b-3023-4eea-9262-a6e78f2ab488"
-      ]
-    },
-    {
-      "from": "32e1bf43-b28f-4acb-b01e-46b539b98ffe",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-02-27T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "254b1f1b-3023-4eea-9262-a6e78f2ab488"
       ]
     },
     {
@@ -220689,17 +219300,6 @@
     },
     {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "16901ad3-fbaa-4231-9096-c2548c51d35b",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-02-23T05:30:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "9946a4bb-18c4-4b1a-8e14-c6e1e49008f0"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "1dc9a063-a0b6-4388-9f2e-b025bc2178c8",
       "edge_type": "partner_of",
       "weight": 1.0,
@@ -220733,30 +219333,8 @@
     },
     {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "8af09795-94b3-4da5-962e-81df1a06eb95",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-02-19T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "377c8ac7-a8a1-4d6b-a715-e875ea682de6"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "c828d04d-b16e-4614-8c55-92150d2c068b",
       "edge_type": "launching",
-      "weight": 1.0,
-      "valid_at": "2026-02-18T21:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "c9f72695-b224-4fcd-b09d-8fb29860b14c"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "aac72087-7344-4c50-90b5-853337668ada",
-      "edge_type": "partner_of",
       "weight": 1.0,
       "valid_at": "2026-02-18T21:00:00+00:00",
       "invalid_at": null,
@@ -220773,17 +219351,6 @@
       "invalid_at": null,
       "sources": [
         "c9f72695-b224-4fcd-b09d-8fb29860b14c"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "8ca83b50-4eef-45a0-94be-441cfad2ec0a",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-02-18T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "73b15487-ca2e-4983-a657-8abc155385c5"
       ]
     },
     {
@@ -220817,17 +219384,6 @@
       "invalid_at": null,
       "sources": [
         "4a8a8237-8d20-45e3-be7e-28236b1ddeeb"
-      ]
-    },
-    {
-      "from": "4bad3ed8-47c0-49db-bddb-7f92d91cc0dd",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "acquired_by",
-      "weight": 1.0,
-      "valid_at": "2026-02-13T09:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "6b4434d4-851e-47ed-a59c-38b39b03eb31"
       ]
     },
     {
@@ -220875,28 +219431,6 @@
       ]
     },
     {
-      "from": "4ccba18c-ab17-4590-9df1-f6658c4e9953",
-      "to": "d2fe2b70-38c4-4a72-8e74-8d1c7bf40ef7",
-      "edge_type": "collaborated_with",
-      "weight": 1.0,
-      "valid_at": "2026-02-09T11:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "65335d9b-c769-4944-81fd-85ab8681c797"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "c852ade6-0d71-4626-8d11-6a95dac42ccc",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-02-05T11:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "622f36ee-6840-4784-b0ce-919ff404cde8"
-      ]
-    },
-    {
       "from": "abb86abe-04e1-4bf7-8b23-75554e095f2b",
       "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "edge_type": "owned_by",
@@ -220908,141 +219442,9 @@
       ]
     },
     {
-      "from": "1b4b0e35-3481-4f14-a60e-0aaf05136052",
-      "to": "46c74cb5-6959-4a1f-8d38-b39590d72570",
-      "edge_type": "adopted",
-      "weight": 1.0,
-      "valid_at": "2026-02-05T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d5d39a8c-3aae-4fa3-9647-1dda6ee08e23"
-      ]
-    },
-    {
-      "from": "04894535-0606-4f64-9d24-8976e7d99726",
-      "to": "46c74cb5-6959-4a1f-8d38-b39590d72570",
-      "edge_type": "adopted",
-      "weight": 1.0,
-      "valid_at": "2026-02-05T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d5d39a8c-3aae-4fa3-9647-1dda6ee08e23"
-      ]
-    },
-    {
-      "from": "88094b1e-595c-4286-a0e6-695539687c84",
-      "to": "46c74cb5-6959-4a1f-8d38-b39590d72570",
-      "edge_type": "adopted",
-      "weight": 1.0,
-      "valid_at": "2026-02-05T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d5d39a8c-3aae-4fa3-9647-1dda6ee08e23"
-      ]
-    },
-    {
-      "from": "0e7333c3-837e-4d90-8ec0-11f6a4de65ce",
-      "to": "46c74cb5-6959-4a1f-8d38-b39590d72570",
-      "edge_type": "adopted",
-      "weight": 1.0,
-      "valid_at": "2026-02-05T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d5d39a8c-3aae-4fa3-9647-1dda6ee08e23"
-      ]
-    },
-    {
-      "from": "7baf5744-5834-4bf5-a221-89a9aada7fc2",
-      "to": "46c74cb5-6959-4a1f-8d38-b39590d72570",
-      "edge_type": "adopted",
-      "weight": 1.0,
-      "valid_at": "2026-02-05T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d5d39a8c-3aae-4fa3-9647-1dda6ee08e23"
-      ]
-    },
-    {
-      "from": "53bc15fe-2db6-47f2-af0b-37534f35a4ec",
-      "to": "46c74cb5-6959-4a1f-8d38-b39590d72570",
-      "edge_type": "adopted",
-      "weight": 1.0,
-      "valid_at": "2026-02-05T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d5d39a8c-3aae-4fa3-9647-1dda6ee08e23"
-      ]
-    },
-    {
-      "from": "1a0b47dc-ca85-4b62-ae75-49a04330ddac",
-      "to": "46c74cb5-6959-4a1f-8d38-b39590d72570",
-      "edge_type": "piloted",
-      "weight": 1.0,
-      "valid_at": "2026-02-05T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d5d39a8c-3aae-4fa3-9647-1dda6ee08e23"
-      ]
-    },
-    {
-      "from": "99a02e4f-c076-4c1b-8d73-83d091e83254",
-      "to": "46c74cb5-6959-4a1f-8d38-b39590d72570",
-      "edge_type": "piloted",
-      "weight": 1.0,
-      "valid_at": "2026-02-05T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d5d39a8c-3aae-4fa3-9647-1dda6ee08e23"
-      ]
-    },
-    {
-      "from": "fb4f4e8a-f1ee-4c0a-87fd-ecf66f551540",
-      "to": "e968589d-2a8a-48fa-9d3c-2b5f138f583d",
-      "edge_type": "competes_with",
-      "weight": 1.0,
-      "valid_at": "2026-02-05T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d3617b63-01fa-4568-af57-6fbc0dabb187"
-      ]
-    },
-    {
       "from": "a499f1fe-14c4-4542-a8b1-3de1d2ef0686",
       "to": "9a9e1a1c-0c0b-4568-8c3f-0a1a5c360609",
       "edge_type": "powered_by",
-      "weight": 1.0,
-      "valid_at": "2026-02-04T13:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d39f5a56-1db1-4616-afed-33d6d5f26c0e"
-      ]
-    },
-    {
-      "from": "8c840d42-e152-4ecc-bd5f-bdd13b93c1b2",
-      "to": "9a9e1a1c-0c0b-4568-8c3f-0a1a5c360609",
-      "edge_type": "uses",
-      "weight": 1.0,
-      "valid_at": "2026-02-04T13:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d39f5a56-1db1-4616-afed-33d6d5f26c0e"
-      ]
-    },
-    {
-      "from": "0ed3f100-6177-4102-a6f4-d7db3d968dcf",
-      "to": "9179e0e9-a9e4-4ac6-9e7f-f0818efc9f5e",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-02-04T13:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d39f5a56-1db1-4616-afed-33d6d5f26c0e"
-      ]
-    },
-    {
-      "from": "5723ad20-e0de-42c7-bc56-39fb0c834448",
-      "to": "9179e0e9-a9e4-4ac6-9e7f-f0818efc9f5e",
-      "edge_type": "partner_of",
       "weight": 1.0,
       "valid_at": "2026-02-04T13:00:00+00:00",
       "invalid_at": null,
@@ -221103,72 +219505,6 @@
       "invalid_at": null,
       "sources": [
         "b5dbd6c5-2400-47ae-a5ae-21f35e6a6af8"
-      ]
-    },
-    {
-      "from": "b459b053-cc10-4b5b-990c-3bc6331313c4",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-01-29T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "b5dbd6c5-2400-47ae-a5ae-21f35e6a6af8"
-      ]
-    },
-    {
-      "from": "95fd1927-e854-4a6f-82e2-1f199f4430d7",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-01-29T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "b5dbd6c5-2400-47ae-a5ae-21f35e6a6af8"
-      ]
-    },
-    {
-      "from": "b9bec0da-6ca4-4f80-9927-39779b5acd19",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-01-29T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "b5dbd6c5-2400-47ae-a5ae-21f35e6a6af8"
-      ]
-    },
-    {
-      "from": "ca9571e7-d1a1-436c-8796-5ef678fa318a",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-01-29T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "b5dbd6c5-2400-47ae-a5ae-21f35e6a6af8"
-      ]
-    },
-    {
-      "from": "b58964cb-913c-45e9-9075-81c7f44a266d",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-01-29T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "b5dbd6c5-2400-47ae-a5ae-21f35e6a6af8"
-      ]
-    },
-    {
-      "from": "87551bc5-4d96-4e2c-ad83-54fab2d81c80",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "worked_with",
-      "weight": 1.0,
-      "valid_at": "2026-01-29T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "24813da5-3da8-4534-ba5f-1a1fa1ffb3b5"
       ]
     },
     {
@@ -221260,17 +219596,6 @@
       ]
     },
     {
-      "from": "ec1551a9-677d-48cb-8665-f4855a0b8ad0",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "member_of",
-      "weight": 1.0,
-      "valid_at": "2026-01-23T12:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "e0ea11d3-0b8d-4e81-ad3f-de0cadee66aa"
-      ]
-    },
-    {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "3da28040-9251-4bab-987f-eea81d9725a1",
       "edge_type": "uses",
@@ -221315,39 +219640,6 @@
       ]
     },
     {
-      "from": "713a934c-31c7-4f5a-ac53-35e4b6634e8a",
-      "to": "658643d5-014f-4653-8d0c-858120056ed1",
-      "edge_type": "running_on",
-      "weight": 1.0,
-      "valid_at": "2026-01-22T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "8084a809-a4b3-4410-9bc0-8d8939f5fe31"
-      ]
-    },
-    {
-      "from": "e18e55d6-79af-4122-89bc-6048b0849b30",
-      "to": "658643d5-014f-4653-8d0c-858120056ed1",
-      "edge_type": "using",
-      "weight": 1.0,
-      "valid_at": "2026-01-22T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "8084a809-a4b3-4410-9bc0-8d8939f5fe31"
-      ]
-    },
-    {
-      "from": "30203091-20d6-43a5-83ea-61b53a4368f3",
-      "to": "433189ad-301f-4079-bed1-409c8ae456bd",
-      "edge_type": "co_founder_of",
-      "weight": 1.0,
-      "valid_at": "2026-01-22T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "8084a809-a4b3-4410-9bc0-8d8939f5fe31"
-      ]
-    },
-    {
       "from": "598da28e-900b-45e7-95a4-fffa245ca58c",
       "to": "0c43075e-762a-45f8-b5a3-77c302f32edd",
       "edge_type": "co_founded_by",
@@ -221370,17 +219662,6 @@
       ]
     },
     {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "ad723be4-bbd1-40e5-9b58-822491915fd3",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-01-20T21:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "4b308376-8cc8-4c6d-a7e1-5408a6ca91d0"
-      ]
-    },
-    {
       "from": "9d3a5650-d726-4e4e-8243-5524739d6e48",
       "to": "ad723be4-bbd1-40e5-9b58-822491915fd3",
       "edge_type": "launched",
@@ -221400,17 +219681,6 @@
       "invalid_at": null,
       "sources": [
         "4b308376-8cc8-4c6d-a7e1-5408a6ca91d0"
-      ]
-    },
-    {
-      "from": "8ad153a4-48f5-4d38-ad94-b7c656ec0929",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-01-20T19:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "1d7656bf-4b4e-425e-8887-dacf09ae9a2e"
       ]
     },
     {
@@ -221535,17 +219805,6 @@
       ]
     },
     {
-      "from": "f113ea56-742e-4eb4-aa7e-abbc5874b421",
-      "to": "fc3b8af7-9bde-4759-9b10-c87af60a89ed",
-      "edge_type": "invested_in",
-      "weight": 1.0,
-      "valid_at": "2026-01-09T11:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "8a0c1c75-274d-40ae-8a0a-7d310363b19d"
-      ]
-    },
-    {
       "from": "fc3b8af7-9bde-4759-9b10-c87af60a89ed",
       "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "edge_type": "partner_of",
@@ -221557,75 +219816,9 @@
       ]
     },
     {
-      "from": "fc3b8af7-9bde-4759-9b10-c87af60a89ed",
-      "to": "438c34b2-c07e-40ad-bcd0-e4c8f27b59d5",
-      "edge_type": "based_in",
-      "weight": 1.0,
-      "valid_at": "2026-01-09T11:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "8a0c1c75-274d-40ae-8a0a-7d310363b19d"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "23bba964-f253-4fde-aa83-e84230434b3d",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2026-01-09T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "d0ccb4e2-a6a8-47eb-af97-2c5a7b733b44"
-      ]
-    },
-    {
       "from": "90effa52-cd15-4d44-bb59-171d48cdebc3",
       "to": "caa97366-07c6-4abd-8c2e-8e53f356e5c0",
       "edge_type": "includes",
-      "weight": 1.0,
-      "valid_at": "2026-01-08T12:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "68b15eda-7c4f-4309-bfdf-4106ff564a7b"
-      ]
-    },
-    {
-      "from": "90effa52-cd15-4d44-bb59-171d48cdebc3",
-      "to": "1f33e977-c07e-4511-b13a-4969f024bff9",
-      "edge_type": "includes",
-      "weight": 1.0,
-      "valid_at": "2026-01-08T12:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "68b15eda-7c4f-4309-bfdf-4106ff564a7b"
-      ]
-    },
-    {
-      "from": "90effa52-cd15-4d44-bb59-171d48cdebc3",
-      "to": "a7c32e62-1dd3-4464-bc64-fe1fd6b8d76b",
-      "edge_type": "acquired_by",
-      "weight": 1.0,
-      "valid_at": "2026-01-08T12:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "68b15eda-7c4f-4309-bfdf-4106ff564a7b"
-      ]
-    },
-    {
-      "from": "268599d7-3b06-4cb3-9237-2241e2850464",
-      "to": "740a8c39-11c8-44bf-9d7e-b8c6c529ff7c",
-      "edge_type": "invested_in",
-      "weight": 1.0,
-      "valid_at": "2026-01-08T12:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "68b15eda-7c4f-4309-bfdf-4106ff564a7b"
-      ]
-    },
-    {
-      "from": "b9eb65c2-938a-44ec-942a-caefbf81c245",
-      "to": "740a8c39-11c8-44bf-9d7e-b8c6c529ff7c",
-      "edge_type": "invested_in",
       "weight": 1.0,
       "valid_at": "2026-01-08T12:00:00+00:00",
       "invalid_at": null,
@@ -221712,17 +219905,6 @@
     },
     {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "23dbef30-b04c-4495-904c-3ed14a0b7f35",
-      "edge_type": "consulted_with",
-      "weight": 1.0,
-      "valid_at": "2025-12-18T11:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "0fd1c643-d9ee-4c1b-b83d-66da83e32c6a"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "92a141d9-023c-4939-a7b7-cd393b6a8c32",
       "edge_type": "owns_or_develops",
       "weight": 1.0,
@@ -221766,72 +219948,6 @@
       ]
     },
     {
-      "from": "abb86abe-04e1-4bf7-8b23-75554e095f2b",
-      "to": "e1426195-1b46-424c-bba2-453cd5f447d7",
-      "edge_type": "part_of",
-      "weight": 1.0,
-      "valid_at": "2025-12-18T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "42575b3f-53ee-4035-8aa9-4714aa513083"
-      ]
-    },
-    {
-      "from": "abb86abe-04e1-4bf7-8b23-75554e095f2b",
-      "to": "76b46494-04c3-4966-8349-df8d2e8c24bc",
-      "edge_type": "works_with",
-      "weight": 1.0,
-      "valid_at": "2025-12-18T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "42575b3f-53ee-4035-8aa9-4714aa513083"
-      ]
-    },
-    {
-      "from": "abb86abe-04e1-4bf7-8b23-75554e095f2b",
-      "to": "40d1b005-922b-40c3-b477-e901b8b6da10",
-      "edge_type": "improved_performance",
-      "weight": 1.0,
-      "valid_at": "2025-12-18T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "42575b3f-53ee-4035-8aa9-4714aa513083"
-      ]
-    },
-    {
-      "from": "abb86abe-04e1-4bf7-8b23-75554e095f2b",
-      "to": "3487d1d3-338c-479c-8829-3404ab103bf4",
-      "edge_type": "achieved_state_of_the_art",
-      "weight": 1.0,
-      "valid_at": "2025-12-18T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "42575b3f-53ee-4035-8aa9-4714aa513083"
-      ]
-    },
-    {
-      "from": "abb86abe-04e1-4bf7-8b23-75554e095f2b",
-      "to": "8f602d73-2fd5-4d19-963e-5f5b20c81ede",
-      "edge_type": "achieved_state_of_the_art",
-      "weight": 1.0,
-      "valid_at": "2025-12-18T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "42575b3f-53ee-4035-8aa9-4714aa513083"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "79ecb177-78dc-436e-ab71-8bb82890734f",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2025-12-17T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "5365f540-2f0a-4394-9fdd-949ce5927baa"
-      ]
-    },
-    {
       "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "to": "238689ac-1bf0-43ab-8933-6d000468e395",
       "edge_type": "partner_of",
@@ -221854,72 +219970,6 @@
       ]
     },
     {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "71d206d8-71a6-42ae-b179-7646a19d5d29",
-      "edge_type": "acquires_or_invests_in",
-      "weight": 1.0,
-      "valid_at": "2025-12-17T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "5365f540-2f0a-4394-9fdd-949ce5927baa"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "66a28eaa-744e-453f-909d-5af8e5757c08",
-      "edge_type": "acquires_or_invests_in",
-      "weight": 1.0,
-      "valid_at": "2025-12-17T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "5365f540-2f0a-4394-9fdd-949ce5927baa"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "cc89915c-85cf-4c33-b5ff-3d54d5971552",
-      "edge_type": "acquires_or_invests_in",
-      "weight": 1.0,
-      "valid_at": "2025-12-17T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "5365f540-2f0a-4394-9fdd-949ce5927baa"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "edcd2ff1-fc63-42c1-8b4d-21769e3cbe14",
-      "edge_type": "acquires_or_invests_in",
-      "weight": 1.0,
-      "valid_at": "2025-12-17T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "5365f540-2f0a-4394-9fdd-949ce5927baa"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "6cfe0b06-86cf-4689-951f-e48e30398c64",
-      "edge_type": "partners_with",
-      "weight": 1.0,
-      "valid_at": "2025-12-17T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "5365f540-2f0a-4394-9fdd-949ce5927baa"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "8b69a901-588d-4e39-b59b-8421e50544d6",
-      "edge_type": "partners_with",
-      "weight": 1.0,
-      "valid_at": "2025-12-17T06:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "5365f540-2f0a-4394-9fdd-949ce5927baa"
-      ]
-    },
-    {
       "from": "b697a12b-279d-45fc-a001-06cfbd3c31ea",
       "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "edge_type": "historical_context_for",
@@ -221934,17 +219984,6 @@
       "from": "bfd14a7f-bc82-469b-bd99-079149621b50",
       "to": "b697a12b-279d-45fc-a001-06cfbd3c31ea",
       "edge_type": "examples_of",
-      "weight": 1.0,
-      "valid_at": "2025-12-17T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "fcdcb76a-af7f-4375-9b18-daa9e42e0d0c"
-      ]
-    },
-    {
-      "from": "1ac515b0-f523-4333-8ceb-10e77defb7c5",
-      "to": "1f50a9af-f502-48f0-a511-a74c94a27c44",
-      "edge_type": "relevant_for",
       "weight": 1.0,
       "valid_at": "2025-12-17T00:00:00+00:00",
       "invalid_at": null,
@@ -221986,61 +220025,6 @@
       ]
     },
     {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "2c9f4323-09c0-4704-94a3-7e24a9392566",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2025-12-16T08:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "8d288c8e-8fd4-4d7c-a5f9-41e0e940f79e"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "e95f1383-1d61-4958-b463-ce6de46af89d",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2025-12-16T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "c5c9083c-2ec0-4ea6-9a8a-b09ff20b72f9"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "b7588990-1740-4305-86ee-fefd0b7664db",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2025-12-16T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "c5c9083c-2ec0-4ea6-9a8a-b09ff20b72f9"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "cbdf12a5-24d0-4c0e-b288-14bb4ca64837",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2025-12-16T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "c5c9083c-2ec0-4ea6-9a8a-b09ff20b72f9"
-      ]
-    },
-    {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "1a0b47dc-ca85-4b62-ae75-49a04330ddac",
-      "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2025-12-16T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "c5c9083c-2ec0-4ea6-9a8a-b09ff20b72f9"
-      ]
-    },
-    {
       "from": "4aba8ea3-a607-4442-abad-0d5aab549eb7",
       "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "edge_type": "cfo_of",
@@ -222063,17 +220047,6 @@
       ]
     },
     {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "c87427be-c213-494d-bc90-8b454f2d98cc",
-      "edge_type": "launched",
-      "weight": 1.0,
-      "valid_at": "2025-12-12T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "9f6da826-b609-4494-bb64-3dc6558dd5b8"
-      ]
-    },
-    {
       "from": "e968589d-2a8a-48fa-9d3c-2b5f138f583d",
       "to": "c87427be-c213-494d-bc90-8b454f2d98cc",
       "edge_type": "used_for_development",
@@ -222082,17 +220055,6 @@
       "invalid_at": null,
       "sources": [
         "9f6da826-b609-4494-bb64-3dc6558dd5b8"
-      ]
-    },
-    {
-      "from": "b61030c9-d859-4cf4-b9f2-5dbe1ef3d2a9",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "acquired",
-      "weight": 1.0,
-      "valid_at": "2025-12-12T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "aaa4f1bd-e49c-42fa-a06d-f945bfce912d"
       ]
     },
     {
@@ -222118,17 +220080,6 @@
       ]
     },
     {
-      "from": "8fc53a95-4225-4bd4-a53c-be78b08dddb7",
-      "to": "b61030c9-d859-4cf4-b9f2-5dbe1ef3d2a9",
-      "edge_type": "cto_of",
-      "weight": 1.0,
-      "valid_at": "2025-12-12T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "aaa4f1bd-e49c-42fa-a06d-f945bfce912d"
-      ]
-    },
-    {
       "from": "f467bd15-bf6f-4296-b138-6c39637e44c3",
       "to": "1a0b47dc-ca85-4b62-ae75-49a04330ddac",
       "edge_type": "chairman_of",
@@ -222140,31 +220091,9 @@
       ]
     },
     {
-      "from": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "to": "658643d5-014f-4653-8d0c-858120056ed1",
-      "edge_type": "creator",
-      "weight": 1.0,
-      "valid_at": "2025-12-11T10:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "7ef06a16-0be0-4e12-8998-08c5d9649752"
-      ]
-    },
-    {
       "from": "f11ee115-c781-48c9-b4f1-32d79c50c6c0",
       "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
       "edge_type": "partner_of",
-      "weight": 1.0,
-      "valid_at": "2025-12-11T00:00:00+00:00",
-      "invalid_at": null,
-      "sources": [
-        "5fac450b-4776-40db-8a77-020557d14353"
-      ]
-    },
-    {
-      "from": "f11ee115-c781-48c9-b4f1-32d79c50c6c0",
-      "to": "c64d07f3-cf90-4ff3-9c88-732bd8568860",
-      "edge_type": "invested_in",
       "weight": 1.0,
       "valid_at": "2025-12-11T00:00:00+00:00",
       "invalid_at": null,
