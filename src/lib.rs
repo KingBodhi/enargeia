@@ -3,6 +3,7 @@ pub mod auth;
 pub mod block;
 pub mod context;
 pub mod db;
+pub mod dossier;
 pub mod eval;
 pub mod extract;
 pub mod geo;

@@ -22,7 +22,7 @@ use tower_http::cors::CorsLayer;
 use crate::{
     adapters::{celestrak, usgs},
     auth::{self, Principal},
-    block, context, geo, llm,
+    block, context, dossier, geo, llm,
     matcher::Weights,
     models::{WmEdge, WmEntity},
     resolve, why,
@@ -411,6 +411,47 @@ async fn ask(
     })))
 }
 
+/// Evidence-only dossier: no LLM call, so it stays a GET like the rest of the graph reads.
+async fn entity_dossier(
+    State(state): State<Shared>,
+    Path(id): Path<String>,
+    Query(q): Query<HashMap<String, String>>,
+) -> ApiResult {
+    let opts = dossier::DossierOptions {
+        as_of: q.get("as_of").map(String::as_str),
+        license_filter: None,
+    };
+    let md = dossier::dossier(&state.pool, None, &id, &opts)
+        .await
+        .map_err(|e| err(StatusCode::NOT_FOUND, e))?;
+    Ok(Json(json!({"id": id, "markdown": md, "assessment": false})))
+}
+
+/// Dossier with the grounded assessment: authenticated, quota-charged, license-scoped.
+async fn entity_dossier_assessed(
+    State(state): State<Shared>,
+    headers: HeaderMap,
+    Path(id): Path<String>,
+    Query(q): Query<HashMap<String, String>>,
+) -> ApiResult {
+    let p = authenticate(&state, &headers).await?;
+    let remaining = auth::charge_ask(&state.pool, &p)
+        .await
+        .map_err(|e| err(StatusCode::TOO_MANY_REQUESTS, e))?;
+    let client = llm::LlmClient::from_env().map_err(internal)?;
+    let opts = dossier::DossierOptions {
+        as_of: q.get("as_of").map(String::as_str),
+        license_filter: p.license_filter.as_deref(),
+    };
+    let md = dossier::dossier(&state.pool, Some(&client), &id, &opts)
+        .await
+        .map_err(internal)?;
+    Ok(Json(json!({
+        "id": id, "markdown": md, "assessment": true, "llm": client.describe(),
+        "principal": p.name, "license_filter": p.license_filter, "asks_remaining_today": remaining,
+    })))
+}
+
 async fn whoami(State(state): State<Shared>, headers: HeaderMap) -> ApiResult {
     let p = authenticate(&state, &headers).await?;
     Ok(Json(serde_json::to_value(&p).map_err(internal)?))
@@ -499,6 +540,10 @@ pub fn router(state: Shared) -> Router {
         .route("/api/entities", get(entities))
         .route("/api/entities/{id}", get(entity))
         .route("/api/entities/{id}/why", get(entity_why))
+        .route(
+            "/api/entities/{id}/dossier",
+            get(entity_dossier).post(entity_dossier_assessed),
+        )
         .route("/api/edges", get(edges))
         .route("/api/candidates", get(candidates))
         .route("/api/candidates/{id}/decision", post(decide))

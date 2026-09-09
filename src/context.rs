@@ -142,7 +142,7 @@ async fn load_edges(pool: &SqlitePool, as_of: Option<&str>) -> Result<Vec<WmEdge
     })
 }
 
-async fn bfs(
+pub(crate) async fn bfs(
     pool: &SqlitePool,
     seeds: &[String],
     depth: usize,
@@ -207,15 +207,18 @@ async fn bfs(
 }
 
 #[derive(Debug, Clone)]
-struct SourceRef {
-    number: usize,
-    title: String,
-    source_ref: String,
-    license_class: String,
-    published_at: Option<String>,
+pub(crate) struct SourceRef {
+    pub(crate) number: usize,
+    pub(crate) title: String,
+    pub(crate) source_ref: String,
+    pub(crate) license_class: String,
+    pub(crate) published_at: Option<String>,
 }
 
-async fn load_sources(pool: &SqlitePool, slice: &GraphSlice) -> Result<HashMap<String, SourceRef>> {
+pub(crate) async fn load_sources(
+    pool: &SqlitePool,
+    slice: &GraphSlice,
+) -> Result<HashMap<String, SourceRef>> {
     let mut ids: Vec<String> = Vec::new();
     let mut seen = HashSet::new();
     'outer: for e in &slice.edges {
@@ -267,7 +270,10 @@ fn short_date(ts: &str) -> &str {
 }
 
 /// Returns (context for the model, numbered source list).
-fn format_context(slice: &GraphSlice, sources: &HashMap<String, SourceRef>) -> (String, String) {
+pub(crate) fn format_context(
+    slice: &GraphSlice,
+    sources: &HashMap<String, SourceRef>,
+) -> (String, String) {
     let name = |id: &str| {
         slice
             .entities
@@ -342,7 +348,8 @@ fn format_context(slice: &GraphSlice, sources: &HashMap<String, SourceRef>) -> (
     (ctx, src)
 }
 
-const ASK_SYSTEM_PROMPT: &str = "You are an intelligence analyst answering from a resolved \
+pub(crate) const ASK_SYSTEM_PROMPT: &str =
+    "You are an intelligence analyst answering from a resolved \
 entity graph. Use ONLY the provided RELATIONS, ENTITIES and SOURCES. Cite sources by their \
 bracketed numbers, e.g. [2], after each claim. Prefer typed relations (e.g. suing, acquired, \
 founder_of) over co-occurrence (mentioned_with). If the context does not support an answer, \
@@ -370,7 +377,10 @@ pub fn filter_slice_by_license(
     });
 }
 
-async fn license_map(pool: &SqlitePool, slice: &GraphSlice) -> Result<HashMap<String, String>> {
+pub(crate) async fn license_map(
+    pool: &SqlitePool,
+    slice: &GraphSlice,
+) -> Result<HashMap<String, String>> {
     let ids: Vec<String> = slice
         .edges
         .iter()

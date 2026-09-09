@@ -44,6 +44,7 @@ Human-in-the-loop review and provenance:
 enargeia review                           # candidates awaiting a decision, with evidence
 enargeia decide <candidate_id> confirm    # or: reject (creates + decorrelates) | new
 enargeia why "Mistral AI"                 # every mention, source, score, relation, decision
+enargeia dossier "Mistral AI" --out d.md  # target profile: dated timeline, network, sources, grounded assessment
 enargeia ask "Who runs Acme?" --as-of 2025-12-31   # the graph as it was, not as it is
 enargeia decorrelate <entity_a> <entity_b> --reason "different companies"
 enargeia merge <keep_id> <absorb_id>      # refuses if the pair was decorrelated

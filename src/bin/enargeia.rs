@@ -53,6 +53,20 @@ enum Command {
     /// Show the provenance trace for an entity (id or name): mentions, evidence, relations
     /// with validity windows, human decisions.
     Why { entity: String },
+    /// Target profile from the graph: identity, dated timeline of typed relations, network,
+    /// sources, and a grounded LLM assessment (markdown).
+    Dossier {
+        entity: String,
+        /// Profile the entity as it was at this time (RFC3339 or YYYY-MM-DD).
+        #[arg(long)]
+        as_of: Option<String>,
+        /// Write to a file instead of stdout.
+        #[arg(long)]
+        out: Option<String>,
+        /// Skip the LLM assessment section.
+        #[arg(long)]
+        no_llm: bool,
+    },
     /// Record a human decision on a review candidate: confirm | reject | new.
     Decide {
         candidate_id: String,
@@ -321,6 +335,37 @@ async fn main() -> Result<()> {
             });
             let answer = context::ask(&pool, &client, &question, as_of.as_deref()).await?;
             println!("{answer}");
+        }
+        Command::Dossier {
+            entity,
+            as_of,
+            out,
+            no_llm,
+        } => {
+            let client = if no_llm {
+                None
+            } else {
+                Some(llm::LlmClient::from_env()?)
+            };
+            let as_of = as_of.map(|t| {
+                if t.len() == 10 {
+                    format!("{t}T23:59:59+00:00")
+                } else {
+                    t
+                }
+            });
+            let opts = enargeia::dossier::DossierOptions {
+                as_of: as_of.as_deref(),
+                license_filter: None,
+            };
+            let md = enargeia::dossier::dossier(&pool, client.as_ref(), &entity, &opts).await?;
+            match out {
+                Some(path) => {
+                    std::fs::write(&path, &md)?;
+                    println!("wrote {path}");
+                }
+                None => println!("{md}"),
+            }
         }
         Command::Why { entity } => {
             print!("{}", enargeia::why::why(&pool, &entity).await?);
