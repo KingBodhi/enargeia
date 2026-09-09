@@ -73,6 +73,8 @@ enargeia geo fetch && enargeia geo load && enargeia geo code   # GeoNames gazett
 enargeia serve --bind 127.0.0.1:8787 [--token <secret>]
 ```
 
+![Enargeia globe: resolved entities, live satellites, USGS events, review queue, ask box](docs/globe.png)
+
 `/` is a single-file CesiumJS globe: resolved entities with coordinates, a live CelesTrak
 satellite layer propagated with SGP4, a USGS seismic/explosion layer, search, the review
 queue, and the ask box. Everything it does goes through the JSON API under `/api`
