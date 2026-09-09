@@ -117,6 +117,30 @@ pub async fn find_matching_entities(
         .collect())
 }
 
+/// The `n` live entities (or all entities, for as-of questions) with the most valid edges.
+pub async fn hub_entities(
+    pool: &SqlitePool,
+    as_of: Option<&str>,
+    n: usize,
+) -> Result<Vec<WmEntity>> {
+    let live = if as_of.is_some() {
+        ""
+    } else {
+        "AND is_live = 1"
+    };
+    let sql = format!(
+        "SELECT * FROM wm_entities WHERE id IN (\
+           SELECT id FROM (\
+             SELECT from_id AS id FROM wm_edges WHERE invalid_at IS NULL \
+             UNION ALL SELECT to_id FROM wm_edges WHERE invalid_at IS NULL) \
+           GROUP BY id ORDER BY COUNT(*) DESC LIMIT ?) {live}"
+    );
+    Ok(sqlx::query_as::<_, WmEntity>(&sql)
+        .bind(n as i64)
+        .fetch_all(pool)
+        .await?)
+}
+
 pub struct GraphSlice {
     pub entities: Vec<WmEntity>,
     pub edges: Vec<WmEdge>,
@@ -454,7 +478,14 @@ pub async fn ask_filtered(
     as_of: Option<&str>,
     license_filter: Option<&str>,
 ) -> Result<String> {
-    let seeds = find_matching_entities(pool, question, as_of).await?;
+    let mut seeds = find_matching_entities(pool, question, as_of).await?;
+    let mut seeded_by_hubs = false;
+    if seeds.is_empty() {
+        // A question that names nothing ("which organizations were charged?") is a survey:
+        // seed from the most-connected live entities instead of refusing.
+        seeds = hub_entities(pool, as_of, MAX_SEED_MATCHES).await?;
+        seeded_by_hubs = true;
+    }
     if seeds.is_empty() {
         return Ok(
             "No entities in the graph match this question yet; ingest and resolve more content first."
@@ -484,10 +515,15 @@ pub async fn ask_filtered(
     let answer = flag_uncited(&answer);
     let seed_names: Vec<&str> = seeds.iter().map(|e| e.canonical_name.as_str()).collect();
     Ok(format!(
-        "{answer}\n\n— graph slice{}: {} entities, {} edges; seeds: {}\nSources:\n{source_list}",
+        "{answer}\n\n— graph slice{}: {} entities, {} edges; seeds{}: {}\nSources:\n{source_list}",
         as_of.map(|t| format!(" as of {t}")).unwrap_or_default(),
         slice.entities.len(),
         slice.edges.len(),
+        if seeded_by_hubs {
+            " (question named no entity; most-connected entities used)"
+        } else {
+            ""
+        },
         seed_names.join(", ")
     ))
 }

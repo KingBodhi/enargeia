@@ -306,12 +306,76 @@ pub fn plausible_name(text: &str, entity_type: &str) -> bool {
         "of", "and", "the", "for", "in", "on", "at", "by", "&", "de", "la", "le", "du", "del",
         "di", "da", "von", "van", "y", "e", "to",
     ];
+    // Sentence-initial common nouns that NER labels as an organization or person.
+    const GENERIC_SINGLE: &[&str] = &[
+        "officials",
+        "official",
+        "agencies",
+        "agency",
+        "company",
+        "companies",
+        "government",
+        "governments",
+        "spokesperson",
+        "spokesman",
+        "spokeswoman",
+        "department",
+        "departments",
+        "court",
+        "courts",
+        "judge",
+        "police",
+        "regulators",
+        "regulator",
+        "investors",
+        "investor",
+        "employees",
+        "employee",
+        "customers",
+        "users",
+        "people",
+        "president",
+        "ceo",
+        "founder",
+        "founders",
+        "executives",
+        "executive",
+        "researchers",
+        "authorities",
+        "lawmakers",
+        "prosecutors",
+        "defendants",
+        "plaintiffs",
+        "startup",
+        "startups",
+        "firm",
+        "firms",
+        "bank",
+        "banks",
+        "state",
+        "city",
+        "country",
+        "nation",
+        "military",
+        "administration",
+        "committee",
+        "board",
+        "team",
+        "group",
+        "sources",
+        "reporters",
+        "media",
+        "press",
+    ];
     let t = text.trim();
     if t.is_empty() || t.chars().count() > 80 {
         return false;
     }
     let tokens: Vec<&str> = t.split_whitespace().collect();
     let n = tokens.len();
+    if n == 1 && GENERIC_SINGLE.contains(&t.to_lowercase().as_str()) {
+        return false;
+    }
     if n > 7 || (entity_type == "other" && n >= 4) {
         return false;
     }
@@ -444,6 +508,9 @@ mod tests {
             "other"
         ));
         assert!(!plausible_name("regulated workspace", "other"));
+        assert!(!plausible_name("Officials", "person"));
+        assert!(!plausible_name("Agencies", "organization"));
+        assert!(plausible_name("Officials Inc", "organization"));
         assert!(!plausible_name("META and Anthropic", "other"));
         assert!(!plausible_name(
             "the company that makes Claude",
