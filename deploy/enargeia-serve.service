@@ -1,0 +1,19 @@
+# API + globe as a user service (loopback only; put your own reverse proxy or VPN in front).
+#   cp deploy/enargeia-serve.service ~/.config/systemd/user/ && systemctl --user enable --now enargeia-serve
+
+[Unit]
+Description=Enargeia API and globe
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/enargeia
+Environment=ENARGEIA_DB_PATH=data/enargeia.sqlite
+Environment=ENARGEIA_BIND=127.0.0.1:8787
+# Environment=ENARGEIA_TOKEN=change-me            # root operator token; create client tokens with `enargeia token create`
+ExecStart=%h/enargeia/target/release/enargeia serve
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

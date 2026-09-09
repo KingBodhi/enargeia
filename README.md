@@ -93,7 +93,7 @@ Tokens are stored hashed and shown once. `GET /api/whoami` reports the caller's 
 cite — a client is never handed non-commercial data by accident. With no root token and no
 stored tokens the API is open (it binds to loopback by default).
 
-Integration recipe for a dashboard or agent: [docs/INTEGRATION.md](docs/INTEGRATION.md).
+Integration recipe for a dashboard or agent: [docs/INTEGRATION.md](docs/INTEGRATION.md). Run unattended with the systemd user units in [deploy/](deploy/).
 
 ## Standing watch
 

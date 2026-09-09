@@ -1,0 +1,26 @@
+# Standing watch as a user service. Install:
+#   mkdir -p ~/.config/systemd/user && cp deploy/enargeia-watch.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload && systemctl --user enable --now enargeia-watch
+#   journalctl --user -u enargeia-watch -f
+# Adjust WorkingDirectory, the mission file and the environment to taste. The digest files
+# land in <WorkingDirectory>/watch/; only escalations reach ENARGEIA_ALERT_WEBHOOK.
+
+[Unit]
+Description=Enargeia standing watch
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/enargeia
+Environment=ENARGEIA_DB_PATH=data/enargeia.sqlite
+Environment=RUST_LOG=enargeia=info
+# Environment=ENARGEIA_ALERT_WEBHOOK=https://example.invalid/hooks/enargeia
+# Environment=ENARGEIA_LLM_MODEL=qwen2.5:14b
+ExecStart=%h/enargeia/target/release/enargeia watch --mission missions/corruption-watch.toml --interval-secs 3600 --enrich-limit 40 --quakes 2.5_day
+Restart=on-failure
+RestartSec=60
+Nice=10
+
+[Install]
+WantedBy=default.target
