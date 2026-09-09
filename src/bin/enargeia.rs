@@ -218,7 +218,11 @@ enum TokenAction {
 #[derive(Subcommand)]
 enum ModelsAction {
     /// Download the default GLiNER NER model into the model directory.
-    Fetch,
+    Fetch {
+        /// Also download the int8 export (select it with ENARGEIA_NER_ONNX=model_int8.onnx).
+        #[arg(long)]
+        int8: bool,
+    },
 }
 
 #[derive(Subcommand)]
@@ -441,10 +445,10 @@ async fn main() -> Result<()> {
             println!("expired {n} stale entities (is_live=0)");
         }
         Command::Models {
-            action: ModelsAction::Fetch,
+            action: ModelsAction::Fetch { int8 },
         } => {
             let dir = enargeia::extract::model_dir_from_env();
-            enargeia::extract::fetch_model(&dir).await?;
+            enargeia::extract::fetch_model(&dir, int8).await?;
             println!("model ready at {}", dir.display());
         }
         Command::Eval {

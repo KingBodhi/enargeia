@@ -61,18 +61,30 @@ pub fn model_dir_from_env() -> PathBuf {
         .unwrap_or_else(|_| PathBuf::from(DEFAULT_MODEL_DIR))
 }
 
+/// Which ONNX export to run: `model.onnx` (fp32, default) or a quantized sibling such as
+/// `model_int8.onnx` — set `ENARGEIA_NER_ONNX`. The int8 export is a CPU speed/quality trade;
+/// `enargeia models fetch --int8` downloads it.
+pub fn onnx_file_from_env() -> String {
+    std::env::var("ENARGEIA_NER_ONNX").unwrap_or_else(|_| "model.onnx".to_string())
+}
+
 /// HuggingFace repo holding the ONNX export of `urchade/gliner_small-v2.1` (Apache-2.0).
 pub const MODEL_REPO: &str = "onnx-community/gliner_small-v2.1";
 const MODEL_FILES: &[&str] = &["tokenizer.json", "onnx/model.onnx"];
 
-/// Downloads the default GLiNER model into `dir` (skips files already present).
-pub async fn fetch_model(dir: &Path) -> Result<()> {
+/// Downloads the default GLiNER model into `dir` (skips files already present); with `int8`
+/// also fetches the quantized export.
+pub async fn fetch_model(dir: &Path, int8: bool) -> Result<()> {
     use tokio::io::AsyncWriteExt;
 
     let client = reqwest::Client::builder()
         .user_agent(crate::USER_AGENT)
         .build()?;
-    for rel in MODEL_FILES {
+    let mut files: Vec<&str> = MODEL_FILES.to_vec();
+    if int8 {
+        files.push("onnx/model_int8.onnx");
+    }
+    for rel in files {
         let dest = dir.join(rel);
         if dest.exists() {
             println!("exists: {}", dest.display());
@@ -113,7 +125,7 @@ pub fn default_extractor() -> Result<Box<dyn MentionExtractor>> {
     }
     let dir = model_dir_from_env();
     let present =
-        dir.join("tokenizer.json").exists() && dir.join("onnx").join("model.onnx").exists();
+        dir.join("tokenizer.json").exists() && dir.join("onnx").join(onnx_file_from_env()).exists();
     if !present {
         if forced.as_deref() == Some("gliner") {
             bail!(
@@ -190,7 +202,7 @@ pub struct GlinerExtractor {
 impl GlinerExtractor {
     pub fn load(model_dir: &Path, labels: Vec<String>, threshold: f32) -> Result<Self> {
         let tokenizer = model_dir.join("tokenizer.json");
-        let onnx = model_dir.join("onnx").join("model.onnx");
+        let onnx = model_dir.join("onnx").join(onnx_file_from_env());
         for p in [&tokenizer, &onnx] {
             if !p.exists() {
                 bail!("missing model file {}", p.display());

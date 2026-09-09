@@ -166,8 +166,13 @@ async function showEntity(id) {
     const geo = e.geo ? `<div class="muted">${e.geo.place || ''} (${e.geo.lat.toFixed(2)}, ${e.geo.lon.toFixed(2)}) · geo conf ${e.geo.confidence}</div>` : '';
     box.innerHTML = `<div style="font-size:15px;font-weight:600">${e.name}</div><div class="muted">${e.entity_type} · confidence ${e.confidence.toFixed(2)} · <span class="chip ${e.is_live ? 'ok' : ''}">${e.is_live ? 'live' : 'stale'}</span>${aliases}</div>${geo}
       <div class="ph">Relations (valid now)</div>${e.edges.slice(0, 40).map(x => edgeLine(x, e.id)).join('') || '<span class="muted">none</span>'}
-      <div style="margin-top:8px"><button id="why">why?</button> <button id="askabout">ask about</button></div><pre id="whybox" style="display:none"></pre>`;
+      <div style="margin-top:8px"><button id="why">why?</button> <button id="dossier">dossier</button> <button id="askabout">ask about</button></div><pre id="whybox" style="display:none"></pre>`;
     $('why').onclick = async () => { const w = await fetch('/api/entities/' + encodeURIComponent(e.id) + '/why').then(r => r.text()); $('whybox').style.display = 'block'; $('whybox').textContent = w; };
+    $('dossier').onclick = async () => {
+      $('whybox').style.display = 'block'; $('whybox').textContent = 'building dossier…';
+      try { const d = await api('/api/entities/' + encodeURIComponent(e.id) + '/dossier'); $('whybox').textContent = d.markdown; }
+      catch (err) { $('whybox').textContent = 'error: ' + err.message; }
+    };
     $('askabout').onclick = () => { $('question').value = `What do the sources say about ${e.name}, and who is it connected to?`; $('ask').click(); };
     if (e.geo) viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(e.geo.lon, e.geo.lat, 2.5e6) });
   } catch (err) { box.innerHTML = '<span class="muted">' + err.message + '</span>'; }
