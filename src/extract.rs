@@ -253,7 +253,10 @@ impl MentionExtractor for GlinerExtractor {
                     end: base + e,
                     score: span.probability(),
                 };
-                if m.text.is_empty() || is_generic(&m.text) {
+                if m.text.is_empty()
+                    || is_generic(&m.text)
+                    || !plausible_name(&m.text, m.label.as_deref().unwrap_or(""))
+                {
                     continue;
                 }
                 let key = m.text.to_lowercase();
@@ -276,6 +279,75 @@ impl MentionExtractor for GlinerExtractor {
 /// are capitalized or contain digits (a16z, H100) in every language this targets.
 fn is_generic(text: &str) -> bool {
     !text.chars().any(|c| c.is_uppercase() || c.is_ascii_digit())
+}
+
+/// Does this string look like a *name* rather than a description? Both tiers produce
+/// descriptive spans that are perfectly grounded in the text ("an AI model by Anthropic",
+/// "regulated workspace", "Mecka AI, another startup collecting real-world data") and would
+/// otherwise become entities. Names are short, mostly capitalized, and carry no clause.
+pub fn plausible_name(text: &str, entity_type: &str) -> bool {
+    const LEADING_DETERMINERS: &[&str] = &[
+        "a", "an", "the", "one", "another", "some", "this", "that", "these", "those", "its",
+        "their", "his", "her", "our", "your", "several", "many", "other",
+    ];
+    const CLAUSE_MARKERS: &[&str] = &[
+        " which ",
+        " that ",
+        " who ",
+        " whose ",
+        ", another",
+        " such as ",
+        " including ",
+        " according ",
+        " said ",
+        " says ",
+    ];
+    const CONNECTORS: &[&str] = &[
+        "of", "and", "the", "for", "in", "on", "at", "by", "&", "de", "la", "le", "du", "del",
+        "di", "da", "von", "van", "y", "e", "to",
+    ];
+    let t = text.trim();
+    if t.is_empty() || t.chars().count() > 80 {
+        return false;
+    }
+    let tokens: Vec<&str> = t.split_whitespace().collect();
+    let n = tokens.len();
+    if n > 7 || (entity_type == "other" && n >= 4) {
+        return false;
+    }
+    let first = tokens[0].to_lowercase();
+    if n > 1
+        && LEADING_DETERMINERS.contains(&first.as_str())
+        && tokens[0].chars().next().is_some_and(char::is_lowercase)
+    {
+        return false;
+    }
+    let lower = format!(" {} ", t.to_lowercase());
+    if CLAUSE_MARKERS.iter().any(|m| lower.contains(m)) {
+        return false;
+    }
+    // "META and Anthropic" is a coordination, not a name; real names with "and" carry a
+    // real type ("Procter and Gamble" is an organization, not "other").
+    if entity_type == "other" && (lower.contains(" and ") || lower.contains(" & ")) {
+        return false;
+    }
+    if n >= 2 {
+        let (mut cap, mut low) = (0, 0);
+        for tok in &tokens {
+            if CONNECTORS.contains(&tok.to_lowercase().as_str()) {
+                continue;
+            }
+            if tok.chars().any(|c| c.is_uppercase() || c.is_ascii_digit()) {
+                cap += 1;
+            } else {
+                low += 1;
+            }
+        }
+        if low > cap {
+            return false;
+        }
+    }
+    true
 }
 
 /// Trims a raw NER span: leading conjunctions/determiners the model sometimes includes
@@ -366,6 +438,27 @@ mod tests {
 
     #[test]
     fn generic_nouns_are_filtered() {
+        assert!(!plausible_name("an AI model by Anthropic", "product"));
+        assert!(!plausible_name(
+            "Mecka AI, another startup collecting real-world data",
+            "other"
+        ));
+        assert!(!plausible_name("regulated workspace", "other"));
+        assert!(!plausible_name("META and Anthropic", "other"));
+        assert!(!plausible_name(
+            "the company that makes Claude",
+            "organization"
+        ));
+        assert!(plausible_name("The New York Times", "organization"));
+        assert!(plausible_name("Andreessen Horowitz", "organization"));
+        assert!(plausible_name(
+            "U.S. Securities and Exchange Commission",
+            "organization"
+        ));
+        assert!(plausible_name("Bank of America", "organization"));
+        assert!(plausible_name("iPhone", "product"));
+        assert!(plausible_name("a16z", "organization"));
+        assert!(plausible_name("TechCrunch Disrupt 2026", "event"));
         assert!(is_generic("users"));
         assert!(is_generic("data breach"));
         assert!(!is_generic("a16z"));

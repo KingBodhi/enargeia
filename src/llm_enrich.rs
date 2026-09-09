@@ -233,7 +233,9 @@ pub async fn enrich_batch(
         let weights = Weights::from_env();
 
         for llm_entity in &parsed.entities {
-            if !grounded(&text_lower, &llm_entity.mention) {
+            if !grounded(&text_lower, &llm_entity.mention)
+                || !crate::extract::plausible_name(&llm_entity.mention, &llm_entity.entity_type)
+            {
                 stats.ungrounded += 1;
                 continue;
             }
@@ -243,6 +245,11 @@ pub async fn enrich_batch(
                 &llm_entity.entity_type,
                 &weights,
             );
+            let canonical = if crate::extract::plausible_name(canonical, &llm_entity.entity_type) {
+                canonical
+            } else {
+                llm_entity.mention.as_str()
+            };
             let eid = crate::resolve::upsert_resolved_entity(
                 pool,
                 &llm_entity.mention,
