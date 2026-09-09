@@ -42,6 +42,15 @@ fn name_question_score(name: &str, question_words: &[String], question_lower: &s
         return 0.0;
     }
     if contains_word_bounded(question_lower, &n) {
+        // Short all-caps names ("WHO", "SEC") match only when the question writes them that
+        // way; otherwise every "who" and "sec" seeds the wrong entity.
+        let raw = name.trim();
+        if raw.len() <= 4
+            && raw.chars().all(|c| c.is_uppercase() || !c.is_alphabetic())
+            && !question_words.is_empty()
+        {
+            return 0.0;
+        }
         return 1.0;
     }
     let k = n.split_whitespace().count();
@@ -85,6 +94,7 @@ pub async fn find_matching_entities(
     as_of: Option<&str>,
 ) -> Result<Vec<WmEntity>> {
     let entities = seed_pool(pool, as_of).await?;
+    let question_raw = question.to_string();
     let question_lower = question.to_lowercase();
     let question_words: Vec<String> = question_lower
         .split(|c: char| !c.is_alphanumeric() && c != '\'' && c != '-')
@@ -99,7 +109,17 @@ pub async fn find_matching_entities(
             names.extend(e.alias_list());
             let best = names
                 .iter()
-                .map(|n| name_question_score(n, &question_words, &question_lower))
+                .map(|n| {
+                    let raw = n.trim();
+                    if raw.len() <= 4
+                        && raw.chars().all(|c| c.is_uppercase() || !c.is_alphabetic())
+                        && contains_word_bounded(&question_raw, raw)
+                    {
+                        1.0
+                    } else {
+                        name_question_score(n, &question_words, &question_lower)
+                    }
+                })
                 .fold(0.0_f64, f64::max);
             (best, e)
         })
@@ -139,6 +159,36 @@ pub async fn hub_entities(
         .bind(n as i64)
         .fetch_all(pool)
         .await?)
+}
+
+/// Entities with the most valid edges of the given types.
+pub async fn typed_hubs(
+    pool: &SqlitePool,
+    types: &[&str],
+    as_of: Option<&str>,
+    n: usize,
+) -> Result<Vec<WmEntity>> {
+    if types.is_empty() {
+        return Ok(Vec::new());
+    }
+    let live = if as_of.is_some() {
+        ""
+    } else {
+        "AND is_live = 1"
+    };
+    let placeholders = types.iter().map(|_| "?").collect::<Vec<_>>().join(",");
+    let sql = format!(
+        "SELECT * FROM wm_entities WHERE id IN (\
+           SELECT id FROM (\
+             SELECT from_id AS id FROM wm_edges WHERE invalid_at IS NULL AND edge_type IN ({placeholders}) \
+             UNION ALL SELECT to_id FROM wm_edges WHERE invalid_at IS NULL AND edge_type IN ({placeholders})) \
+           GROUP BY id ORDER BY COUNT(*) DESC LIMIT ?) {live}"
+    );
+    let mut q = sqlx::query_as::<_, WmEntity>(&sql);
+    for t in types.iter().chain(types.iter()) {
+        q = q.bind(*t);
+    }
+    Ok(q.bind(n as i64).fetch_all(pool).await?)
 }
 
 pub struct GraphSlice {
@@ -617,6 +667,16 @@ pub async fn ask_filtered(
     }
     let seed_ids: Vec<String> = seeds.iter().map(|e| e.id.clone()).collect();
     let preferred = relevant_relation_types(question);
+    let mut seed_ids = seed_ids;
+    if !preferred.is_empty() {
+        // "What lawsuits…": the entities that actually carry such relations are seeds too.
+        for e in typed_hubs(pool, &preferred, as_of, MAX_SEED_MATCHES).await? {
+            if !seed_ids.contains(&e.id) {
+                seed_ids.push(e.id.clone());
+                seeds.push(e);
+            }
+        }
+    }
     let mut slice = bfs_ranked(pool, &seed_ids, DEFAULT_DEPTH, as_of, &preferred).await?;
     if let Some(class) = license_filter {
         let licenses = license_map(pool, &slice).await?;

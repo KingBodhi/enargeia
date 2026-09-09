@@ -376,6 +376,13 @@ pub fn plausible_name(text: &str, entity_type: &str) -> bool {
     if n == 1 && GENERIC_SINGLE.contains(&t.to_lowercase().as_str()) {
         return false;
     }
+    // "AI labs", "the company": nothing but suffix/filler tokens is not a name.
+    if tokens
+        .iter()
+        .all(|tok| crate::matcher::IGNORABLE_TOKENS.contains(&tok.to_lowercase().as_str()))
+    {
+        return false;
+    }
     if n > 7 || (entity_type == "other" && n >= 4) {
         return false;
     }
@@ -509,6 +516,8 @@ mod tests {
         ));
         assert!(!plausible_name("regulated workspace", "other"));
         assert!(!plausible_name("Officials", "person"));
+        assert!(!plausible_name("AI labs", "organization"));
+        assert!(!plausible_name("AI Lab", "organization"));
         assert!(!plausible_name("Agencies", "organization"));
         assert!(plausible_name("Officials Inc", "organization"));
         assert!(!plausible_name("META and Anthropic", "other"));
