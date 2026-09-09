@@ -64,6 +64,8 @@ pub struct Digest {
     pub enriched_items: usize,
     pub ungrounded: usize,
     pub new_entities: i64,
+    pub expired: usize,
+    pub geocoded: usize,
     pub review_pending: i64,
     pub new_typed_edges: Vec<EdgeLine>,
     pub escalations: Vec<String>,
@@ -102,6 +104,13 @@ pub async fn run_cycle(
             }
             Err(e) => d.info.push(format!("enrichment skipped: {e}")),
         }
+    }
+
+    // Housekeeping the cadence owns: liveness decay and coordinates for new locations.
+    d.expired = resolve::expire_stale_entities(pool).await?;
+    match crate::geo::geocode_entities(pool, false).await {
+        Ok(g) => d.geocoded = g.geocoded,
+        Err(e) => d.info.push(format!("geocoding skipped: {e}")),
     }
 
     let (new_entities,): (i64,) =
@@ -182,7 +191,7 @@ pub fn render(d: &Digest) -> String {
         d.ended.get(..16).unwrap_or(&d.ended)
     ));
     md.push_str(&format!(
-        "cycle {} → {} · {} new items · {} resolved · {} enriched ({} ungrounded rejected) · {} new entities · {} awaiting review\n\n",
+        "cycle {} → {} · {} new items · {} resolved · {} enriched ({} ungrounded rejected) · {} new entities · {} expired · {} geocoded · {} awaiting review\n\n",
         d.started.get(..16).unwrap_or(&d.started),
         d.ended.get(..16).unwrap_or(&d.ended),
         d.new_items,
@@ -190,6 +199,8 @@ pub fn render(d: &Digest) -> String {
         d.enriched_items,
         d.ungrounded,
         d.new_entities,
+        d.expired,
+        d.geocoded,
         d.review_pending
     ));
     md.push_str(&format!("## ESCALATE ({})\n\n", d.escalations.len()));
