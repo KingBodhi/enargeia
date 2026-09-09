@@ -131,6 +131,13 @@ Every mission states its `target_class`: public actors in their professional cap
 | `ENARGEIA_LLM_MODEL` | `qwen2.5:7b` / `claude-sonnet-5` | Model name |
 | `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` | — | Only if the endpoint requires one |
 | `ENARGEIA_PULSE_DB_PATH` | — | Optional read-only adapter over a local Pulse Engine database |
+| `ENARGEIA_EXTRACTOR` | auto | `gliner` or `regex` (fallback when no model is present) |
+| `ENARGEIA_MODEL_DIR` / `ENARGEIA_NER_ONNX` | `models/gliner_small-v2.1` / `model.onnx` | GLiNER location and which ONNX export to run (see [eval/NER_BENCH.md](eval/NER_BENCH.md)) |
+| `ENARGEIA_NER_LABELS` / `ENARGEIA_NER_THRESHOLD` | person,organization,… / `0.5` | Zero-shot labels and span threshold |
+| `ENARGEIA_MATCH_UPPER` / `ENARGEIA_MATCH_LOWER` | `5.0` / `1.0` | Merge and review thresholds for the matcher |
+| `ENARGEIA_BIND` / `ENARGEIA_TOKEN` | `127.0.0.1:8787` / — | Serve address; root operator token |
+| `ENARGEIA_ALERT_WEBHOOK` | — | Where the watch posts escalations |
+| `ENARGEIA_GEONAMES_DIR` / `ENARGEIA_CELESTRAK_DIR` | `data/geonames` / `data/celestrak` | Gazetteer files; cached element sets |
 | `RUST_LOG` | — | e.g. `enargeia=debug` |
 
 ## How it works
