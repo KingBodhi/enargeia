@@ -129,6 +129,11 @@ enum Command {
         #[command(subcommand)]
         action: TokenAction,
     },
+    /// Typed relations: re-verify every stored relation against its source text.
+    Relations {
+        #[command(subcommand)]
+        action: RelationsAction,
+    },
     /// Standing watch: ingest a mission's sources on a cadence, resolve, enrich a bounded
     /// number of items, write a digest, and escalate only what warrants it.
     Watch {
@@ -186,6 +191,15 @@ enum MissionAction {
         /// Output directory (default missions/<name>).
         #[arg(long)]
         out: Option<String>,
+    },
+}
+
+#[derive(Subcommand)]
+enum RelationsAction {
+    /// List relations the grounding rule cannot support from their sources; --delete removes them.
+    Audit {
+        #[arg(long)]
+        delete: bool,
     },
 }
 
@@ -520,6 +534,18 @@ async fn main() -> Result<()> {
                 report.answers,
                 report.brief_path.display(),
                 report.graph_path.display()
+            );
+        }
+        Command::Relations {
+            action: RelationsAction::Audit { delete },
+        } => {
+            let (stats, failures) = enargeia::audit::audit_relations(&pool, delete).await?;
+            for f in &failures {
+                println!("UNSUPPORTED {f}");
+            }
+            println!(
+                "checked {} · kept {} · unsupported {} · no source text {} · deleted {}",
+                stats.checked, stats.kept, stats.failed, stats.no_source_text, stats.deleted
             );
         }
         Command::Token { action } => match action {

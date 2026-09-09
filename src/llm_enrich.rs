@@ -173,6 +173,8 @@ pub struct EnrichStats {
     pub errors: usize,
     /// LLM-proposed mentions rejected because they do not occur in the source text.
     pub ungrounded: usize,
+    /// LLM-proposed relations rejected by `ground::relation_grounded`.
+    pub relations_rejected: usize,
 }
 
 /// Processes up to `batch_size` source items that have `needs_llm` candidates — one LLM call
@@ -229,6 +231,9 @@ pub async fn enrich_batch(
 
         let mut mention_to_entity: std::collections::HashMap<String, String> =
             std::collections::HashMap::new();
+        // mention (lowercased) -> (surface form as it occurs, entity type) for relation grounding
+        let mut mention_info: std::collections::HashMap<String, (String, String)> =
+            std::collections::HashMap::new();
         let text_lower = text.to_lowercase();
         let weights = Weights::from_env();
 
@@ -258,6 +263,9 @@ pub async fn enrich_batch(
                 llm_entity.confidence,
             )
             .await?;
+            let info = (llm_entity.mention.clone(), llm_entity.entity_type.clone());
+            mention_info.insert(llm_entity.mention.to_lowercase(), info.clone());
+            mention_info.insert(llm_entity.canonical_name.to_lowercase(), info);
             mention_to_entity.insert(llm_entity.mention.to_lowercase(), eid.clone());
             mention_to_entity.insert(llm_entity.canonical_name.to_lowercase(), eid);
             stats.entities_updated += 1;
@@ -267,6 +275,23 @@ pub async fn enrich_batch(
             let a = mention_to_entity.get(&rel.a.to_lowercase());
             let b = mention_to_entity.get(&rel.b.to_lowercase());
             if let (Some(a), Some(b)) = (a, b) {
+                let ia = mention_info.get(&rel.a.to_lowercase());
+                let ib = mention_info.get(&rel.b.to_lowercase());
+                let ok = match (ia, ib) {
+                    (Some((sa, ta)), Some((sb, tb))) => crate::ground::relation_grounded(
+                        &text_lower,
+                        sa,
+                        sb,
+                        &rel.relation_type,
+                        ta,
+                        tb,
+                    ),
+                    _ => false,
+                };
+                if !ok {
+                    stats.relations_rejected += 1;
+                    continue;
+                }
                 crate::resolve::link_entities_typed(
                     pool,
                     a,

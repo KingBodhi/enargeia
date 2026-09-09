@@ -1,4 +1,5 @@
 pub mod adapters;
+pub mod audit;
 pub mod auth;
 pub mod block;
 pub mod context;
@@ -7,6 +8,7 @@ pub mod dossier;
 pub mod eval;
 pub mod extract;
 pub mod geo;
+pub mod ground;
 pub mod llm;
 pub mod llm_enrich;
 pub mod matcher;
