@@ -1,8 +1,8 @@
 //! GDELT DOC 2.0 API adapter — the first `commercial_clean` source: no auth, 15-minute
 //! underlying cadence, and terms that explicitly permit commercial use and redistribution.
 //!
-//! Limitation: `artlist` mode returns article metadata (title/url/domain/date), not body
-//! text, so `RawItem::text` is thin until a body-fetch pass exists.
+//! `artlist` mode returns article metadata (title/url/domain/date), not body text; the
+//! adapter fetches each page for body text by default.
 
 use std::time::Duration;
 
@@ -14,7 +14,7 @@ use super::{
     body::{fetch_article_text, FETCH_GAP},
     SourceAdapter,
 };
-use crate::models::RawItem;
+use crate::models::{parse_feed_date, RawItem};
 
 const DOC_API_URL: &str = "https://api.gdeltproject.org/api/v2/doc/doc";
 /// GDELT explicitly asks for this ("Please limit requests to one every 5 seconds").
@@ -50,6 +50,7 @@ struct DocArticle {
     url: Option<String>,
     title: Option<String>,
     domain: Option<String>,
+    seendate: Option<String>,
 }
 
 #[async_trait]
@@ -118,6 +119,7 @@ impl SourceAdapter for GdeltAdapter {
                     title: Some(title),
                     text,
                     license_class: "commercial_clean".to_string(),
+                    published_at: article.seendate.as_deref().and_then(parse_feed_date),
                 });
             }
         }

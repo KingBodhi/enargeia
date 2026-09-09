@@ -9,6 +9,7 @@ pub mod llm_enrich;
 pub mod matcher;
 pub mod models;
 pub mod resolve;
+pub mod why;
 
 pub const USER_AGENT: &str = concat!(
     "enargeia/",

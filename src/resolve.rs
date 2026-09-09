@@ -6,8 +6,10 @@
 //! 4. Merge (touch the entity), Review (park for a human / Tier 2), or New (create).
 //!
 //! Every candidate row keeps its feature breakdown, so a decision can always be explained.
+//! Human decorrelations are honored here too: a merge is demoted to review when the winning
+//! candidate was declared distinct from another close candidate.
 
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use chrono::{DateTime, Duration, Utc};
 use sha2::{Digest, Sha256};
 use sqlx::SqlitePool;
@@ -16,13 +18,32 @@ use crate::{
     block,
     extract::default_extractor,
     matcher::{decide, score, Candidate, Decision, MatchScore, Weights},
-    models::{new_id, now, RawItem, WmEntity},
+    models::{new_id, now, RawItem, WmEntity, WmExtractionCandidate},
 };
 
 /// Lattice caps entity expiry at 30 days out unless `noExpiry` is set explicitly; we mirror
 /// that default rather than letting every fact live forever with equal weight.
 const DEFAULT_EXPIRY_DAYS: i64 = 30;
 const RECENT_DAYS: i64 = 30;
+/// A decorrelated runner-up within this score gap of the winner forces review.
+const DECORRELATION_VETO_GAP: f64 = 3.0;
+
+/// Relation types where a subject (`from`) can only hold one valid object at a time, or an
+/// object (`to`) only one valid subject. A newer contradicting fact supersedes the older one.
+/// (edge_type, from_exclusive, to_exclusive)
+pub const EXCLUSIVE_RELATIONS: &[(&str, bool, bool)] = &[
+    ("ceo_of", true, true),
+    ("cfo_of", true, true),
+    ("cto_of", true, true),
+    ("coo_of", true, true),
+    ("chairman_of", true, true),
+    ("president_of", true, true),
+    ("headquartered_in", true, false),
+    ("based_in", true, false),
+    ("owned_by", true, false),
+    ("acquired_by", true, false),
+    ("parent_of", false, true),
+];
 
 fn default_expiry() -> String {
     (Utc::now() + Duration::days(DEFAULT_EXPIRY_DAYS)).to_rfc3339()
@@ -54,8 +75,8 @@ pub async fn ingest_item(pool: &SqlitePool, item: &RawItem) -> Result<Option<Str
     }
     let id = new_id();
     sqlx::query(
-        "INSERT INTO wm_source_items (id, source_type, source_ref, content_hash, title, raw_text, ingested_at, status, license_class) \
-         VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)",
+        "INSERT INTO wm_source_items (id, source_type, source_ref, content_hash, title, raw_text, ingested_at, status, license_class, published_at) \
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)",
     )
     .bind(&id)
     .bind(&item.source_type)
@@ -65,6 +86,7 @@ pub async fn ingest_item(pool: &SqlitePool, item: &RawItem) -> Result<Option<Str
     .bind(&item.text)
     .bind(now())
     .bind(&item.license_class)
+    .bind(&item.published_at)
     .execute(pool)
     .await?;
     Ok(Some(id))
@@ -103,7 +125,7 @@ async fn cooc_fraction(pool: &SqlitePool, entity_id: &str, cooc_ids: &[String]) 
 async fn corroboration_count(pool: &SqlitePool, entity_id: &str) -> Result<u32> {
     let (n,): (i64,) = sqlx::query_as(
         "SELECT COUNT(DISTINCT source_item_id) FROM wm_extraction_candidates \
-         WHERE best_match_entity_id = ? AND status IN ('auto_merged', 'resolved')",
+         WHERE best_match_entity_id = ? AND status IN ('auto_merged', 'resolved', 'confirmed')",
     )
     .bind(entity_id)
     .fetch_one(pool)
@@ -111,8 +133,35 @@ async fn corroboration_count(pool: &SqlitePool, entity_id: &str) -> Result<u32> 
     Ok(n as u32)
 }
 
+async fn decorrelated_with_any(
+    pool: &SqlitePool,
+    entity_id: &str,
+    others: &[String],
+) -> Result<bool> {
+    if others.is_empty() {
+        return Ok(false);
+    }
+    let placeholders = others.iter().map(|_| "?").collect::<Vec<_>>().join(",");
+    let sql = format!(
+        "SELECT COUNT(*) FROM wm_decorrelations WHERE (entity_a_id = ? AND entity_b_id IN ({placeholders})) \
+         OR (entity_b_id = ? AND entity_a_id IN ({placeholders}))"
+    );
+    let mut q = sqlx::query_as::<_, (i64,)>(&sql).bind(entity_id);
+    for id in others {
+        q = q.bind(id);
+    }
+    q = q.bind(entity_id);
+    for id in others {
+        q = q.bind(id);
+    }
+    let (n,) = q.fetch_one(pool).await?;
+    Ok(n > 0)
+}
+
 /// Best-scoring existing entity for a mention, via blocking + the probabilistic matcher.
 /// `cooc_ids` are entities already resolved from the same source item (context evidence).
+/// If the winner would merge but a human previously decorrelated it from a close runner-up,
+/// the score is demoted into the review band and the veto is recorded in the breakdown.
 pub async fn best_candidate(
     pool: &SqlitePool,
     mention: &str,
@@ -120,7 +169,7 @@ pub async fn best_candidate(
     cooc_ids: &[String],
     weights: &Weights,
 ) -> Result<Option<(WmEntity, MatchScore)>> {
-    let mut best: Option<(WmEntity, MatchScore)> = None;
+    let mut scored: Vec<(WmEntity, MatchScore)> = Vec::new();
     for ent in block::candidates_for(pool, mention).await? {
         let cooc = cooc_fraction(pool, &ent.id, cooc_ids).await?;
         let corroboration = corroboration_count(pool, &ent.id).await?;
@@ -134,15 +183,33 @@ pub async fn best_candidate(
             recent: is_recent(&ent.last_seen),
         };
         let ms = score(mention, mention_type, &cand, weights);
-        if best
-            .as_ref()
-            .map(|(_, b)| ms.total > b.total)
-            .unwrap_or(true)
-        {
-            best = Some((ent, ms));
+        scored.push((ent, ms));
+    }
+    if scored.is_empty() {
+        return Ok(None);
+    }
+    scored.sort_by(|a, b| {
+        b.1.total
+            .partial_cmp(&a.1.total)
+            .unwrap_or(std::cmp::Ordering::Equal)
+    });
+    let (best_ent, mut best_ms) = scored.remove(0);
+
+    if decide(best_ms.total, weights) == Decision::Merge {
+        let close: Vec<String> = scored
+            .iter()
+            .filter(|(_, ms)| best_ms.total - ms.total < DECORRELATION_VETO_GAP)
+            .map(|(e, _)| e.id.clone())
+            .collect();
+        if decorrelated_with_any(pool, &best_ent.id, &close).await? {
+            let demotion = weights.upper - 0.5 - best_ms.total;
+            best_ms
+                .contributions
+                .push(("decorrelation_veto".to_string(), demotion));
+            best_ms.total += demotion;
         }
     }
-    Ok(best)
+    Ok(Some((best_ent, best_ms)))
 }
 
 /// Run the Tier 1 pass over every `pending` source item, capped at `limit` items per call.
@@ -158,13 +225,14 @@ pub async fn resolve_pending(pool: &SqlitePool, limit: i64) -> Result<ResolveSta
         "tier 1"
     );
 
-    let items: Vec<(String, String)> =
-        sqlx::query_as("SELECT id, raw_text FROM wm_source_items WHERE status = 'pending' LIMIT ?")
-            .bind(limit)
-            .fetch_all(pool)
-            .await?;
+    let items: Vec<(String, String, String)> = sqlx::query_as(
+        "SELECT id, raw_text, COALESCE(published_at, ingested_at) FROM wm_source_items WHERE status = 'pending' LIMIT ?",
+    )
+    .bind(limit)
+    .fetch_all(pool)
+    .await?;
 
-    for (item_id, raw_text) in items {
+    for (item_id, raw_text, observed_at) in items {
         stats.items_processed += 1;
         let mentions = extractor.extract(&raw_text)?;
         let mut resolved_entity_ids: Vec<String> = Vec::new();
@@ -232,7 +300,15 @@ pub async fn resolve_pending(pool: &SqlitePool, limit: i64) -> Result<ResolveSta
         resolved_entity_ids.sort();
         resolved_entity_ids.dedup();
         for pair in resolved_entity_ids.windows(2) {
-            link_entities(pool, &pair[0], &pair[1], &item_id).await?;
+            link_entities_typed(
+                pool,
+                &pair[0],
+                &pair[1],
+                "mentioned_with",
+                &item_id,
+                &observed_at,
+            )
+            .await?;
         }
 
         let new_status = if any_needs_llm {
@@ -253,7 +329,7 @@ pub async fn resolve_pending(pool: &SqlitePool, limit: i64) -> Result<ResolveSta
     Ok(stats)
 }
 
-async fn create_entity(
+pub async fn create_entity(
     pool: &SqlitePool,
     mention: &str,
     entity_type: &str,
@@ -294,6 +370,20 @@ async fn touch_entity(pool: &SqlitePool, id: &str) -> Result<()> {
     .execute(pool)
     .await?;
     Ok(())
+}
+
+async fn add_alias(pool: &SqlitePool, entity: &WmEntity, alias: &str) -> Result<()> {
+    let mut aliases = entity.alias_list();
+    if alias == entity.canonical_name || aliases.iter().any(|a| a == alias) {
+        return Ok(());
+    }
+    aliases.push(alias.to_string());
+    sqlx::query("UPDATE wm_entities SET aliases = ? WHERE id = ?")
+        .bind(serde_json::to_string(&aliases)?)
+        .bind(&entity.id)
+        .execute(pool)
+        .await?;
+    block::index_entity(pool, &entity.id, &entity.canonical_name, &aliases).await
 }
 
 /// Flips `is_live = 0` on any entity whose `expiry_time` has passed and hasn't been refreshed
@@ -419,60 +509,129 @@ pub async fn merge_entities(pool: &SqlitePool, keep_id: &str, absorb_id: &str) -
     Ok(())
 }
 
-async fn link_entities(pool: &SqlitePool, a: &str, b: &str, source_item_id: &str) -> Result<()> {
-    link_entities_typed(pool, a, b, "mentioned_with", source_item_id).await
+fn exclusivity(edge_type: &str) -> (bool, bool) {
+    EXCLUSIVE_RELATIONS
+        .iter()
+        .find(|(t, _, _)| *t == edge_type)
+        .map(|(_, f, t)| (*f, *t))
+        .unwrap_or((false, false))
 }
 
-/// Public typed variant used by Tier 2 (LLM-derived relations carry a real `edge_type`
-/// instead of the generic co-occurrence default Tier 1 uses).
+/// Records a relation observed in `source_item_id`, valid from `observed_at` (the source's
+/// publication time). Repeat observations accumulate weight and sources; the earliest
+/// observation defines `valid_at`. For exclusive relation types, a newer contradicting fact
+/// invalidates older ones; an older fact arriving late is inserted already superseded.
 pub async fn link_entities_typed(
     pool: &SqlitePool,
     a: &str,
     b: &str,
     edge_type: &str,
     source_item_id: &str,
+    observed_at: &str,
 ) -> Result<()> {
     if a == b {
         return Ok(());
     }
-    let existing: Option<(String, String)> = sqlx::query_as(
-        "SELECT id, source_item_ids FROM wm_edges WHERE edge_type = ? AND ((from_id = ? AND to_id = ?) OR (from_id = ? AND to_id = ?))",
-    )
-    .bind(edge_type)
-    .bind(a)
-    .bind(b)
-    .bind(b)
-    .bind(a)
-    .fetch_optional(pool)
-    .await?;
+    let symmetric = edge_type == "mentioned_with";
+    let existing: Option<(String, String, Option<String>)> = if symmetric {
+        sqlx::query_as(
+            "SELECT id, source_item_ids, valid_at FROM wm_edges WHERE edge_type = ? AND ((from_id = ? AND to_id = ?) OR (from_id = ? AND to_id = ?))",
+        )
+        .bind(edge_type)
+        .bind(a)
+        .bind(b)
+        .bind(b)
+        .bind(a)
+        .fetch_optional(pool)
+        .await?
+    } else {
+        sqlx::query_as(
+            "SELECT id, source_item_ids, valid_at FROM wm_edges WHERE edge_type = ? AND from_id = ? AND to_id = ?",
+        )
+        .bind(edge_type)
+        .bind(a)
+        .bind(b)
+        .fetch_optional(pool)
+        .await?
+    };
 
-    if let Some((edge_id, source_ids_json)) = existing {
+    if let Some((edge_id, source_ids_json, valid_at)) = existing {
         let mut ids: Vec<String> = serde_json::from_str(&source_ids_json).unwrap_or_default();
         if !ids.contains(&source_item_id.to_string()) {
             ids.push(source_item_id.to_string());
         }
-        sqlx::query("UPDATE wm_edges SET weight = weight + 1, source_item_ids = ?, last_seen = ? WHERE id = ?")
-            .bind(serde_json::to_string(&ids)?)
-            .bind(now())
-            .bind(&edge_id)
-            .execute(pool)
-            .await?;
-    } else {
-        let ts = now();
+        let earliest = match valid_at {
+            Some(v) if v.as_str() <= observed_at => v,
+            _ => observed_at.to_string(),
+        };
         sqlx::query(
-            "INSERT INTO wm_edges (id, from_id, to_id, edge_type, weight, metadata, source_item_ids, first_seen, last_seen) \
-             VALUES (?, ?, ?, ?, 1.0, '{}', ?, ?, ?)",
+            "UPDATE wm_edges SET weight = weight + 1, source_item_ids = ?, last_seen = ?, valid_at = ? WHERE id = ?",
         )
-        .bind(new_id())
-        .bind(a)
-        .bind(b)
-        .bind(edge_type)
-        .bind(serde_json::to_string(&vec![source_item_id])?)
-        .bind(&ts)
-        .bind(&ts)
+        .bind(serde_json::to_string(&ids)?)
+        .bind(now())
+        .bind(earliest)
+        .bind(&edge_id)
         .execute(pool)
         .await?;
+        return Ok(());
     }
+
+    let new_id_ = new_id();
+    let ts = now();
+    let (from_excl, to_excl) = exclusivity(edge_type);
+    let mut invalid_at: Option<String> = None;
+    let mut superseded_by: Option<String> = None;
+
+    for (excl, col, key) in [(from_excl, "from_id", a), (to_excl, "to_id", b)] {
+        if !excl {
+            continue;
+        }
+        let sql = format!(
+            "SELECT id, valid_at FROM wm_edges WHERE edge_type = ? AND {col} = ? AND invalid_at IS NULL"
+        );
+        let rivals: Vec<(String, Option<String>)> = sqlx::query_as(&sql)
+            .bind(edge_type)
+            .bind(key)
+            .fetch_all(pool)
+            .await?;
+        for (rival_id, rival_valid) in rivals {
+            let rival_valid = rival_valid.unwrap_or_default();
+            if rival_valid.as_str() <= observed_at {
+                // The new fact is newer: it supersedes the rival.
+                sqlx::query("UPDATE wm_edges SET invalid_at = ?, superseded_by = ? WHERE id = ?")
+                    .bind(observed_at)
+                    .bind(&new_id_)
+                    .bind(&rival_id)
+                    .execute(pool)
+                    .await?;
+            } else if invalid_at
+                .as_deref()
+                .map(|v| rival_valid.as_str() < v)
+                .unwrap_or(true)
+            {
+                // The rival is newer: the new fact was already superseded when it became known.
+                invalid_at = Some(rival_valid);
+                superseded_by = Some(rival_id);
+            }
+        }
+    }
+
+    sqlx::query(
+        "INSERT INTO wm_edges (id, from_id, to_id, edge_type, weight, metadata, source_item_ids, first_seen, last_seen, valid_at, invalid_at, superseded_by) \
+         VALUES (?, ?, ?, ?, 1.0, '{}', ?, ?, ?, ?, ?, ?)",
+    )
+    .bind(&new_id_)
+    .bind(a)
+    .bind(b)
+    .bind(edge_type)
+    .bind(serde_json::to_string(&vec![source_item_id])?)
+    .bind(&ts)
+    .bind(&ts)
+    .bind(observed_at)
+    .bind(invalid_at)
+    .bind(superseded_by)
+    .execute(pool)
+    .await?;
     Ok(())
 }
 
@@ -543,6 +702,98 @@ pub async fn upsert_resolved_entity(
     }
 }
 
+/// A human decision on a review candidate.
+/// - `confirm`: the mention is the proposed entity (alias added, entity touched).
+/// - `reject`: the mention is a different entity; a new entity is created and the pair is
+///   decorrelated so nothing re-merges them.
+/// - `new`: create a distinct entity without asserting anything about the proposed one.
+pub async fn apply_decision(
+    pool: &SqlitePool,
+    candidate_id: &str,
+    decision: &str,
+    actor: &str,
+    reason: Option<&str>,
+) -> Result<String> {
+    let cand: WmExtractionCandidate =
+        sqlx::query_as("SELECT * FROM wm_extraction_candidates WHERE id = ?")
+            .bind(candidate_id)
+            .fetch_optional(pool)
+            .await?
+            .context("candidate not found")?;
+    let label = cand.mention_type_guess.as_deref().unwrap_or("unknown");
+
+    let (new_status, summary) = match decision {
+        "confirm" => {
+            let target = cand
+                .best_match_entity_id
+                .as_deref()
+                .context("candidate has no proposed entity to confirm")?;
+            let ent: WmEntity = sqlx::query_as("SELECT * FROM wm_entities WHERE id = ?")
+                .bind(target)
+                .fetch_one(pool)
+                .await?;
+            touch_entity(pool, target).await?;
+            add_alias(pool, &ent, &cand.mention_text).await?;
+            (
+                "confirmed",
+                format!(
+                    "confirmed '{}' → {} ({})",
+                    cand.mention_text, ent.canonical_name, ent.id
+                ),
+            )
+        }
+        "reject" => {
+            let new_ent = create_entity(pool, &cand.mention_text, label, 0.7).await?;
+            let mut msg = format!("created '{}' ({new_ent})", cand.mention_text);
+            if let Some(prev) = cand.best_match_entity_id.as_deref() {
+                decorrelate(pool, &new_ent, prev, reason).await?;
+                msg.push_str(&format!("; decorrelated from {prev}"));
+            }
+            sqlx::query(
+                "UPDATE wm_extraction_candidates SET best_match_entity_id = ? WHERE id = ?",
+            )
+            .bind(&new_ent)
+            .bind(candidate_id)
+            .execute(pool)
+            .await?;
+            ("rejected", msg)
+        }
+        "new" => {
+            let new_ent = create_entity(pool, &cand.mention_text, label, 0.7).await?;
+            sqlx::query(
+                "UPDATE wm_extraction_candidates SET best_match_entity_id = ? WHERE id = ?",
+            )
+            .bind(&new_ent)
+            .bind(candidate_id)
+            .execute(pool)
+            .await?;
+            (
+                "new",
+                format!("created '{}' ({new_ent})", cand.mention_text),
+            )
+        }
+        other => bail!("unknown decision {other:?} (expected confirm|reject|new)"),
+    };
+
+    sqlx::query("UPDATE wm_extraction_candidates SET status = ? WHERE id = ?")
+        .bind(new_status)
+        .bind(candidate_id)
+        .execute(pool)
+        .await?;
+    sqlx::query(
+        "INSERT INTO wm_decisions (id, candidate_id, decision, actor, reason, decided_at) VALUES (?, ?, ?, ?, ?, ?)",
+    )
+    .bind(new_id())
+    .bind(candidate_id)
+    .bind(decision)
+    .bind(actor)
+    .bind(reason)
+    .bind(now())
+    .execute(pool)
+    .await?;
+    Ok(summary)
+}
+
 #[cfg(test)]
 mod tests {
     use sqlx::sqlite::SqlitePoolOptions;
@@ -556,6 +807,27 @@ mod tests {
             .unwrap();
         sqlx::migrate!("./migrations").run(&pool).await.unwrap();
         pool
+    }
+
+    async fn edge(pool: &SqlitePool, id: &str) -> (Option<String>, Option<String>, Option<String>) {
+        sqlx::query_as("SELECT valid_at, invalid_at, superseded_by FROM wm_edges WHERE id = ?")
+            .bind(id)
+            .fetch_one(pool)
+            .await
+            .unwrap()
+    }
+
+    async fn edge_id(pool: &SqlitePool, a: &str, b: &str, t: &str) -> String {
+        let (id,): (String,) = sqlx::query_as(
+            "SELECT id FROM wm_edges WHERE from_id = ? AND to_id = ? AND edge_type = ?",
+        )
+        .bind(a)
+        .bind(b)
+        .bind(t)
+        .fetch_one(pool)
+        .await
+        .unwrap();
+        id
     }
 
     #[tokio::test]
@@ -610,7 +882,6 @@ mod tests {
             .await
             .unwrap();
         assert!(kept.alias_list().contains(&"RF Inc".to_string()));
-        // merged alias is now a blocking key for the kept entity
         let cands = block::candidates_for(&pool, "RF Inc").await.unwrap();
         assert!(cands.iter().any(|e| e.id == a));
     }
@@ -675,6 +946,41 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn decorrelation_vetoes_tier1_merge_between_close_candidates() {
+        let pool = memory_pool().await;
+        let a = create_entity(&pool, "Mistral AI", "organization", 0.8)
+            .await
+            .unwrap();
+        let b = create_entity(&pool, "Mistral Labs", "organization", 0.8)
+            .await
+            .unwrap();
+        let w = Weights::default();
+
+        let (_, ms) = best_candidate(&pool, "Mistral", Some("organization"), &[], &w)
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(
+            decide(ms.total, &w),
+            Decision::Merge,
+            "sanity: merges before decorrelation {ms:?}"
+        );
+
+        decorrelate(&pool, &a, &b, Some("different companies"))
+            .await
+            .unwrap();
+        let (_, ms) = best_candidate(&pool, "Mistral", Some("organization"), &[], &w)
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(decide(ms.total, &w), Decision::Review, "{ms:?}");
+        assert!(ms
+            .contributions
+            .iter()
+            .any(|(k, _)| k == "decorrelation_veto"));
+    }
+
+    #[tokio::test]
     async fn tier2_upsert_reuses_matching_entity() {
         let pool = memory_pool().await;
         let id = create_entity(&pool, "Federal Trade Commission", "organization", 0.8)
@@ -696,5 +1002,181 @@ mod tests {
             .await
             .unwrap();
         assert!(ent.alias_list().contains(&"FTC".to_string()));
+    }
+
+    #[tokio::test]
+    async fn newer_exclusive_fact_supersedes_older() {
+        let pool = memory_pool().await;
+        let alice = create_entity(&pool, "Alice", "person", 0.9).await.unwrap();
+        let bob = create_entity(&pool, "Bob", "person", 0.9).await.unwrap();
+        let acme = create_entity(&pool, "Acme", "organization", 0.9)
+            .await
+            .unwrap();
+
+        link_entities_typed(
+            &pool,
+            &alice,
+            &acme,
+            "ceo_of",
+            "s1",
+            "2025-01-01T00:00:00+00:00",
+        )
+        .await
+        .unwrap();
+        link_entities_typed(
+            &pool,
+            &bob,
+            &acme,
+            "ceo_of",
+            "s2",
+            "2026-06-01T00:00:00+00:00",
+        )
+        .await
+        .unwrap();
+
+        let old = edge_id(&pool, &alice, &acme, "ceo_of").await;
+        let new = edge_id(&pool, &bob, &acme, "ceo_of").await;
+        let (_, old_invalid, old_sup) = edge(&pool, &old).await;
+        assert_eq!(old_invalid.as_deref(), Some("2026-06-01T00:00:00+00:00"));
+        assert_eq!(old_sup.as_deref(), Some(new.as_str()));
+        let (_, new_invalid, _) = edge(&pool, &new).await;
+        assert!(new_invalid.is_none());
+    }
+
+    #[tokio::test]
+    async fn older_fact_arriving_late_does_not_rewrite_history() {
+        let pool = memory_pool().await;
+        let alice = create_entity(&pool, "Alice", "person", 0.9).await.unwrap();
+        let bob = create_entity(&pool, "Bob", "person", 0.9).await.unwrap();
+        let acme = create_entity(&pool, "Acme", "organization", 0.9)
+            .await
+            .unwrap();
+
+        // The newer fact is processed first (feeds are not chronological).
+        link_entities_typed(
+            &pool,
+            &bob,
+            &acme,
+            "ceo_of",
+            "s2",
+            "2026-06-01T00:00:00+00:00",
+        )
+        .await
+        .unwrap();
+        link_entities_typed(
+            &pool,
+            &alice,
+            &acme,
+            "ceo_of",
+            "s1",
+            "2025-01-01T00:00:00+00:00",
+        )
+        .await
+        .unwrap();
+
+        let old = edge_id(&pool, &alice, &acme, "ceo_of").await;
+        let new = edge_id(&pool, &bob, &acme, "ceo_of").await;
+        let (old_valid, old_invalid, old_sup) = edge(&pool, &old).await;
+        assert_eq!(old_valid.as_deref(), Some("2025-01-01T00:00:00+00:00"));
+        assert_eq!(old_invalid.as_deref(), Some("2026-06-01T00:00:00+00:00"));
+        assert_eq!(old_sup.as_deref(), Some(new.as_str()));
+        let (_, new_invalid, _) = edge(&pool, &new).await;
+        assert!(new_invalid.is_none(), "the current CEO must stay valid");
+    }
+
+    #[tokio::test]
+    async fn non_exclusive_relations_coexist_and_accumulate() {
+        let pool = memory_pool().await;
+        let a = create_entity(&pool, "a16z", "organization", 0.9)
+            .await
+            .unwrap();
+        let x = create_entity(&pool, "X Corp", "organization", 0.9)
+            .await
+            .unwrap();
+        let y = create_entity(&pool, "Y Corp", "organization", 0.9)
+            .await
+            .unwrap();
+        link_entities_typed(
+            &pool,
+            &a,
+            &x,
+            "invested_in",
+            "s1",
+            "2026-01-01T00:00:00+00:00",
+        )
+        .await
+        .unwrap();
+        link_entities_typed(
+            &pool,
+            &a,
+            &y,
+            "invested_in",
+            "s2",
+            "2026-02-01T00:00:00+00:00",
+        )
+        .await
+        .unwrap();
+        link_entities_typed(
+            &pool,
+            &a,
+            &x,
+            "invested_in",
+            "s3",
+            "2025-12-01T00:00:00+00:00",
+        )
+        .await
+        .unwrap();
+        let (valid, invalid, _) = edge(&pool, &edge_id(&pool, &a, &x, "invested_in").await).await;
+        assert_eq!(
+            valid.as_deref(),
+            Some("2025-12-01T00:00:00+00:00"),
+            "earliest observation defines valid_at"
+        );
+        assert!(invalid.is_none());
+        let (w,): (f64,) =
+            sqlx::query_as("SELECT weight FROM wm_edges WHERE from_id = ? AND to_id = ?")
+                .bind(&a)
+                .bind(&x)
+                .fetch_one(&pool)
+                .await
+                .unwrap();
+        assert_eq!(w, 2.0);
+    }
+
+    #[tokio::test]
+    async fn reject_decision_creates_entity_and_decorrelates() {
+        let pool = memory_pool().await;
+        let e = create_entity(&pool, "Mistral AI", "organization", 0.8)
+            .await
+            .unwrap();
+        sqlx::query("INSERT INTO wm_source_items (id, source_type, source_ref, content_hash, raw_text, ingested_at, status) VALUES ('s1','rss','u','h','t','2026-01-01','pending')")
+            .execute(&pool)
+            .await
+            .unwrap();
+        sqlx::query("INSERT INTO wm_extraction_candidates (id, source_item_id, mention_text, mention_type_guess, best_match_entity_id, match_score, status, created_at) VALUES ('c1','s1','Mistral','organization',?,4.0,'pending_review','2026-01-01')")
+            .bind(&e)
+            .execute(&pool)
+            .await
+            .unwrap();
+
+        let msg = apply_decision(&pool, "c1", "reject", "test", Some("different company"))
+            .await
+            .unwrap();
+        assert!(msg.contains("decorrelated"));
+        let (status, new_id): (String, String) = sqlx::query_as(
+            "SELECT status, best_match_entity_id FROM wm_extraction_candidates WHERE id = 'c1'",
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+        assert_eq!(status, "rejected");
+        assert_ne!(new_id, e);
+        assert!(is_decorrelated(&pool, &new_id, &e).await.unwrap());
+        let (n,): (i64,) =
+            sqlx::query_as("SELECT COUNT(*) FROM wm_decisions WHERE candidate_id = 'c1'")
+                .fetch_one(&pool)
+                .await
+                .unwrap();
+        assert_eq!(n, 1);
     }
 }

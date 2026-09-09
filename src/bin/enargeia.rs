@@ -44,7 +44,29 @@ enum Command {
         batch_size: i64,
     },
     /// Answer a question from the resolved graph, with source citations.
-    Ask { question: String },
+    Ask {
+        question: String,
+        /// Answer from the graph as it was at this time (RFC3339 or YYYY-MM-DD).
+        #[arg(long)]
+        as_of: Option<String>,
+    },
+    /// Show the provenance trace for an entity (id or name): mentions, evidence, relations
+    /// with validity windows, human decisions.
+    Why { entity: String },
+    /// Record a human decision on a review candidate: confirm | reject | new.
+    Decide {
+        candidate_id: String,
+        decision: String,
+        #[arg(long)]
+        reason: Option<String>,
+        #[arg(long, default_value = "cli")]
+        actor: String,
+    },
+    /// List candidates awaiting review, highest score first.
+    Review {
+        #[arg(long, default_value = "30")]
+        limit: i64,
+    },
     /// Record that two entities are NOT the same; no future merge will re-propose the pair.
     Decorrelate {
         entity_a: String,
@@ -85,6 +107,12 @@ enum EvalAction {
         #[arg(long, default_value = "eval/labels.jsonl")]
         labels: String,
         #[arg(long, default_value = "eval/REPORT.md")]
+        out: String,
+    },
+    /// Prove on a scratch database that a rejected merge never re-merges; writes
+    /// eval/decorrelation_report.md.
+    Decorrelation {
+        #[arg(long, default_value = "eval/decorrelation_report.md")]
         out: String,
     },
 }
@@ -175,10 +203,72 @@ async fn main() -> Result<()> {
                 stats.errors
             );
         }
-        Command::Ask { question } => {
+        Command::Ask { question, as_of } => {
             let client = llm::LlmClient::from_env()?;
-            let answer = context::ask(&pool, &client, &question).await?;
+            let as_of = as_of.map(|t| {
+                if t.len() == 10 {
+                    format!("{t}T23:59:59+00:00")
+                } else {
+                    t
+                }
+            });
+            let answer = context::ask(&pool, &client, &question, as_of.as_deref()).await?;
             println!("{answer}");
+        }
+        Command::Why { entity } => {
+            print!("{}", enargeia::why::why(&pool, &entity).await?);
+        }
+        Command::Decide {
+            candidate_id,
+            decision,
+            reason,
+            actor,
+        } => {
+            let msg =
+                resolve::apply_decision(&pool, &candidate_id, &decision, &actor, reason.as_deref())
+                    .await?;
+            println!("{msg}");
+        }
+        Command::Review { limit } => {
+            // (candidate id, mention, label, entity name, entity type, score, feature_scores)
+            type ReviewRow = (
+                String,
+                String,
+                Option<String>,
+                String,
+                String,
+                Option<f64>,
+                Option<String>,
+            );
+            let rows: Vec<ReviewRow> = sqlx::query_as(
+                "SELECT c.id, c.mention_text, c.mention_type_guess, e.canonical_name, e.entity_type, c.match_score, c.feature_scores \
+                 FROM wm_extraction_candidates c JOIN wm_entities e ON e.id = c.best_match_entity_id \
+                 WHERE c.status = 'pending_review' ORDER BY c.match_score DESC LIMIT ?",
+            )
+            .bind(limit)
+            .fetch_all(&pool)
+            .await?;
+            if rows.is_empty() {
+                println!("no candidates awaiting review");
+            }
+            for (id, mention, label, cand, ctype, score, features) in rows {
+                let breakdown = features
+                    .as_deref()
+                    .and_then(|f| serde_json::from_str::<enargeia::matcher::MatchScore>(f).ok())
+                    .map(|ms| {
+                        ms.contributions
+                            .iter()
+                            .map(|(k, v)| format!("{k} {v:+.1}"))
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    })
+                    .unwrap_or_default();
+                println!(
+                    "{id}\n  \"{mention}\" [{}] → {cand} [{ctype}]  score {:.1}\n  {breakdown}\n  decide: enargeia decide {id} confirm|reject|new",
+                    label.as_deref().unwrap_or("?"),
+                    score.unwrap_or(0.0)
+                );
+            }
         }
         Command::Decorrelate {
             entity_a,
@@ -225,6 +315,22 @@ async fn main() -> Result<()> {
                 outcome.review_rate * 100.0
             );
             println!("wrote {out}");
+        }
+        Command::Eval {
+            action: EvalAction::Decorrelation { out },
+        } => {
+            let scratch = "data/eval-decorrelation.sqlite";
+            for suffix in ["", "-wal", "-shm"] {
+                let _ = std::fs::remove_file(format!("{scratch}{suffix}"));
+            }
+            let scratch_pool = db::connect(scratch).await?;
+            let outcome = enargeia::eval::run_decorrelation(&scratch_pool).await?;
+            std::fs::write(&out, &outcome.report_md)?;
+            println!("{}", outcome.report_md);
+            println!("wrote {out}");
+            if !outcome.passed {
+                anyhow::bail!("decorrelation evaluation FAILED");
+            }
         }
         Command::Reindex => {
             let n = enargeia::block::reindex_all(&pool).await?;

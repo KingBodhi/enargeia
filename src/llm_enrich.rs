@@ -15,7 +15,9 @@ text passage. Respond with ONLY a JSON object, no prose, matching this shape exa
 \"relations\":[{\"a\":string,\"b\":string,\"relation_type\":string}]}. \
 entity_type must be one of: person, organization, location, event, product, vessel, aircraft, satellite, other. \
 canonical_name is the normalized real-world name (e.g. \"Recorded Future\" not \"RF\" or \"the company\"). \
-relation_type is a short snake_case verb phrase (e.g. acquired, ceo_of, invested_in, partner_of, located_in). \
+relation_type is a short snake_case verb phrase; prefer these when they apply: ceo_of, cfo_of, cto_of, \
+founder_of, chairman_of, headquartered_in, based_in, owned_by, acquired, acquired_by, invested_in, \
+partner_of, suing, employs, member_of, located_in, launched, competes_with. \
 Every relation must be an object with keys a, b, relation_type, where a and b are mention strings from entities. \
 If nothing is extractable, return {\"entities\":[],\"relations\":[]}.";
 
@@ -151,12 +153,15 @@ pub async fn enrich_batch(
     .await?;
 
     for (source_item_id,) in source_ids {
-        let raw_text: Option<(String,)> =
-            sqlx::query_as("SELECT raw_text FROM wm_source_items WHERE id = ?")
-                .bind(&source_item_id)
-                .fetch_optional(pool)
-                .await?;
-        let Some((text,)) = raw_text else { continue };
+        let row: Option<(String, String)> = sqlx::query_as(
+            "SELECT raw_text, COALESCE(published_at, ingested_at) FROM wm_source_items WHERE id = ?",
+        )
+        .bind(&source_item_id)
+        .fetch_optional(pool)
+        .await?;
+        let Some((text, observed_at)) = row else {
+            continue;
+        };
 
         let snippet: String = text.chars().take(4000).collect();
         let response = match client.complete(SYSTEM_PROMPT, &snippet, 1536, true).await {
@@ -210,6 +215,7 @@ pub async fn enrich_batch(
                     b,
                     &rel.relation_type,
                     &source_item_id,
+                    &observed_at,
                 )
                 .await?;
                 stats.edges_created += 1;

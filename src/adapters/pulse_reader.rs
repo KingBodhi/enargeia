@@ -15,7 +15,7 @@ use sqlx::{
 };
 
 use super::SourceAdapter;
-use crate::models::RawItem;
+use crate::models::{parse_feed_date, RawItem};
 
 pub struct PulseContentReader {
     pool: SqlitePool,
@@ -54,7 +54,7 @@ impl SourceAdapter for PulseContentReader {
     async fn fetch(&self) -> Result<Vec<RawItem>> {
         let since = self.last_cursor();
         let rows = sqlx::query(
-            "SELECT id, url, title, COALESCE(body, summary, '') as text, collected_at \
+            "SELECT id, url, title, COALESCE(body, summary, '') as text, collected_at, published_at \
              FROM pulse_content_items \
              WHERE collected_at > ? \
              ORDER BY collected_at ASC \
@@ -73,6 +73,7 @@ impl SourceAdapter for PulseContentReader {
             let title: String = row.try_get("title")?;
             let text: String = row.try_get("text")?;
             let collected_at: String = row.try_get("collected_at")?;
+            let published_at: Option<String> = row.try_get("published_at").ok();
             if collected_at > max_seen {
                 max_seen = collected_at.clone();
             }
@@ -85,6 +86,10 @@ impl SourceAdapter for PulseContentReader {
                 title: if title.is_empty() { None } else { Some(title) },
                 text,
                 license_class: "unknown".to_string(),
+                published_at: published_at
+                    .as_deref()
+                    .and_then(parse_feed_date)
+                    .or_else(|| parse_feed_date(&collected_at)),
             });
         }
         *self.since.lock().unwrap() = max_seen;

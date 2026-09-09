@@ -1,6 +1,7 @@
 //! Context assembler: the "reason over the graph, not raw documents" hop. Resolves a
-//! free-text question to seed entities, walks `wm_edges` to a bounded depth, and formats a
-//! numbered, source-cited context for the LLM to answer from.
+//! free-text question to seed entities, walks the currently-valid (or as-of-a-date) edges
+//! to a bounded depth, and formats a numbered, source-cited context for the LLM to answer
+//! from.
 
 use std::collections::{HashMap, HashSet, VecDeque};
 
@@ -20,14 +21,15 @@ const DEFAULT_DEPTH: usize = 2;
 const MAX_EDGES: usize = 60;
 const MAX_SOURCES: usize = 30;
 
-/// Only entities the resolver considers current. Reasoning runs over live facts; resolution
-/// in `resolve.rs` still dedups against full history so stale entities are not re-created.
-async fn live_entities(pool: &SqlitePool) -> Result<Vec<WmEntity>> {
-    Ok(
-        sqlx::query_as::<_, WmEntity>("SELECT * FROM wm_entities WHERE is_live = 1")
-            .fetch_all(pool)
-            .await?,
-    )
+/// Entities eligible as seeds: live ones for "now" questions; every entity for as-of
+/// questions, since the point of a historical query is to see what has since gone stale.
+async fn seed_pool(pool: &SqlitePool, as_of: Option<&str>) -> Result<Vec<WmEntity>> {
+    let sql = if as_of.is_some() {
+        "SELECT * FROM wm_entities"
+    } else {
+        "SELECT * FROM wm_entities WHERE is_live = 1"
+    };
+    Ok(sqlx::query_as::<_, WmEntity>(sql).fetch_all(pool).await?)
 }
 
 /// How well an entity name matches a question. Word-bounded containment wins outright.
@@ -76,9 +78,13 @@ fn contains_word_bounded(haystack: &str, needle: &str) -> bool {
     false
 }
 
-/// Seed entities for a question, best-scoring first. Live entities only.
-pub async fn find_matching_entities(pool: &SqlitePool, question: &str) -> Result<Vec<WmEntity>> {
-    let entities = live_entities(pool).await?;
+/// Seed entities for a question, best-scoring first.
+pub async fn find_matching_entities(
+    pool: &SqlitePool,
+    question: &str,
+    as_of: Option<&str>,
+) -> Result<Vec<WmEntity>> {
+    let entities = seed_pool(pool, as_of).await?;
     let question_lower = question.to_lowercase();
     let question_words: Vec<String> = question_lower
         .split(|c: char| !c.is_alphanumeric() && c != '\'' && c != '-')
@@ -99,7 +105,6 @@ pub async fn find_matching_entities(pool: &SqlitePool, question: &str) -> Result
         })
         .filter(|(s, _)| *s >= NGRAM_MATCH_THRESHOLD)
         .collect();
-    // Higher score first; among equals prefer longer (more specific) names.
     scored.sort_by(|a, b| {
         b.0.partial_cmp(&a.0)
             .unwrap()
@@ -117,10 +122,33 @@ struct GraphSlice {
     edges: Vec<WmEdge>,
 }
 
-async fn bfs(pool: &SqlitePool, seeds: &[String], depth: usize) -> Result<GraphSlice> {
-    let all_edges: Vec<WmEdge> = sqlx::query_as::<_, WmEdge>("SELECT * FROM wm_edges")
-        .fetch_all(pool)
-        .await?;
+/// Edges valid at `as_of` (or valid now when `None`): bi-temporal filtering on valid time.
+async fn load_edges(pool: &SqlitePool, as_of: Option<&str>) -> Result<Vec<WmEdge>> {
+    Ok(match as_of {
+        None => {
+            sqlx::query_as::<_, WmEdge>("SELECT * FROM wm_edges WHERE invalid_at IS NULL")
+                .fetch_all(pool)
+                .await?
+        }
+        Some(t) => {
+            sqlx::query_as::<_, WmEdge>(
+                "SELECT * FROM wm_edges WHERE (valid_at IS NULL OR valid_at <= ?) AND (invalid_at IS NULL OR invalid_at > ?)",
+            )
+            .bind(t)
+            .bind(t)
+            .fetch_all(pool)
+            .await?
+        }
+    })
+}
+
+async fn bfs(
+    pool: &SqlitePool,
+    seeds: &[String],
+    depth: usize,
+    as_of: Option<&str>,
+) -> Result<GraphSlice> {
+    let all_edges = load_edges(pool, as_of).await?;
     let mut visited: HashSet<String> = seeds.iter().cloned().collect();
     let mut frontier: VecDeque<(String, usize)> = seeds.iter().map(|s| (s.clone(), 0)).collect();
     let mut used: HashMap<String, (usize, WmEdge)> = HashMap::new();
@@ -184,14 +212,14 @@ struct SourceRef {
     title: String,
     source_ref: String,
     license_class: String,
+    published_at: Option<String>,
 }
 
 async fn load_sources(pool: &SqlitePool, slice: &GraphSlice) -> Result<HashMap<String, SourceRef>> {
     let mut ids: Vec<String> = Vec::new();
     let mut seen = HashSet::new();
     'outer: for e in &slice.edges {
-        let list: Vec<String> = serde_json::from_str(&e.source_item_ids).unwrap_or_default();
-        for id in list {
+        for id in e.source_ids() {
             if seen.insert(id.clone()) {
                 ids.push(id);
                 if ids.len() >= MAX_SOURCES {
@@ -206,19 +234,19 @@ async fn load_sources(pool: &SqlitePool, slice: &GraphSlice) -> Result<HashMap<S
     }
     let placeholders = ids.iter().map(|_| "?").collect::<Vec<_>>().join(",");
     let sql = format!(
-        "SELECT id, COALESCE(title, ''), source_ref, license_class FROM wm_source_items WHERE id IN ({placeholders})"
+        "SELECT id, COALESCE(title, ''), source_ref, license_class, published_at FROM wm_source_items WHERE id IN ({placeholders})"
     );
-    let mut q = sqlx::query_as::<_, (String, String, String, String)>(&sql);
+    let mut q = sqlx::query_as::<_, (String, String, String, String, Option<String>)>(&sql);
     for id in &ids {
         q = q.bind(id);
     }
     let rows = q.fetch_all(pool).await?;
-    let by_id: HashMap<String, (String, String, String)> = rows
+    let by_id: HashMap<String, (String, String, String, Option<String>)> = rows
         .into_iter()
-        .map(|(id, t, r, l)| (id, (t, r, l)))
+        .map(|(id, t, r, l, p)| (id, (t, r, l, p)))
         .collect();
     for (i, id) in ids.iter().enumerate() {
-        if let Some((title, source_ref, license_class)) = by_id.get(id) {
+        if let Some((title, source_ref, license_class, published_at)) = by_id.get(id) {
             out.insert(
                 id.clone(),
                 SourceRef {
@@ -226,11 +254,16 @@ async fn load_sources(pool: &SqlitePool, slice: &GraphSlice) -> Result<HashMap<S
                     title: title.clone(),
                     source_ref: source_ref.clone(),
                     license_class: license_class.clone(),
+                    published_at: published_at.clone(),
                 },
             );
         }
     }
     Ok(out)
+}
+
+fn short_date(ts: &str) -> &str {
+    ts.get(..10).unwrap_or(ts)
 }
 
 /// Returns (context for the model, numbered source list).
@@ -245,10 +278,10 @@ fn format_context(slice: &GraphSlice, sources: &HashMap<String, SourceRef>) -> (
     };
 
     let mut ctx = String::new();
-    ctx.push_str("RELATIONS (source numbers in brackets):\n");
+    ctx.push_str("RELATIONS (valid-from date; source numbers in brackets):\n");
     for edge in &slice.edges {
-        let ids: Vec<String> = serde_json::from_str(&edge.source_item_ids).unwrap_or_default();
-        let mut nums: Vec<usize> = ids
+        let mut nums: Vec<usize> = edge
+            .source_ids()
             .iter()
             .filter_map(|id| sources.get(id).map(|s| s.number))
             .collect();
@@ -259,11 +292,17 @@ fn format_context(slice: &GraphSlice, sources: &HashMap<String, SourceRef>) -> (
             .map(|n| format!("[{n}]"))
             .collect::<Vec<_>>()
             .join("");
+        let since = edge
+            .valid_at
+            .as_deref()
+            .map(|v| format!(" (since {})", short_date(v)))
+            .unwrap_or_default();
         ctx.push_str(&format!(
-            "- {} --[{}]--> {} {}\n",
+            "- {} --[{}]--> {}{} {}\n",
             name(&edge.from_id),
             edge.edge_type,
             name(&edge.to_id),
+            since,
             cite
         ));
     }
@@ -290,9 +329,14 @@ fn format_context(slice: &GraphSlice, sources: &HashMap<String, SourceRef>) -> (
         } else {
             s.title.as_str()
         };
+        let date = s
+            .published_at
+            .as_deref()
+            .map(|d| format!("{} · ", short_date(d)))
+            .unwrap_or_default();
         src.push_str(&format!(
-            "[{}] {} — {} ({})\n",
-            s.number, title, s.source_ref, s.license_class
+            "[{}] {}{} — {} ({})\n",
+            s.number, date, title, s.source_ref, s.license_class
         ));
     }
     (ctx, src)
@@ -304,9 +348,15 @@ bracketed numbers, e.g. [2], after each claim. Prefer typed relations (e.g. suin
 founder_of) over co-occurrence (mentioned_with). If the context does not support an answer, \
 say so plainly; never guess or use outside knowledge. Be concise and concrete.";
 
-/// Answers a question from the graph. Returns the answer followed by a numbered source list.
-pub async fn ask(pool: &SqlitePool, client: &LlmClient, question: &str) -> Result<String> {
-    let seeds = find_matching_entities(pool, question).await?;
+/// Answers a question from the graph as it is now, or as it was at `as_of` (RFC3339 or
+/// YYYY-MM-DD). Returns the answer followed by a numbered source list.
+pub async fn ask(
+    pool: &SqlitePool,
+    client: &LlmClient,
+    question: &str,
+    as_of: Option<&str>,
+) -> Result<String> {
+    let seeds = find_matching_entities(pool, question, as_of).await?;
     if seeds.is_empty() {
         return Ok(
             "No entities in the graph match this question yet; ingest and resolve more content first."
@@ -314,16 +364,20 @@ pub async fn ask(pool: &SqlitePool, client: &LlmClient, question: &str) -> Resul
         );
     }
     let seed_ids: Vec<String> = seeds.iter().map(|e| e.id.clone()).collect();
-    let slice = bfs(pool, &seed_ids, DEFAULT_DEPTH).await?;
+    let slice = bfs(pool, &seed_ids, DEFAULT_DEPTH, as_of).await?;
     let sources = load_sources(pool, &slice).await?;
     let (context, source_list) = format_context(&slice, &sources);
-    let prompt = format!("CONTEXT\n{context}\nSOURCES\n{source_list}\nQUESTION: {question}");
+    let when = as_of
+        .map(|t| format!("The graph is shown AS OF {t}; treat that as the present.\n"))
+        .unwrap_or_default();
+    let prompt = format!("{when}CONTEXT\n{context}\nSOURCES\n{source_list}\nQUESTION: {question}");
     let answer = client
         .complete(ASK_SYSTEM_PROMPT, &prompt, 1024, false)
         .await?;
     let seed_names: Vec<&str> = seeds.iter().map(|e| e.canonical_name.as_str()).collect();
     Ok(format!(
-        "{answer}\n\n— graph slice: {} entities, {} edges; seeds: {}\nSources:\n{source_list}",
+        "{answer}\n\n— graph slice{}: {} entities, {} edges; seeds: {}\nSources:\n{source_list}",
+        as_of.map(|t| format!(" as of {t}")).unwrap_or_default(),
         slice.entities.len(),
         slice.edges.len(),
         seed_names.join(", ")
@@ -379,5 +433,54 @@ mod tests {
         ));
         assert!(!contains_word_bounded("the pandl index", "and"));
         assert!(contains_word_bounded("a and b", "and"));
+    }
+
+    #[tokio::test]
+    async fn as_of_filters_superseded_edges() {
+        use sqlx::sqlite::SqlitePoolOptions;
+        let pool = SqlitePoolOptions::new()
+            .connect("sqlite::memory:")
+            .await
+            .unwrap();
+        sqlx::migrate!("./migrations").run(&pool).await.unwrap();
+        let alice = crate::resolve::create_entity(&pool, "Alice", "person", 0.9)
+            .await
+            .unwrap();
+        let bob = crate::resolve::create_entity(&pool, "Bob", "person", 0.9)
+            .await
+            .unwrap();
+        let acme = crate::resolve::create_entity(&pool, "Acme", "organization", 0.9)
+            .await
+            .unwrap();
+        crate::resolve::link_entities_typed(
+            &pool,
+            &alice,
+            &acme,
+            "ceo_of",
+            "s1",
+            "2025-01-01T00:00:00+00:00",
+        )
+        .await
+        .unwrap();
+        crate::resolve::link_entities_typed(
+            &pool,
+            &bob,
+            &acme,
+            "ceo_of",
+            "s2",
+            "2026-06-01T00:00:00+00:00",
+        )
+        .await
+        .unwrap();
+
+        let now_edges = load_edges(&pool, None).await.unwrap();
+        assert_eq!(now_edges.len(), 1);
+        assert_eq!(now_edges[0].from_id, bob);
+
+        let then = load_edges(&pool, Some("2025-12-31T00:00:00+00:00"))
+            .await
+            .unwrap();
+        assert_eq!(then.len(), 1);
+        assert_eq!(then[0].from_id, alice);
     }
 }

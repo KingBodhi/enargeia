@@ -1,14 +1,23 @@
-//! `enargeia eval match`: measures the matcher against `eval/labels.jsonl` and writes
-//! `eval/REPORT.md`. Compares the v0.1 rule (auto-merge iff Jaro-Winkler ≥ 0.87) against
-//! the probabilistic matcher at its default thresholds, and sweeps the merge threshold.
-//! Only string/type features are exercised; DB-derived priors are zero here.
+//! Evaluations that ship with the repo.
+//!
+//! - `enargeia eval match`: measures the matcher against `eval/labels.jsonl` and writes
+//!   `eval/REPORT.md`. Compares the v0.1 rule (auto-merge iff Jaro-Winkler ≥ 0.87) against the
+//!   probabilistic matcher at its default thresholds, and sweeps the merge threshold. Only
+//!   string/type features are exercised; DB-derived priors are zero here.
+//! - `enargeia eval decorrelation`: proves the sticky-decorrelation guarantee end to end on a
+//!   scratch database and writes `eval/decorrelation_report.md`.
 
 use std::path::Path;
 
 use anyhow::{Context, Result};
 use serde::Deserialize;
+use sqlx::SqlitePool;
 
-use crate::matcher::{decide, score, Candidate, Decision, MatchScore, Weights};
+use crate::{
+    matcher::{decide, score, Candidate, Decision, MatchScore, Weights},
+    models::RawItem,
+    resolve,
+};
 
 #[derive(Debug, Deserialize)]
 struct LabeledPair {
@@ -131,8 +140,6 @@ pub fn run(labels_path: &Path, weights: &Weights) -> Result<EvalOutcome> {
         sweep.push((t, tally(&rows, |r| r.ms.total >= t)));
         t += 0.5;
     }
-    // Operating point: auto-merge must be safe, so prefer the highest-F1 threshold among
-    // those with precision ≥ 0.85 (fall back to best F1 overall).
     let safe_best = sweep
         .iter()
         .filter(|(_, p)| p.precision() >= 0.85)
@@ -226,74 +233,70 @@ pub fn run(labels_path: &Path, weights: &Weights) -> Result<EvalOutcome> {
             .join(", ")
     };
 
-    md.push_str("\n## False positives at default (merged, but labeled non-match)\n\n");
-    let mut fps: Vec<&Scored> = rows
-        .iter()
-        .filter(|r| !r.pair.is_match && decide(r.ms.total, weights) == Decision::Merge)
-        .collect();
-    fps.sort_by(|a, b| b.ms.total.partial_cmp(&a.ms.total).unwrap());
-    if fps.is_empty() {
-        md.push_str("_none_\n");
-    }
-    for r in fps {
-        md.push_str(&format!(
-            "- **{}** → {} — total {:.1} ({})\n",
-            r.pair.mention,
-            r.pair.candidate,
-            r.ms.total,
-            fmt_contrib(&r.ms)
-        ));
-    }
-
-    md.push_str("\n## False negatives at default (labeled match, but rejected as new)\n\n");
-    let mut fns: Vec<&Scored> = rows
-        .iter()
-        .filter(|r| r.pair.is_match && decide(r.ms.total, weights) == Decision::New)
-        .collect();
-    fns.sort_by(|a, b| a.ms.total.partial_cmp(&b.ms.total).unwrap());
-    if fns.is_empty() {
-        md.push_str("_none_\n");
-    }
-    for r in fns {
-        md.push_str(&format!(
-            "- **{}** → {} — total {:.1} ({})\n",
-            r.pair.mention,
-            r.pair.candidate,
-            r.ms.total,
-            fmt_contrib(&r.ms)
-        ));
-    }
-
-    md.push_str("\n## Matches sent to review at default\n\n");
-    let mut revs: Vec<&Scored> = rows
-        .iter()
-        .filter(|r| r.pair.is_match && decide(r.ms.total, weights) == Decision::Review)
-        .collect();
-    revs.sort_by(|a, b| a.ms.total.partial_cmp(&b.ms.total).unwrap());
-    if revs.is_empty() {
-        md.push_str("_none_\n");
-    }
-    for r in revs {
-        md.push_str(&format!(
-            "- {} → {} — total {:.1}\n",
-            r.pair.mention, r.pair.candidate, r.ms.total
-        ));
-    }
-
-    md.push_str("\n## Non-matches sent to review at default\n\n");
-    let mut nrevs: Vec<&Scored> = rows
-        .iter()
-        .filter(|r| !r.pair.is_match && decide(r.ms.total, weights) == Decision::Review)
-        .collect();
-    nrevs.sort_by(|a, b| b.ms.total.partial_cmp(&a.ms.total).unwrap());
-    if nrevs.is_empty() {
-        md.push_str("_none_\n");
-    }
-    for r in nrevs {
-        md.push_str(&format!(
-            "- {} → {} — total {:.1}\n",
-            r.pair.mention, r.pair.candidate, r.ms.total
-        ));
+    // (title, labeled as match?, decision bucket, ascending order, show evidence)
+    let sections: [(&str, bool, Decision, bool, bool); 4] = [
+        (
+            "False positives at default (merged, but labeled non-match)",
+            false,
+            Decision::Merge,
+            false,
+            true,
+        ),
+        (
+            "False negatives at default (labeled match, but rejected as new)",
+            true,
+            Decision::New,
+            true,
+            true,
+        ),
+        (
+            "Matches sent to review at default",
+            true,
+            Decision::Review,
+            true,
+            false,
+        ),
+        (
+            "Non-matches sent to review at default",
+            false,
+            Decision::Review,
+            false,
+            false,
+        ),
+    ];
+    for (title, is_match, bucket, asc, detail) in sections {
+        md.push_str(&format!("\n## {title}\n\n"));
+        let mut rs: Vec<&Scored> = rows
+            .iter()
+            .filter(|r| r.pair.is_match == is_match && decide(r.ms.total, weights) == bucket)
+            .collect();
+        rs.sort_by(|a, b| {
+            let o = a.ms.total.partial_cmp(&b.ms.total).unwrap();
+            if asc {
+                o
+            } else {
+                o.reverse()
+            }
+        });
+        if rs.is_empty() {
+            md.push_str("_none_\n");
+        }
+        for r in rs {
+            if detail {
+                md.push_str(&format!(
+                    "- **{}** → {} — total {:.1} ({})\n",
+                    r.pair.mention,
+                    r.pair.candidate,
+                    r.ms.total,
+                    fmt_contrib(&r.ms)
+                ));
+            } else {
+                md.push_str(&format!(
+                    "- {} → {} — total {:.1}\n",
+                    r.pair.mention, r.pair.candidate, r.ms.total
+                ));
+            }
+        }
     }
 
     md.push_str("\n## Weights used\n\n```json\n");
@@ -306,6 +309,231 @@ pub fn run(labels_path: &Path, weights: &Weights) -> Result<EvalOutcome> {
         probabilistic,
         merge_or_review,
         review_rate,
+        report_md: md,
+    })
+}
+
+// ---------------------------------------------------------------------------------------------
+// Decorrelation evaluation
+
+pub struct DecorrelationOutcome {
+    pub passed: bool,
+    pub report_md: String,
+}
+
+fn raw(id: &str, text: &str, date: &str) -> RawItem {
+    RawItem {
+        source_type: "eval".to_string(),
+        source_ref: format!("eval://{id}"),
+        title: Some(id.to_string()),
+        text: text.to_string(),
+        license_class: "commercial_clean".to_string(),
+        published_at: Some(format!("{date}T00:00:00+00:00")),
+    }
+}
+
+type CandidateState = (String, Option<String>, Option<f64>);
+
+async fn candidate_status(
+    pool: &SqlitePool,
+    source_ref: &str,
+    mention: &str,
+) -> Result<Option<CandidateState>> {
+    Ok(sqlx::query_as(
+        "SELECT c.status, c.best_match_entity_id, c.match_score FROM wm_extraction_candidates c \
+         JOIN wm_source_items s ON s.id = c.source_item_id WHERE s.source_ref = ? AND c.mention_text = ? \
+         ORDER BY c.created_at DESC LIMIT 1",
+    )
+    .bind(source_ref)
+    .bind(mention)
+    .fetch_optional(pool)
+    .await?)
+}
+
+fn check(md: &mut String, passed: &mut bool, ok: bool, what: &str) {
+    md.push_str(&format!(
+        "- [{}] {what}\n",
+        if ok { "PASS" } else { "FAIL" }
+    ));
+    *passed &= ok;
+}
+
+/// Runs on a scratch database. Uses the regex extractor so the result does not depend on a
+/// downloaded model. Steps:
+/// 1. Ingest three items; "Mistral" mentions auto-merge into the "Mistral AI" entity.
+/// 2. A human rejects one of those merges → a new entity is created and the pair is decorrelated.
+/// 3. The whole corpus is re-resolved from scratch (entities and decorrelations kept).
+/// 4. Assert: no "Mistral" mention auto-merges into "Mistral AI" again; `merge` refuses both ways.
+pub async fn run_decorrelation(pool: &SqlitePool) -> Result<DecorrelationOutcome> {
+    std::env::set_var("ENARGEIA_EXTRACTOR", "regex");
+    let mut md = String::new();
+    let mut passed = true;
+
+    md.push_str("# Decorrelation evaluation\n\n");
+    md.push_str(&format!(
+        "Generated {} by `enargeia eval decorrelation` on a scratch database (regex extractor).\n\n",
+        chrono::Utc::now().format("%Y-%m-%d %H:%M UTC")
+    ));
+
+    for (id, text, date) in [
+        (
+            "s1",
+            "Mistral AI raised new funding from investors in Paris.",
+            "2026-01-01",
+        ),
+        (
+            "s2",
+            "Mistral said the new model is open to everyone.",
+            "2026-02-01",
+        ),
+        (
+            "s3",
+            "Mistral announced a partnership with Nvidia.",
+            "2026-03-01",
+        ),
+    ] {
+        resolve::ingest_item(pool, &raw(id, text, date)).await?;
+    }
+    let stats = resolve::resolve_pending(pool, 100).await?;
+    md.push_str(&format!(
+        "## Step 1 — initial resolution\n\n{} items, {} auto-merged mentions, {} new entities, {} review.\n\n",
+        stats.items_processed, stats.auto_merged, stats.new_entities, stats.pending_review
+    ));
+    let e: Option<(String,)> =
+        sqlx::query_as("SELECT id FROM wm_entities WHERE canonical_name = 'Mistral AI'")
+            .fetch_optional(pool)
+            .await?;
+    let Some((e_id,)) = e else {
+        check(
+            &mut md,
+            &mut passed,
+            false,
+            "entity 'Mistral AI' exists after resolution",
+        );
+        return Ok(DecorrelationOutcome {
+            passed: false,
+            report_md: md,
+        });
+    };
+    let s2 = candidate_status(pool, "eval://s2", "Mistral").await?;
+    let s3 = candidate_status(pool, "eval://s3", "Mistral").await?;
+    let merged_initially = matches!(
+        (&s2, &s3),
+        (Some((st2, Some(b2), _)), Some((st3, Some(b3), _)))
+            if st2 == "auto_merged" && st3 == "auto_merged" && *b2 == e_id && *b3 == e_id
+    );
+    check(
+        &mut md,
+        &mut passed,
+        merged_initially,
+        "both 'Mistral' mentions auto-merged into 'Mistral AI' before any human decision (sanity)",
+    );
+    md.push_str(&format!("\n  s2: {s2:?}\n  s3: {s3:?}\n\n"));
+
+    // Step 2 — human rejects the s2 merge.
+    let (cand_id,): (String,) = sqlx::query_as(
+        "SELECT c.id FROM wm_extraction_candidates c JOIN wm_source_items s ON s.id = c.source_item_id \
+         WHERE s.source_ref = 'eval://s2' AND c.mention_text = 'Mistral' ORDER BY c.created_at DESC LIMIT 1",
+    )
+    .fetch_one(pool)
+    .await?;
+    let msg = resolve::apply_decision(
+        pool,
+        &cand_id,
+        "reject",
+        "eval",
+        Some("not the same company"),
+    )
+    .await?;
+    md.push_str(&format!(
+        "## Step 2 — human rejects the s2 merge\n\n{msg}\n\n"
+    ));
+    let (n_id,): (String,) =
+        sqlx::query_as("SELECT best_match_entity_id FROM wm_extraction_candidates WHERE id = ?")
+            .bind(&cand_id)
+            .fetch_one(pool)
+            .await?;
+    check(
+        &mut md,
+        &mut passed,
+        n_id != e_id,
+        "reject created a distinct entity for the mention",
+    );
+    let decorrelated = resolve::is_decorrelated(pool, &n_id, &e_id).await?;
+    check(
+        &mut md,
+        &mut passed,
+        decorrelated,
+        "the new entity and 'Mistral AI' are decorrelated",
+    );
+
+    // Step 3 — re-resolve the whole corpus from scratch (entities + decorrelations persist).
+    sqlx::query("DELETE FROM wm_extraction_candidates")
+        .execute(pool)
+        .await?;
+    sqlx::query("DELETE FROM wm_edges").execute(pool).await?;
+    sqlx::query("UPDATE wm_source_items SET status = 'pending'")
+        .execute(pool)
+        .await?;
+    let stats = resolve::resolve_pending(pool, 100).await?;
+    md.push_str(&format!(
+        "## Step 3 — full re-resolution with the decorrelation in place\n\n{} items, {} auto-merged, {} new, {} review.\n\n",
+        stats.items_processed, stats.auto_merged, stats.new_entities, stats.pending_review
+    ));
+    let s2 = candidate_status(pool, "eval://s2", "Mistral").await?;
+    let s3 = candidate_status(pool, "eval://s3", "Mistral").await?;
+    md.push_str(&format!("  s2: {s2:?}\n  s3: {s3:?}\n\n"));
+    for (label, st) in [("s2", &s2), ("s3", &s3)] {
+        let re_merged =
+            matches!(st, Some((status, Some(b), _)) if status == "auto_merged" && *b == e_id);
+        check(
+            &mut md,
+            &mut passed,
+            !re_merged,
+            &format!("{label}: 'Mistral' did NOT auto-merge back into 'Mistral AI'"),
+        );
+        let to_new =
+            matches!(st, Some((status, Some(b), _)) if status == "auto_merged" && *b == n_id);
+        let reviewed = matches!(st, Some((status, _, _)) if status == "pending_review");
+        check(
+            &mut md,
+            &mut passed,
+            to_new || reviewed,
+            &format!("{label}: resolved to the human-created entity or sent to review"),
+        );
+    }
+
+    // Step 4 — the merge operation refuses the pair in both directions.
+    let a = resolve::merge_entities(pool, &e_id, &n_id).await;
+    let b = resolve::merge_entities(pool, &n_id, &e_id).await;
+    check(
+        &mut md,
+        &mut passed,
+        a.is_err(),
+        "merge(Mistral AI ← new) refused",
+    );
+    check(
+        &mut md,
+        &mut passed,
+        b.is_err(),
+        "merge(new ← Mistral AI) refused",
+    );
+    md.push_str(&format!(
+        "## Step 4 — merge guard\n\n- {}\n- {}\n\n",
+        a.err()
+            .map(|e| e.to_string())
+            .unwrap_or_else(|| "merged (unexpected)".into()),
+        b.err()
+            .map(|e| e.to_string())
+            .unwrap_or_else(|| "merged (unexpected)".into())
+    ));
+
+    md.push_str(&format!(
+        "## Result: {}\n",
+        if passed { "PASS" } else { "FAIL" }
+    ));
+    Ok(DecorrelationOutcome {
+        passed,
         report_md: md,
     })
 }

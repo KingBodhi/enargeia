@@ -35,13 +35,23 @@ cargo build --release
 ./target/release/enargeia ask "Which companies are mentioned alongside Mastercard?"
 ```
 
-Human corrections:
+Human-in-the-loop review and provenance:
 
 ```sh
+enargeia review                           # candidates awaiting a decision, with evidence
+enargeia decide <candidate_id> confirm    # or: reject (creates + decorrelates) | new
+enargeia why "Mistral AI"                 # every mention, source, score, relation, decision
+enargeia ask "Who runs Acme?" --as-of 2025-12-31   # the graph as it was, not as it is
 enargeia decorrelate <entity_a> <entity_b> --reason "different companies"
 enargeia merge <keep_id> <absorb_id>      # refuses if the pair was decorrelated
 enargeia expire
+enargeia eval decorrelation               # proves a rejected merge never comes back
 ```
+
+Relations are bi-temporal: `valid_at` comes from the source's publication date, and
+exclusive relation types (`ceo_of`, `headquartered_in`, `acquired_by`, …) invalidate their
+predecessor when a newer contradicting fact arrives — an older fact processed late is stored
+already superseded, so ingestion order never rewrites history.
 
 ## Configuration
 
@@ -83,8 +93,8 @@ enargeia eval match      # regenerates eval/REPORT.md from eval/labels.jsonl
 
 1. ~~Zero-shot local NER (GLiNER via `gline-rs`) replacing the regex extractor.~~ Done.
 2. ~~Multi-signal probabilistic matcher with a committed precision/recall report.~~ Done.
-3. Bi-temporal edges (`valid_at` / `invalid_at`) replacing the fixed expiry.
-4. Reproducible decorrelation evaluation and a `why <entity>` provenance trace.
+3. ~~Bi-temporal edges (`valid_at` / `invalid_at`) with contradiction supersession and `ask --as-of`.~~ Done.
+4. ~~Reproducible decorrelation evaluation and a `why <entity>` provenance trace.~~ Done.
 5. HTTP API, geocoding, first live layer (CelesTrak), embedded globe.
 
 ## License
