@@ -66,10 +66,23 @@ sources ──> ingest (dedup, license_class) ──> Tier 1: extract mentions, 
 graph (entities · edges · decorrelations) ──> context assembler ──> ask (sourced answer)
 ```
 
+## Matching quality
+
+Resolution uses blocking (name/token/phonetic keys) plus a multi-signal Fellegi–Sunter
+scorer: name similarity, alias match, token overlap, phonetic agreement, type agreement,
+extra-token and containment structure, acronym/initials logic, and — at runtime — co-mention
+context, corroboration and recency. Every candidate stores its feature breakdown. Measured on
+labeled pairs from a real corpus; see [eval/REPORT.md](eval/REPORT.md) for the current
+precision/recall against the single-metric baseline it replaced.
+
+```sh
+enargeia eval match      # regenerates eval/REPORT.md from eval/labels.jsonl
+```
+
 ## Roadmap
 
-1. Zero-shot local NER (GLiNER via `gline-rs`) replacing the regex extractor.
-2. Multi-signal probabilistic matcher (Fellegi–Sunter) with a committed precision/recall report.
+1. ~~Zero-shot local NER (GLiNER via `gline-rs`) replacing the regex extractor.~~ Done.
+2. ~~Multi-signal probabilistic matcher with a committed precision/recall report.~~ Done.
 3. Bi-temporal edges (`valid_at` / `invalid_at`) replacing the fixed expiry.
 4. Reproducible decorrelation evaluation and a `why <entity>` provenance trace.
 5. HTTP API, geocoding, first live layer (CelesTrak), embedded globe.

@@ -34,6 +34,7 @@ sha2 = "0.10"
 async-trait = "0.1"
 gline-rs = "1.1.0"
 orp = "1.0.0"
+rphonetic = "4"
 
 [lints.clippy]
 print_stdout = "allow"

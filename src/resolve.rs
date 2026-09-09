@@ -1,31 +1,37 @@
 //! Tier 1: deterministic, always-on resolution. No LLM calls.
 //!
 //! 1. Extract mentions (GLiNER zero-shot NER when a model is present; regex fallback).
-//! 2. Score each mention against the gazetteer (canonical names + aliases).
-//! 3. score >= AUTO_MERGE_THRESHOLD  -> merge into the matched entity (unless decorrelated).
-//!    score <  NEW_ENTITY_FLOOR / no hit -> new low-confidence entity, flagged needs_llm.
-//!    otherwise -> pending_review for a human or Tier 2.
+//! 2. Block: pull ≤50 candidate entities that share a name key with the mention.
+//! 3. Score each candidate with the multi-signal probabilistic matcher.
+//! 4. Merge (touch the entity), Review (park for a human / Tier 2), or New (create).
+//!
+//! Every candidate row keeps its feature breakdown, so a decision can always be explained.
 
 use anyhow::{bail, Result};
-use chrono::{Duration, Utc};
+use chrono::{DateTime, Duration, Utc};
 use sha2::{Digest, Sha256};
 use sqlx::SqlitePool;
 
 use crate::{
+    block,
     extract::default_extractor,
+    matcher::{decide, score, Candidate, Decision, MatchScore, Weights},
     models::{new_id, now, RawItem, WmEntity},
 };
 
-const AUTO_MERGE_THRESHOLD: f64 = 0.87;
-/// Jaro-Winkler between unrelated names commonly lands at 0.5–0.7, so anything below this
-/// is a new entity, not a review case. Replaced by the probabilistic matcher in Phase 2.
-const NEW_ENTITY_FLOOR: f64 = 0.75;
 /// Lattice caps entity expiry at 30 days out unless `noExpiry` is set explicitly; we mirror
 /// that default rather than letting every fact live forever with equal weight.
 const DEFAULT_EXPIRY_DAYS: i64 = 30;
+const RECENT_DAYS: i64 = 30;
 
 fn default_expiry() -> String {
     (Utc::now() + Duration::days(DEFAULT_EXPIRY_DAYS)).to_rfc3339()
+}
+
+fn is_recent(ts: &str) -> bool {
+    DateTime::parse_from_rfc3339(ts)
+        .map(|t| Utc::now() - t.with_timezone(&Utc) < Duration::days(RECENT_DAYS))
+        .unwrap_or(false)
 }
 
 pub fn content_hash(text: &str) -> String {
@@ -73,32 +79,84 @@ pub struct ResolveStats {
     pub pending_review: usize,
 }
 
-async fn load_gazetteer(pool: &SqlitePool) -> Result<Vec<WmEntity>> {
-    Ok(sqlx::query_as::<_, WmEntity>("SELECT * FROM wm_entities")
-        .fetch_all(pool)
-        .await?)
+async fn cooc_fraction(pool: &SqlitePool, entity_id: &str, cooc_ids: &[String]) -> Result<f64> {
+    if cooc_ids.is_empty() {
+        return Ok(0.0);
+    }
+    let placeholders = cooc_ids.iter().map(|_| "?").collect::<Vec<_>>().join(",");
+    let sql = format!(
+        "SELECT COUNT(*) FROM wm_edges WHERE (from_id = ? AND to_id IN ({placeholders})) \
+         OR (to_id = ? AND from_id IN ({placeholders}))"
+    );
+    let mut q = sqlx::query_as::<_, (i64,)>(&sql).bind(entity_id);
+    for id in cooc_ids {
+        q = q.bind(id);
+    }
+    q = q.bind(entity_id);
+    for id in cooc_ids {
+        q = q.bind(id);
+    }
+    let (n,) = q.fetch_one(pool).await?;
+    Ok((n as f64 / cooc_ids.len() as f64).min(1.0))
 }
 
-fn best_match(mention: &str, gazetteer: &[WmEntity]) -> Option<(String, f64)> {
-    let mut best: Option<(String, f64)> = None;
-    for entity in gazetteer {
-        let mut candidates = vec![entity.canonical_name.clone()];
-        candidates.extend(entity.alias_list());
-        for name in candidates {
-            let score = strsim::jaro_winkler(&mention.to_lowercase(), &name.to_lowercase());
-            if best.as_ref().map(|(_, s)| score > *s).unwrap_or(true) {
-                best = Some((entity.id.clone(), score));
-            }
+async fn corroboration_count(pool: &SqlitePool, entity_id: &str) -> Result<u32> {
+    let (n,): (i64,) = sqlx::query_as(
+        "SELECT COUNT(DISTINCT source_item_id) FROM wm_extraction_candidates \
+         WHERE best_match_entity_id = ? AND status IN ('auto_merged', 'resolved')",
+    )
+    .bind(entity_id)
+    .fetch_one(pool)
+    .await?;
+    Ok(n as u32)
+}
+
+/// Best-scoring existing entity for a mention, via blocking + the probabilistic matcher.
+/// `cooc_ids` are entities already resolved from the same source item (context evidence).
+pub async fn best_candidate(
+    pool: &SqlitePool,
+    mention: &str,
+    mention_type: Option<&str>,
+    cooc_ids: &[String],
+    weights: &Weights,
+) -> Result<Option<(WmEntity, MatchScore)>> {
+    let mut best: Option<(WmEntity, MatchScore)> = None;
+    for ent in block::candidates_for(pool, mention).await? {
+        let cooc = cooc_fraction(pool, &ent.id, cooc_ids).await?;
+        let corroboration = corroboration_count(pool, &ent.id).await?;
+        let aliases = ent.alias_list();
+        let cand = Candidate {
+            canonical: &ent.canonical_name,
+            aliases: &aliases,
+            entity_type: &ent.entity_type,
+            cooc,
+            corroboration,
+            recent: is_recent(&ent.last_seen),
+        };
+        let ms = score(mention, mention_type, &cand, weights);
+        if best
+            .as_ref()
+            .map(|(_, b)| ms.total > b.total)
+            .unwrap_or(true)
+        {
+            best = Some((ent, ms));
         }
     }
-    best
+    Ok(best)
 }
 
 /// Run the Tier 1 pass over every `pending` source item, capped at `limit` items per call.
 pub async fn resolve_pending(pool: &SqlitePool, limit: i64) -> Result<ResolveStats> {
     let mut stats = ResolveStats::default();
     let extractor = default_extractor()?;
-    tracing::info!(extractor = extractor.name(), "tier 1 extractor");
+    let weights = Weights::from_env();
+    block::ensure_index(pool).await?;
+    tracing::info!(
+        extractor = extractor.name(),
+        upper = weights.upper,
+        lower = weights.lower,
+        "tier 1"
+    );
 
     let items: Vec<(String, String)> =
         sqlx::query_as("SELECT id, raw_text FROM wm_source_items WHERE status = 'pending' LIMIT ?")
@@ -115,65 +173,58 @@ pub async fn resolve_pending(pool: &SqlitePool, limit: i64) -> Result<ResolveSta
         for m in mentions {
             let mention = m.text.as_str();
             let label = m.label.as_deref();
-            // reload gazetteer each mention so within-item co-mentions can also resolve
-            // against entities newly created earlier in this same loop
-            let gazetteer = load_gazetteer(pool).await?;
-            let matched = best_match(mention, &gazetteer);
+            let confidence = f64::from(m.score).clamp(0.3, 0.9);
+            let best = best_candidate(pool, mention, label, &resolved_entity_ids, &weights).await?;
 
-            let (status, entity_id, score) = match matched {
-                Some((eid, score)) if score >= AUTO_MERGE_THRESHOLD => {
-                    touch_entity(pool, &eid).await?;
-                    stats.auto_merged += 1;
-                    ("auto_merged", Some(eid), Some(score))
-                }
-                Some((_, score)) if score < NEW_ENTITY_FLOOR => {
-                    let eid = create_entity(
-                        pool,
-                        mention,
-                        label.unwrap_or("unknown"),
-                        f64::from(m.score).clamp(0.3, 0.9),
-                    )
-                    .await?;
-                    stats.new_entities += 1;
-                    any_needs_llm = true;
-                    ("needs_llm", Some(eid), Some(score))
-                }
+            let (status, entity_id, total, features) = match best {
+                Some((ent, ms)) => match decide(ms.total, &weights) {
+                    Decision::Merge => {
+                        touch_entity(pool, &ent.id).await?;
+                        stats.auto_merged += 1;
+                        ("auto_merged", ent.id, Some(ms.total), Some(ms))
+                    }
+                    Decision::Review => {
+                        stats.pending_review += 1;
+                        any_needs_llm = true;
+                        ("pending_review", ent.id, Some(ms.total), Some(ms))
+                    }
+                    Decision::New => {
+                        let eid =
+                            create_entity(pool, mention, label.unwrap_or("unknown"), confidence)
+                                .await?;
+                        stats.new_entities += 1;
+                        any_needs_llm = true;
+                        ("needs_llm", eid, Some(ms.total), Some(ms))
+                    }
+                },
                 None => {
-                    let eid = create_entity(
-                        pool,
-                        mention,
-                        label.unwrap_or("unknown"),
-                        f64::from(m.score).clamp(0.3, 0.9),
-                    )
-                    .await?;
+                    let eid = create_entity(pool, mention, label.unwrap_or("unknown"), confidence)
+                        .await?;
                     stats.new_entities += 1;
                     any_needs_llm = true;
-                    ("needs_llm", Some(eid), None)
-                }
-                Some((eid, score)) => {
-                    stats.pending_review += 1;
-                    any_needs_llm = true;
-                    ("pending_review", Some(eid.clone()), Some(score))
+                    ("needs_llm", eid, None, None)
                 }
             };
+            let features_json = features.map(|f| serde_json::to_string(&f).unwrap_or_default());
 
             sqlx::query(
-                "INSERT INTO wm_extraction_candidates (id, source_item_id, mention_text, mention_type_guess, best_match_entity_id, match_score, status, created_at) \
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO wm_extraction_candidates (id, source_item_id, mention_text, mention_type_guess, best_match_entity_id, match_score, status, created_at, feature_scores) \
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             )
             .bind(new_id())
             .bind(&item_id)
             .bind(mention)
             .bind(label)
             .bind(&entity_id)
-            .bind(score)
+            .bind(total)
             .bind(status)
             .bind(now())
+            .bind(features_json)
             .execute(pool)
             .await?;
 
-            if let Some(eid) = entity_id {
-                resolved_entity_ids.push(eid);
+            if !resolved_entity_ids.contains(&entity_id) {
+                resolved_entity_ids.push(entity_id);
             }
         }
 
@@ -224,6 +275,7 @@ async fn create_entity(
     .bind(&ts)
     .execute(pool)
     .await?;
+    block::index_entity(pool, &id, mention, &[]).await?;
     Ok(id)
 }
 
@@ -287,7 +339,7 @@ pub async fn decorrelate(
     Ok(())
 }
 
-async fn is_decorrelated(pool: &SqlitePool, entity_a: &str, entity_b: &str) -> Result<bool> {
+pub async fn is_decorrelated(pool: &SqlitePool, entity_a: &str, entity_b: &str) -> Result<bool> {
     let (a, b) = if entity_a < entity_b {
         (entity_a, entity_b)
     } else {
@@ -362,6 +414,7 @@ pub async fn merge_entities(pool: &SqlitePool, keep_id: &str, absorb_id: &str) -
         .bind(absorb_id)
         .execute(pool)
         .await?;
+    block::index_entity(pool, keep_id, &keep.canonical_name, &aliases).await?;
 
     Ok(())
 }
@@ -383,8 +436,9 @@ pub async fn link_entities_typed(
         return Ok(());
     }
     let existing: Option<(String, String)> = sqlx::query_as(
-        "SELECT id, source_item_ids FROM wm_edges WHERE (from_id = ? AND to_id = ?) OR (from_id = ? AND to_id = ?)",
+        "SELECT id, source_item_ids FROM wm_edges WHERE edge_type = ? AND ((from_id = ? AND to_id = ?) OR (from_id = ? AND to_id = ?))",
     )
+    .bind(edge_type)
     .bind(a)
     .bind(b)
     .bind(b)
@@ -397,14 +451,12 @@ pub async fn link_entities_typed(
         if !ids.contains(&source_item_id.to_string()) {
             ids.push(source_item_id.to_string());
         }
-        sqlx::query(
-            "UPDATE wm_edges SET weight = weight + 1, source_item_ids = ?, last_seen = ? WHERE id = ?",
-        )
-        .bind(serde_json::to_string(&ids)?)
-        .bind(now())
-        .bind(&edge_id)
-        .execute(pool)
-        .await?;
+        sqlx::query("UPDATE wm_edges SET weight = weight + 1, source_item_ids = ?, last_seen = ? WHERE id = ?")
+            .bind(serde_json::to_string(&ids)?)
+            .bind(now())
+            .bind(&edge_id)
+            .execute(pool)
+            .await?;
     } else {
         let ts = now();
         sqlx::query(
@@ -425,9 +477,9 @@ pub async fn link_entities_typed(
 }
 
 /// Tier 2 entry point: resolve an LLM-proposed entity (mention + normalized canonical_name)
-/// against the existing gazetteer using the same Jaro-Winkler check Tier 1 uses, so LLM
-/// output is never blindly trusted into a duplicate node. Returns the entity id, creating
-/// one if nothing matched closely enough.
+/// through the same blocking + matcher path as any other mention, so LLM output is never
+/// trusted blindly into a duplicate node. Returns the entity id, creating one if nothing
+/// matched confidently enough.
 pub async fn upsert_resolved_entity(
     pool: &SqlitePool,
     mention: &str,
@@ -435,19 +487,18 @@ pub async fn upsert_resolved_entity(
     entity_type: &str,
     confidence: f64,
 ) -> Result<String> {
-    let gazetteer = load_gazetteer(pool).await?;
-    let matched =
-        best_match(canonical_name, &gazetteer).filter(|(_, score)| *score >= AUTO_MERGE_THRESHOLD);
+    let weights = Weights::from_env();
+    let best = best_candidate(pool, canonical_name, Some(entity_type), &[], &weights).await?;
+    let matched = best.filter(|(_, ms)| decide(ms.total, &weights) == Decision::Merge);
 
-    if let Some((id, _)) = matched {
-        let existing = gazetteer.iter().find(|e| e.id == id);
-        let mut aliases = existing.map(|e| e.alias_list()).unwrap_or_default();
-        if !aliases.contains(&mention.to_string()) && mention != canonical_name {
-            aliases.push(mention.to_string());
+    if let Some((existing, _)) = matched {
+        let mut aliases = existing.alias_list();
+        for a in [mention, canonical_name] {
+            if !aliases.iter().any(|x| x == a) && a != existing.canonical_name {
+                aliases.push(a.to_string());
+            }
         }
-        let new_confidence = existing
-            .map(|e| e.confidence.max(confidence))
-            .unwrap_or(confidence);
+        let new_confidence = existing.confidence.max(confidence);
         let ts = now();
         sqlx::query(
             "UPDATE wm_entities SET entity_type = CASE WHEN entity_type = 'unknown' THEN ? ELSE entity_type END, \
@@ -459,14 +510,15 @@ pub async fn upsert_resolved_entity(
         .bind(&ts)
         .bind(default_expiry())
         .bind(&ts)
-        .bind(&id)
+        .bind(&existing.id)
         .execute(pool)
         .await?;
-        Ok(id)
+        block::index_entity(pool, &existing.id, &existing.canonical_name, &aliases).await?;
+        Ok(existing.id)
     } else {
         let id = new_id();
         let ts = now();
-        let aliases = if mention != canonical_name {
+        let aliases: Vec<String> = if mention != canonical_name {
             vec![mention.to_string()]
         } else {
             vec![]
@@ -486,6 +538,7 @@ pub async fn upsert_resolved_entity(
         .bind(&ts)
         .execute(pool)
         .await?;
+        block::index_entity(pool, &id, canonical_name, &aliases).await?;
         Ok(id)
     }
 }
@@ -527,7 +580,6 @@ mod tests {
         let err = merge_entities(&pool, &a, &b).await.unwrap_err();
         assert!(err.to_string().contains("decorrelated"));
 
-        // both entities must still exist - merge was refused, not partially applied
         let count: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM wm_entities")
             .fetch_one(&pool)
             .await
@@ -558,6 +610,9 @@ mod tests {
             .await
             .unwrap();
         assert!(kept.alias_list().contains(&"RF Inc".to_string()));
+        // merged alias is now a blocking key for the kept entity
+        let cands = block::candidates_for(&pool, "RF Inc").await.unwrap();
+        assert!(cands.iter().any(|e| e.id == a));
     }
 
     #[tokio::test]
@@ -566,7 +621,6 @@ mod tests {
         let id = create_entity(&pool, "Some Corp", "organization", 0.5)
             .await
             .unwrap();
-        // force it into the past so expire_stale_entities has something to catch
         sqlx::query("UPDATE wm_entities SET expiry_time = '2000-01-01T00:00:00Z' WHERE id = ?")
             .bind(&id)
             .execute(&pool)
@@ -592,5 +646,55 @@ mod tests {
             row.0, 1,
             "a fresh source touch should revive an expired entity"
         );
+    }
+
+    #[tokio::test]
+    async fn blocking_plus_matcher_merges_variant_and_rejects_lookalike() {
+        let pool = memory_pool().await;
+        let mistral = create_entity(&pool, "Mistral AI", "organization", 0.8)
+            .await
+            .unwrap();
+        let _coinbase = create_entity(&pool, "Coinbase", "organization", 0.8)
+            .await
+            .unwrap();
+        let w = Weights::default();
+
+        let best = best_candidate(&pool, "Mistral", Some("organization"), &[], &w)
+            .await
+            .unwrap();
+        let (ent, ms) = best.expect("candidate");
+        assert_eq!(ent.id, mistral);
+        assert_eq!(decide(ms.total, &w), Decision::Merge, "{ms:?}");
+
+        let best = best_candidate(&pool, "CoinShares", Some("organization"), &[], &w)
+            .await
+            .unwrap();
+        if let Some((_, ms)) = best {
+            assert_ne!(decide(ms.total, &w), Decision::Merge, "{ms:?}");
+        }
+    }
+
+    #[tokio::test]
+    async fn tier2_upsert_reuses_matching_entity() {
+        let pool = memory_pool().await;
+        let id = create_entity(&pool, "Federal Trade Commission", "organization", 0.8)
+            .await
+            .unwrap();
+        let got = upsert_resolved_entity(
+            &pool,
+            "FTC",
+            "Federal Trade Commission",
+            "organization",
+            0.9,
+        )
+        .await
+        .unwrap();
+        assert_eq!(got, id);
+        let ent: WmEntity = sqlx::query_as("SELECT * FROM wm_entities WHERE id = ?")
+            .bind(&id)
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+        assert!(ent.alias_list().contains(&"FTC".to_string()));
     }
 }

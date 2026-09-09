@@ -1,0 +1,261 @@
+{"mention":"rebecca.bellan","mention_type":"person","candidate":"Rebecca Bellan","candidate_type":"person","candidate_aliases":[],"is_match":true}
+{"mention":"tim.fernholz","mention_type":"person","candidate":"Tim Fernholz","candidate_type":"person","candidate_aliases":[],"is_match":true}
+{"mention":"tim_fernholz","mention_type":"person","candidate":"Tim Fernholz","candidate_type":"person","candidate_aliases":[],"is_match":true}
+{"mention":"Mistral","mention_type":"organization","candidate":"Mistral AI","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"Hugging Face hacking incident","mention_type":"event","candidate":"Hugging Face incident","candidate_type":"event","candidate_aliases":[],"is_match":true}
+{"mention":"Astra","mention_type":"product","candidate":"Astra model","candidate_type":"product","candidate_aliases":["Astra model"],"is_match":true}
+{"mention":"Redwood","mention_type":"organization","candidate":"Redwood Research","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"Hegotá","mention_type":"event","candidate":"Hegotá upgrade","candidate_type":"event","candidate_aliases":[],"is_match":true}
+{"mention":"Mosaic","mention_type":"organization","candidate":"Mosaic Asset Company","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"US Federal Reserve","mention_type":"organization","candidate":"Federal Reserve","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"US","mention_type":"location","candidate":"U.S.","candidate_type":"location","candidate_aliases":[],"is_match":true}
+{"mention":"Bitmine","mention_type":"organization","candidate":"Bitmine Immersion Technologies","candidate_type":"organization","candidate_aliases":["Bitmine"],"is_match":true}
+{"mention":"Meta Platforms Inc.","mention_type":"organization","candidate":"Meta","candidate_type":"organization","candidate_aliases":["META"],"is_match":true}
+{"mention":"Butterfill","mention_type":"person","candidate":"James Butterfil","candidate_type":"person","candidate_aliases":[],"is_match":true}
+{"mention":"Steinhardt","mention_type":"person","candidate":"Jacob Steinhardt","candidate_type":"person","candidate_aliases":[],"is_match":true}
+{"mention":"The startup community","mention_type":"organization","candidate":"startup community","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"Open AI","mention_type":"organization","candidate":"OpenAI","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"Openai","mention_type":"organization","candidate":"OpenAI","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"Recorded Futur","mention_type":"organization","candidate":"Recorded Future","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"RF","mention_type":"organization","candidate":"Recorded Future","candidate_type":"organization","candidate_aliases":["RF"],"is_match":true}
+{"mention":"Meta","mention_type":"organization","candidate":"Meta Platforms Inc.","candidate_type":"organization","candidate_aliases":["Meta"],"is_match":true}
+{"mention":"Andreessen Horowitz","mention_type":"organization","candidate":"a16z","candidate_type":"organization","candidate_aliases":["Andreessen Horowitz"],"is_match":true}
+{"mention":"Federal Trade Commission","mention_type":"organization","candidate":"FTC","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"FTC","mention_type":"organization","candidate":"Federal Trade Commission","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"NYT","mention_type":"organization","candidate":"The New York Times","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"Jack Mallers","mention_type":"person","candidate":"Jack Mallers","candidate_type":"person","candidate_aliases":[],"is_match":true}
+{"mention":"Mallers","mention_type":"person","candidate":"Jack Mallers","candidate_type":"person","candidate_aliases":[],"is_match":true}
+{"mention":"Dario Amodei","mention_type":"person","candidate":"Dario Amodei","candidate_type":"person","candidate_aliases":[],"is_match":true}
+{"mention":"Amodei","mention_type":"person","candidate":"Dario Amodei","candidate_type":"person","candidate_aliases":[],"is_match":true}
+{"mention":"Google DeepMind","mention_type":"organization","candidate":"DeepMind","candidate_type":"organization","candidate_aliases":["Google DeepMind"],"is_match":true}
+{"mention":"Microsoft Corp.","mention_type":"organization","candidate":"Microsoft","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"Nvidia Corporation","mention_type":"organization","candidate":"Nvidia","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"NVIDIA","mention_type":"organization","candidate":"Nvidia","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"Anthropic PBC","mention_type":"organization","candidate":"Anthropic","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"U.S. Securities and Exchange Commission","mention_type":"organization","candidate":"SEC","candidate_type":"organization","candidate_aliases":["Securities and Exchange Commission"],"is_match":true}
+{"mention":"BTC","mention_type":"product","candidate":"Bitcoin","candidate_type":"product","candidate_aliases":["BTC"],"is_match":true}
+{"mention":"United Kingdom","mention_type":"location","candidate":"U.K.","candidate_type":"location","candidate_aliases":["UK","United Kingdom"],"is_match":true}
+{"mention":"Washington, DC","mention_type":"location","candidate":"Washington, D.C.","candidate_type":"location","candidate_aliases":[],"is_match":true}
+{"mention":"Altman","mention_type":"person","candidate":"Sam Altman","candidate_type":"person","candidate_aliases":[],"is_match":true}
+{"mention":"Travis Kalanick","mention_type":"person","candidate":"Travis Kalanick","candidate_type":"person","candidate_aliases":[],"is_match":true}
+{"mention":"Coinbase Global","mention_type":"organization","candidate":"Coinbase","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"Tesla Inc","mention_type":"organization","candidate":"Tesla","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"Amazon.com","mention_type":"organization","candidate":"Amazon","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"Alphabet Inc","mention_type":"organization","candidate":"Alphabet","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"Bank of America Corp","mention_type":"organization","candidate":"Bank of America","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"JP Morgan","mention_type":"organization","candidate":"JPMorgan Chase","candidate_type":"organization","candidate_aliases":["JPMorgan"],"is_match":true}
+{"mention":"Goldman","mention_type":"organization","candidate":"Goldman Sachs","candidate_type":"organization","candidate_aliases":[],"is_match":true}
+{"mention":"Kalanick","mention_type":"person","candidate":"Travis Kalanick","candidate_type":"person","candidate_aliases":[],"is_match":true}
+{"mention":"Zuckerberg","mention_type":"person","candidate":"Mark Zuckerberg","candidate_type":"person","candidate_aliases":[],"is_match":true}
+{"mention":"Elon Musk","mention_type":"person","candidate":"Elon Musk","candidate_type":"person","candidate_aliases":[],"is_match":true}
+{"mention":"Washington","mention_type":"location","candidate":"Washington, D.C.","candidate_type":"location","candidate_aliases":[],"is_match":false}
+{"mention":"New York","mention_type":"location","candidate":"New York City","candidate_type":"location","candidate_aliases":["NYU"],"is_match":false}
+{"mention":"New York state","mention_type":"location","candidate":"New York City","candidate_type":"location","candidate_aliases":["NYU"],"is_match":false}
+{"mention":"sarahp","mention_type":"person","candidate":"Sarah","candidate_type":"person","candidate_aliases":["Sarah"],"is_match":false}
+{"mention":"sarahperez","mention_type":"person","candidate":"Sarah","candidate_type":"person","candidate_aliases":["Sarah"],"is_match":false}
+{"mention":"agents","mention_type":"organization","candidate":"agent","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"user","mention_type":"person","candidate":"users","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"ZCSH","mention_type":"product","candidate":"Zcash","candidate_type":"product","candidate_aliases":["ZEC"],"is_match":false}
+{"mention":"Anthony","mention_type":"person","candidate":"Anthony Ha","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Christopher Waller","mention_type":"person","candidate":"Christopher Woolard","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"frontier lab","mention_type":"organization","candidate":"frontier AI labs","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"attacker","mention_type":"person","candidate":"attacks","candidate_type":"event","candidate_aliases":[],"is_match":false}
+{"mention":"CFTC","mention_type":"organization","candidate":"FTC","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"TechCrunch Disrupt","mention_type":"event","candidate":"TechCrunch","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Claude","mention_type":"person","candidate":"Claude Code","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"frontier AI companies","mention_type":"organization","candidate":"frontier AI labs","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Authors Guild","mention_type":"organization","candidate":"Authors","candidate_type":"person","candidate_aliases":["Authors"],"is_match":false}
+{"mention":"ChatGPT","mention_type":"product","candidate":"ChatGPT Atlas","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"Google","mention_type":"organization","candidate":"Google Cloud","candidate_type":"organization","candidate_aliases":["Google","Chrome","Gemini"],"is_match":false}
+{"mention":"Rebecca","mention_type":"person","candidate":"Rebecca Bellan","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Gemini","mention_type":"organization","candidate":"Gemini Spark","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"Tectonic","mention_type":"organization","candidate":"Tectonic exploit","candidate_type":"event","candidate_aliases":["Tectonic lending markets"],"is_match":false}
+{"mention":"Zcash Trust","mention_type":"product","candidate":"Zcash","candidate_type":"product","candidate_aliases":["ZEC"],"is_match":false}
+{"mention":"Anthropic settlement","mention_type":"event","candidate":"Anthropic","candidate_type":"organization","candidate_aliases":["anthropic"],"is_match":false}
+{"mention":"Mount Shasta ranger station","mention_type":"location","candidate":"Mount Shasta","candidate_type":"location","candidate_aliases":["Mount Shasta"],"is_match":false}
+{"mention":"home","mention_type":"location","candidate":"Chrome","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"TechCrunch Disrupt 2026","mention_type":"event","candidate":"TechCrunch","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"CoinShares","mention_type":"organization","candidate":"Coinbase","candidate_type":"organization","candidate_aliases":["Coinbase"],"is_match":false}
+{"mention":"METR","mention_type":"organization","candidate":"Meta","candidate_type":"organization","candidate_aliases":["META"],"is_match":false}
+{"mention":"CoinGlass","mention_type":"organization","candidate":"Coinbase","candidate_type":"organization","candidate_aliases":["Coinbase"],"is_match":false}
+{"mention":"Cognizant","mention_type":"organization","candidate":"Cognition","candidate_type":"organization","candidate_aliases":["Cognition"],"is_match":false}
+{"mention":"Ryan Lee","mention_type":"person","candidate":"Ryan Greenblatt","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Uzbekistan","mention_type":"location","candidate":"Uzbekistan's central bank","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Metaplanet","mention_type":"organization","candidate":"Meta","candidate_type":"organization","candidate_aliases":["META"],"is_match":false}
+{"mention":"Micro1","mention_type":"product","candidate":"Microsoft","candidate_type":"organization","candidate_aliases":["Microsoft"],"is_match":false}
+{"mention":"Jackson Hole economic symposium","mention_type":"event","candidate":"Jackson Hole","candidate_type":"location","candidate_aliases":[],"is_match":false}
+{"mention":"Anthony Levandowski","mention_type":"person","candidate":"Anthony Ha","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"public hearing","mention_type":"event","candidate":"publishers","candidate_type":"organization","candidate_aliases":["Publishers"],"is_match":false}
+{"mention":"AI labs","mention_type":"organization","candidate":"AI glasses","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"OpenAI-affiliated","mention_type":"organization","candidate":"OpenAI","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Liquid Federation","mention_type":"organization","candidate":"Liquid","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Shop Pay","mention_type":"product","candidate":"Shopify","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Cryptolink","mention_type":"organization","candidate":"CryptoQuant","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"The moderator","mention_type":"person","candidate":"The Information","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"CalSTRS","mention_type":"organization","candidate":"CalPERS","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Ode","mention_type":"organization","candidate":"Codex","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"U.K.","mention_type":"location","candidate":"U.S.","candidate_type":"location","candidate_aliases":[],"is_match":false}
+{"mention":"moratorium","mention_type":"event","candidate":"moderator","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Regulators","mention_type":"organization","candidate":"Reuters","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Romana Ż.","mention_type":"person","candidate":"Roman Novak","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"data breach","mention_type":"event","candidate":"data centers","candidate_type":"location","candidate_aliases":[],"is_match":false}
+{"mention":"Jonathan Meléndez","mention_type":"person","candidate":"Jonathan Parker","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Gemini Enterprise platform","mention_type":"product","candidate":"Gemini Spark","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"New Jersey","mention_type":"location","candidate":"New Space Race","candidate_type":"event","candidate_aliases":[],"is_match":false}
+{"mention":"Accenture","mention_type":"organization","candidate":"Accel","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Bitcoin","mention_type":"product","candidate":"Bitcoin exchange-traded funds","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"Readers","mention_type":"person","candidate":"Reuters","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Singapore","mention_type":"location","candidate":"Singapore-based financial services group","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"consoles","mention_type":"product","candidate":"Congress","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"open internet","mention_type":"location","candidate":"OpenAI","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"German wiki forum","mention_type":"location","candidate":"Germany","candidate_type":"location","candidate_aliases":[],"is_match":false}
+{"mention":"VentureBeat","mention_type":"organization","candidate":"Venture Capital Journal","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Advent","mention_type":"organization","candidate":"agent","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Google DeepMind","mention_type":"organization","candidate":"Google Cloud","candidate_type":"organization","candidate_aliases":["Google","Chrome","Gemini"],"is_match":false}
+{"mention":"National Agency for Prospective Projects","mention_type":"organization","candidate":"National Transportation Safety Board","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Fed","mention_type":"organization","candidate":"federation","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"CoinGecko","mention_type":"organization","candidate":"Coinbase","candidate_type":"organization","candidate_aliases":["Coinbase"],"is_match":false}
+{"mention":"Crypto.com","mention_type":"organization","candidate":"crypto mining companies","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Australia","mention_type":"location","candidate":"Australian Transaction Reports and Analysis Centre","candidate_type":"organization","candidate_aliases":["AUSTRAC"],"is_match":false}
+{"mention":"Scale AI","mention_type":"organization","candidate":"Scaleup Europe","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"OpenUSD stablecoin","mention_type":"product","candidate":"OpenStandard consortium","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"The Seattle Times","mention_type":"organization","candidate":"The Atlantic","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Citi","mention_type":"organization","candidate":"Cognition","candidate_type":"organization","candidate_aliases":["Cognition"],"is_match":false}
+{"mention":"The Next Web","mention_type":"organization","candidate":"The Verge","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"CPUs","mention_type":"product","candidate":"GPUs","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"TPUs","mention_type":"product","candidate":"GPUs","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"The New York Times","mention_type":"organization","candidate":"The Verge","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Ryan Firth","mention_type":"person","candidate":"Ryan Greenblatt","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"The Times","mention_type":"organization","candidate":"The Atlantic","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"The Clearing House","mention_type":"organization","candidate":"The Verge","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"disaster","mention_type":"event","candidate":"Dia","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"CoinMarketCap","mention_type":"organization","candidate":"Cointelegraph","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"National Anti-Scam Centre","mention_type":"organization","candidate":"National Transportation Safety Board","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"incident","mention_type":"event","candidate":"wiki incident","candidate_type":"event","candidate_aliases":[],"is_match":false}
+{"mention":"France","mention_type":"location","candidate":"France-listed Bitcoin treasury Capital B","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Financial Conduct Authority","mention_type":"organization","candidate":"Financial Times","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"applications","mention_type":"product","candidate":"Apple","candidate_type":"organization","candidate_aliases":["Apple"],"is_match":false}
+{"mention":"Federal Open Market Committee","mention_type":"organization","candidate":"Federal Reserve","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"The Daily Beast","mention_type":"organization","candidate":"The Atlantic","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"common council","mention_type":"organization","candidate":"commercial product","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"Bitcoin Group SE","mention_type":"organization","candidate":"BitcoinTreasuries.net","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"LawAI","mention_type":"organization","candidate":"lawmakers","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"major companies","mention_type":"organization","candidate":"AI companies","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Reddit","mention_type":"organization","candidate":"Replit","candidate_type":"organization","candidate_aliases":["Replit"],"is_match":false}
+{"mention":"Irfan Ganchi","mention_type":"person","candidate":"Iran","candidate_type":"location","candidate_aliases":[],"is_match":false}
+{"mention":"FTX","mention_type":"organization","candidate":"FTC","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Foundation","mention_type":"organization","candidate":"federation","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"tech companies","mention_type":"organization","candidate":"AI companies","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Middle East","mention_type":"location","candidate":"Media outlets","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Atoms","mention_type":"organization","candidate":"Authors","candidate_type":"person","candidate_aliases":["Authors"],"is_match":false}
+{"mention":"Mary Rasenberger","mention_type":"person","candidate":"Mark Zuckerberg","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Forest Service","mention_type":"organization","candidate":"Forbes","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Diario de México","mention_type":"organization","candidate":"Dia","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"STRC","mention_type":"organization","candidate":"Strauss","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Stripe","mention_type":"organization","candidate":"Strategy","candidate_type":"organization","candidate_aliases":["Strategy","Michael Saylor's Strategy"],"is_match":false}
+{"mention":"Strive","mention_type":"organization","candidate":"Strategy","candidate_type":"organization","candidate_aliases":["Strategy","Michael Saylor's Strategy"],"is_match":false}
+{"mention":"Frame Transactions","mention_type":"product","candidate":"Franklin Templeton","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"BitBay","mention_type":"organization","candidate":"Bitquery","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Treasury","mention_type":"organization","candidate":"Trezor","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Uber","mention_type":"organization","candidate":"users","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Ophelia Snyder","mention_type":"person","candidate":"OpenAI","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"US Treasury","mention_type":"organization","candidate":"users","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Gerardo","mention_type":"person","candidate":"Germany","candidate_type":"location","candidate_aliases":[],"is_match":false}
+{"mention":"Apollo Research","mention_type":"organization","candidate":"AI Research lab","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Senate","mention_type":"organization","candidate":"Shentu","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Opera Neon","mention_type":"product","candidate":"OpenAI","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"AI boom","mention_type":"event","candidate":"AI companies","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"President Donald Trump","mention_type":"person","candidate":"prediction markets","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"futures","mention_type":"product","candidate":"AI Futures Project","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Bernstein","mention_type":"organization","candidate":"Jensen","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Grayscale","mention_type":"organization","candidate":"Oracle","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Series D","mention_type":"product","candidate":"ServiceNow","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Tom Lee","mention_type":"person","candidate":"Thomas Larsen","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Ethereum Foundation","mention_type":"organization","candidate":"The Information","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Christopher Jensen","mention_type":"person","candidate":"Chrome","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"FDEs","mention_type":"organization","candidate":"Founders Fund","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Samson Mow","mention_type":"person","candidate":"SMS","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"Democrat","mention_type":"person","candidate":"moderator","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Transluce","mention_type":"organization","candidate":"Tristan Buckmaster","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Joe Biden","mention_type":"person","candidate":"Hunter Biden","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Muse","mention_type":"product","candidate":"users","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"NAPP","mention_type":"organization","candidate":"Apple","candidate_type":"organization","candidate_aliases":["Apple"],"is_match":false}
+{"mention":"Trump","mention_type":"person","candidate":"Ramp","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Blockstream","mention_type":"organization","candidate":"Buckmaster","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"developer","mention_type":"person","candidate":"Deloitte","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"CoinGecko","mention_type":"organization","candidate":"Congress","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Japan Research Institute","mention_type":"organization","candidate":"Itochu Research Institute","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Cohere","mention_type":"product","candidate":"Chrome","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"Michael Saylor","mention_type":"person","candidate":"Mike Lawler","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Thrive Capital","mention_type":"organization","candidate":"The Atlantic","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"GPT models","mention_type":"product","candidate":"Astra model","candidate_type":"product","candidate_aliases":["Astra model"],"is_match":false}
+{"mention":"Australia","mention_type":"location","candidate":"Mistral AI","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"intern","mention_type":"person","candidate":"Instinct","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"La Jornada","mention_type":"organization","candidate":"Canada","candidate_type":"location","candidate_aliases":[],"is_match":false}
+{"mention":"France","mention_type":"location","candidate":"Oracle","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Parker","mention_type":"person","candidate":"farmer","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Circle","mention_type":"organization","candidate":"Oracle","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Cronos","mention_type":"organization","candidate":"Macron","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"UBS","mention_type":"organization","candidate":"DBS","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"April Henry","mention_type":"person","candidate":"Apple","candidate_type":"organization","candidate_aliases":["Apple"],"is_match":false}
+{"mention":"Biden","mention_type":"person","candidate":"Bill Bengen","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Japan","mention_type":"location","candidate":"Jam Xchange","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Aker","mention_type":"organization","candidate":"Avenir","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Nevada","mention_type":"location","candidate":"NASA","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"annatechcrunch","mention_type":"person","candidate":"TechCrunch","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"AUSTRAC","mention_type":"organization","candidate":"Authors","candidate_type":"person","candidate_aliases":["Authors"],"is_match":false}
+{"mention":"VisaNet","mention_type":"organization","candidate":"VivaTech","candidate_type":"event","candidate_aliases":[],"is_match":false}
+{"mention":"MIT","mention_type":"organization","candidate":"Marina Temkin","candidate_type":"person","candidate_aliases":["Marina Temkin"],"is_match":false}
+{"mention":"AI Safety Institute","mention_type":"organization","candidate":"Clay Mathematics Institute","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Rekt Capital","mention_type":"organization","candidate":"Venture Capital Journal","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Mecka AI","mention_type":"organization","candidate":"Meta","candidate_type":"organization","candidate_aliases":["META"],"is_match":false}
+{"mention":"Ted Chen","mention_type":"person","candidate":"TechCrunch","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Visa","mention_type":"organization","candidate":"VivaTech","candidate_type":"event","candidate_aliases":[],"is_match":false}
+{"mention":"Asterium","mention_type":"organization","candidate":"ASST","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"administrator","mention_type":"person","candidate":"AI industry","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Alpöge","mention_type":"person","candidate":"Apple","candidate_type":"organization","candidate_aliases":["Apple"],"is_match":false}
+{"mention":"GELLO","mention_type":"product","candidate":"Google Cloud","candidate_type":"organization","candidate_aliases":["Google","Chrome","Gemini"],"is_match":false}
+{"mention":"lenders","mention_type":"organization","candidate":"developers","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"US Supreme Court","mention_type":"organization","candidate":"users","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Matt Cole","mention_type":"person","candidate":"Macron","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Spencer Kitts","mention_type":"person","candidate":"Spark Capital","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"hacking incidents","mention_type":"event","candidate":"Hugging Face incident","candidate_type":"event","candidate_aliases":[],"is_match":false}
+{"mention":"StablecoinX","mention_type":"organization","candidate":"ABC","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"stablecoins","mention_type":"product","candidate":"ABC","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"consumers","mention_type":"person","candidate":"Cursor","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"aviation accidents","mention_type":"event","candidate":"AI companies","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Adam Aron","mention_type":"person","candidate":"Amazon","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Lux","mention_type":"organization","candidate":"Linux Foundation","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"CME Group","mention_type":"organization","candidate":"H100 Group","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"sports contracts","mention_type":"product","candidate":"perpetual contracts","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"Newsday","mention_type":"organization","candidate":"NASA","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"SAP","mention_type":"organization","candidate":"startup community","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Magazine","mention_type":"organization","candidate":"Amazon","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Anna","mention_type":"person","candidate":"Canada","candidate_type":"location","candidate_aliases":[],"is_match":false}
+{"mention":"Tim Cook","mention_type":"person","candidate":"PitchBook","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Ethena","mention_type":"organization","candidate":"Meta","candidate_type":"organization","candidate_aliases":["META"],"is_match":false}
+{"mention":"GetCoins","mention_type":"product","candidate":"Coinbase","candidate_type":"organization","candidate_aliases":["Coinbase"],"is_match":false}
+{"mention":"Ethereum","mention_type":"organization","candidate":"The Verge","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"memecoin","mention_type":"product","candidate":"Macron","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"US Labor Day holiday","mention_type":"event","candidate":"Sarah","candidate_type":"person","candidate_aliases":["Sarah"],"is_match":false}
+{"mention":"ANZ","mention_type":"organization","candidate":"a16z","candidate_type":"organization","candidate_aliases":["Andreessen Horowitz"],"is_match":false}
+{"mention":"Apple Inc","mention_type":"organization","candidate":"Apple Records","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Jack Dorsey","mention_type":"person","candidate":"Jack Mallers","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Sam Altman","mention_type":"person","candidate":"Sam Bankman-Fried","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"OpenAI","mention_type":"organization","candidate":"OpenSea","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Meta","mention_type":"organization","candidate":"METR","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Microsoft","mention_type":"organization","candidate":"Microsoft Research","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Ethereum","mention_type":"product","candidate":"Ethereum Foundation","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Circle","mention_type":"organization","candidate":"Circle K","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"SEC","mention_type":"organization","candidate":"SECO","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"IBM","mention_type":"organization","candidate":"IBB","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Amazon","mention_type":"organization","candidate":"Amazon River","candidate_type":"location","candidate_aliases":[],"is_match":false}
+{"mention":"Paris","mention_type":"location","candidate":"Paris Hilton","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Jordan","mention_type":"location","candidate":"Michael Jordan","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Mercury","mention_type":"product","candidate":"Mercury","candidate_type":"location","candidate_aliases":[],"is_match":false}
+{"mention":"Delta","mention_type":"organization","candidate":"Delta","candidate_type":"location","candidate_aliases":[],"is_match":false}
+{"mention":"Morgan Stanley","mention_type":"organization","candidate":"JPMorgan Chase","candidate_type":"organization","candidate_aliases":["JPMorgan"],"is_match":false}
+{"mention":"Goldman Sachs","mention_type":"organization","candidate":"Goldman Sachs Asset Management","candidate_type":"organization","candidate_aliases":[],"is_match":false}
+{"mention":"Elon Musk","mention_type":"person","candidate":"Kimbal Musk","candidate_type":"person","candidate_aliases":[],"is_match":false}
+{"mention":"Alphabet","mention_type":"organization","candidate":"Alphabet Soup","candidate_type":"product","candidate_aliases":[],"is_match":false}
+{"mention":"Tesla","mention_type":"organization","candidate":"Nikola Tesla","candidate_type":"person","candidate_aliases":[],"is_match":false}

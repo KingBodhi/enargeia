@@ -1,9 +1,12 @@
 pub mod adapters;
+pub mod block;
 pub mod context;
 pub mod db;
+pub mod eval;
 pub mod extract;
 pub mod llm;
 pub mod llm_enrich;
+pub mod matcher;
 pub mod models;
 pub mod resolve;
 

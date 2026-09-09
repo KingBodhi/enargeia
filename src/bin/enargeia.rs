@@ -63,12 +63,30 @@ enum Command {
         #[command(subcommand)]
         action: ModelsAction,
     },
+    /// Measure the matcher against labeled pairs.
+    Eval {
+        #[command(subcommand)]
+        action: EvalAction,
+    },
+    /// Rebuild the blocking index from all entities.
+    Reindex,
 }
 
 #[derive(Subcommand)]
 enum ModelsAction {
     /// Download the default GLiNER NER model into the model directory.
     Fetch,
+}
+
+#[derive(Subcommand)]
+enum EvalAction {
+    /// Score eval/labels.jsonl with the matcher and write eval/REPORT.md.
+    Match {
+        #[arg(long, default_value = "eval/labels.jsonl")]
+        labels: String,
+        #[arg(long, default_value = "eval/REPORT.md")]
+        out: String,
+    },
 }
 
 #[tokio::main]
@@ -186,6 +204,31 @@ async fn main() -> Result<()> {
             let dir = enargeia::extract::model_dir_from_env();
             enargeia::extract::fetch_model(&dir).await?;
             println!("model ready at {}", dir.display());
+        }
+        Command::Eval {
+            action: EvalAction::Match { labels, out },
+        } => {
+            let weights = enargeia::matcher::Weights::from_env();
+            let outcome = enargeia::eval::run(std::path::Path::new(&labels), &weights)?;
+            std::fs::write(&out, &outcome.report_md)?;
+            println!(
+                "{} pairs · baseline (JW≥0.87) P {:.3} R {:.3} F1 {:.3} · merge (≥{:.1}) P {:.3} R {:.3} F1 {:.3} · merge-or-review R {:.3} · review {:.1}%",
+                outcome.pairs,
+                outcome.baseline.precision(),
+                outcome.baseline.recall(),
+                outcome.baseline.f1(),
+                weights.upper,
+                outcome.probabilistic.precision(),
+                outcome.probabilistic.recall(),
+                outcome.probabilistic.f1(),
+                outcome.merge_or_review.recall(),
+                outcome.review_rate * 100.0
+            );
+            println!("wrote {out}");
+        }
+        Command::Reindex => {
+            let n = enargeia::block::reindex_all(&pool).await?;
+            println!("indexed {n} entities");
         }
         Command::Status => {
             let (entities,): (i64,) = sqlx::query_as("SELECT COUNT(*) FROM wm_entities")

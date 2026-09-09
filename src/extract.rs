@@ -241,7 +241,7 @@ impl MentionExtractor for GlinerExtractor {
                     end: base + e,
                     score: span.probability(),
                 };
-                if m.text.is_empty() {
+                if m.text.is_empty() || is_generic(&m.text) {
                     continue;
                 }
                 let key = m.text.to_lowercase();
@@ -257,6 +257,13 @@ impl MentionExtractor for GlinerExtractor {
         out.sort_by_key(|m| m.start);
         Ok(out)
     }
+}
+
+/// A span with no capital letter and no digit ("users", "data breach", "frontier lab") is a
+/// common noun the model labeled as an entity, not a name. Named entities in running text
+/// are capitalized or contain digits (a16z, H100) in every language this targets.
+fn is_generic(text: &str) -> bool {
+    !text.chars().any(|c| c.is_uppercase() || c.is_ascii_digit())
 }
 
 /// Trims a raw NER span: leading conjunctions/determiners the model sometimes includes
@@ -343,6 +350,15 @@ mod tests {
         let texts: Vec<&str> = m.iter().map(|x| x.text.as_str()).collect();
         assert!(texts.contains(&"Recorded Future"));
         assert!(texts.contains(&"Mastercard"));
+    }
+
+    #[test]
+    fn generic_nouns_are_filtered() {
+        assert!(is_generic("users"));
+        assert!(is_generic("data breach"));
+        assert!(!is_generic("a16z"));
+        assert!(!is_generic("OpenAI"));
+        assert!(!is_generic("iPhone"));
     }
 
     #[test]
